@@ -8,9 +8,9 @@ enum CURRENTTOOL {
 	RADIO
 };
 
-const unsigned int MAP_HEIGHT = 600;
-const unsigned int MAP_WIDTH = 600;
-const int BRUSH_STARTING_RADIUS = 100;
+const unsigned int MAP_HEIGHT = 800;
+const unsigned int MAP_WIDTH = 800;
+const int BRUSH_STARTING_RADIUS = 50;
 
 int main()
 {
@@ -71,5 +71,7 @@ int main()
 		window.clear();
 		window.draw(context);
 		window.display();
+
+		input.lateUpdate();
 	}
 }

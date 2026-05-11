@@ -7,8 +7,11 @@ class Input
  
     sf::Vector2i previousMousePos;
     sf::Vector2i mousePos;
+    bool previousLeftMouseButtonState = false, previousRightMouseButtonState = false;
     bool isHoldingLeftMouseButton = false, isHoldingRightMouseButton = false;
     
     void getMouseInput(sf::Vector2i coords);
+
+    void lateUpdate();
 
 };
