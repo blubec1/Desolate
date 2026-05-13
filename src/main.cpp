@@ -1,4 +1,6 @@
+#pragma once
 #include <SFML/Graphics.hpp>
+#include <vector>
 #include "input.hpp"
 #include "map.hpp"
 
@@ -11,6 +13,9 @@ enum CURRENTTOOL {
 const unsigned int MAP_HEIGHT = 800;
 const unsigned int MAP_WIDTH = 800;
 const int BRUSH_STARTING_RADIUS = 50;
+const int STARTING_NUMBER_OF_SQUADS = 2;
+const int SQUAD_CIRCLE_SIZE = 50;
+std::vector<sf::Vector2f> SQUAD_STARTING_POSITIONS = {{100, 100}, {100,500}};
 
 int main()
 {
@@ -21,7 +26,7 @@ int main()
 	window.setFramerateLimit(60);
 
 	Input input;
-	Map map(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS);
+	Map map(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, STARTING_NUMBER_OF_SQUADS, SQUAD_CIRCLE_SIZE, SQUAD_STARTING_POSITIONS);
 	Context context(&window, &input, &map);
 	CURRENTTOOL currTool = MAP;
 
