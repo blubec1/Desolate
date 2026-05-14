@@ -1,10 +1,12 @@
 #include "squad.hpp"
 
 
-Squad::Squad(sf::Vector2f position, float sizeRadius) : radius(sizeRadius)
+Squad::Squad(sf::Vector2f position, sf::Color colour, float sizeRadius) : radius(sizeRadius)
 {
+    this->colour = colour;
+
     shape.setRadius(radius);
-    shape.setFillColor(sf::Color::Yellow);
+    shape.setFillColor(colour);
     shape.setOrigin({radius, radius});
     shape.setPosition(position);
 }

@@ -14,13 +14,14 @@ class Squad : public sf::Drawable
     public:
 
     sf::CircleShape shape;
+    sf::Color colour;
     float radius;
     float speed;
     TracedPath *currPath = nullptr;
     SQUAD_STATE state;
 
 
-    Squad(sf::Vector2f position, float sizeRadius);
+    Squad(sf::Vector2f position, sf::Color colour, float sizeRadius);
 
     bool isClicked(Input &input) const;
 

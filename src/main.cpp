@@ -16,6 +16,7 @@ const int BRUSH_STARTING_RADIUS = 50;
 const int STARTING_NUMBER_OF_SQUADS = 2;
 const int SQUAD_CIRCLE_SIZE = 50;
 std::vector<sf::Vector2f> SQUAD_STARTING_POSITIONS = {{100, 100}, {100,500}};
+std::vector<sf::Color> SQUAD_COLOURS = {sf::Color::Magenta, sf::Color::Cyan};
 
 int main()
 {
@@ -26,7 +27,7 @@ int main()
 	window.setFramerateLimit(60);
 
 	Input input;
-	Map map(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, STARTING_NUMBER_OF_SQUADS, SQUAD_CIRCLE_SIZE, SQUAD_STARTING_POSITIONS);
+	Map map(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, STARTING_NUMBER_OF_SQUADS, SQUAD_CIRCLE_SIZE, SQUAD_STARTING_POSITIONS, SQUAD_COLOURS);
 	Context context(&window, &input, &map);
 	CURRENTTOOL currTool = MAP;
 

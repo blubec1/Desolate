@@ -1,7 +1,7 @@
 #include "map.hpp"
 #include <iostream>
 
-Map::Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, int startingNumberOfSquads, float squadCircleSize, std::vector<sf::Vector2f> squadPositions)
+Map::Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, int startingNumberOfSquads, float squadCircleSize, std::vector<sf::Vector2f> squadPositions, std::vector<sf::Color> squadColours)
     : canvas(sf::Vector2u(canvasX, canvasY)),
       canvasSprite(canvas.getTexture())
 {
@@ -16,7 +16,7 @@ Map::Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, int starti
     Squad* newSquad;
     for(int i = 0;i<startingNumberOfSquads;++i)
     {
-        newSquad = new Squad(squadPositions[i], squadCircleSize);
+        newSquad = new Squad(squadPositions[i], squadColours[i], squadCircleSize);
         squads.emplace_back(newSquad);
     }
 }
@@ -61,7 +61,7 @@ void Map::updateMap(Context &context)
                     }
                     else
                     {
-                        currentPathBeingDrawn->debugExtendPath(*context.input, tracedPathNodeDist, canvas, 50, 25, sf::Color::Green);
+                        currentPathBeingDrawn->extendPath(*context.input, tracedPathNodeDist);
                     }
                 }
                 break;
@@ -123,5 +123,27 @@ void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {   
         squad->draw(target, states);
     }
-
+    
+    for(auto squad : squads)
+    {
+        if (squad->currPath != nullptr)
+        {
+            TracedPathNode* node = squad->currPath->getStart();
+            while (node != nullptr)
+            {
+                if (node->next != nullptr)
+                {
+                    drawRectBetween2Pts(target, node->coords, node->next->coords, squad->colour, 12.f);
+                }
+                
+                // Draw the circular node cap
+                sf::CircleShape& mutableBrush = const_cast<sf::CircleShape&>(brush);
+                mutableBrush.setPosition(node->coords);
+                mutableBrush.setFillColor(squad->colour);
+                target.draw(mutableBrush, states);
+                
+                node = node->next;
+            }
+        }
+    }
 }

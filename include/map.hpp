@@ -33,7 +33,7 @@ class Map : public sf::Drawable
         float tracedPathNodeDist = 50;
         bool firstFrameAfterMousePress = true;
 
-    Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, int startingNumberOfSquads, float squadCircleSize, std::vector<sf::Vector2f> squadPositions);
+    Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, int startingNumberOfSquads, float squadCircleSize, std::vector<sf::Vector2f> squadPositions, std::vector<sf::Color> squadColours);
 
     void updateMap(Context &context);
 
