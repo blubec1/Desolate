@@ -1,8 +1,9 @@
 #include "squad.hpp"
 
 
-Squad::Squad(sf::Vector2f position, sf::Color colour, float sizeRadius) : radius(sizeRadius)
+Squad::Squad(sf::Vector2f position, sf::Color colour, float sizeRadius)
 {
+    this->radius = sizeRadius;
     this->colour = colour;
 
     shape.setRadius(radius);
@@ -34,3 +35,8 @@ void Squad::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(shape, states);
 }    
+
+void Squad::move(float deltaTime)
+{
+    sf::Vector2f delta = currPath->curr->next->coords - currPath->curr->coords;
+}

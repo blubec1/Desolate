@@ -65,23 +65,17 @@ void TracedPath::debugExtendPath(Input &input, float targetDistance, sf::RenderT
 
         sf::Vector2f direction = delta / currentDistance;
         sf::Vector2f newNodePos = curr->coords + (direction * targetDistance);
-
-        // 1. Draw the connecting path line from the previous current node to the new position
-        // Change '12.f' to your preferred path line thickness
         
         drawRectBetween2Pts(targetCanvas, curr->coords, newNodePos, colour, rectWidth);
 
-        // 2. Instantiate and link the new node data
         TracedPathNode* newNode = new TracedPathNode(newNodePos, this, curr);
         curr->next = newNode;
         curr = newNode;
 
-        // 3. Draw the node cap on top of the new node coordinate
         nodeBrush.setPosition(curr->coords);
         targetCanvas.draw(nodeBrush);
     }
     
-    // Finalize the textures updates so it displays immediately
     targetCanvas.display();
 }
 
@@ -119,4 +113,9 @@ void TracedPath::clearPath()
     }
     start = nullptr;
     curr = nullptr;
+}
+
+sf::Vector2f TracedPath::currentTrajectory()
+{
+    
 }

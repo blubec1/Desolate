@@ -21,6 +21,7 @@ public:
     void debugExtendPath(Input &input, float targetDistance, sf::RenderTexture &targetCanvas, float brushRadius, float rectWidth, sf::Color colour);
     void popNode();
     void clearPath();
+    sf::Vector2f currentTrajectory();
 
     TracedPathNode* getStart() const;
 };

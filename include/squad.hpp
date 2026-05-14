@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "tracedPath.hpp"
 #include "input.hpp"
+#include "npc.hpp"
 
 enum SQUAD_STATE {
     STILL,
@@ -9,14 +10,11 @@ enum SQUAD_STATE {
     FIGHTING
 };
 
-class Squad : public sf::Drawable
+class Squad : public sf::Drawable, public NPC
 {
     public:
 
-    sf::CircleShape shape;
-    sf::Color colour;
-    float radius;
-    float speed;
+
     TracedPath *currPath = nullptr;
     SQUAD_STATE state;
 
@@ -32,5 +30,7 @@ class Squad : public sf::Drawable
     void extendPath(Input &input, float targetDistance);
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;    
+
+    void move(float deltaTime) override;
 
 };

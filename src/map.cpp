@@ -16,6 +16,8 @@ Map::Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, int starti
     Squad* newSquad;
     for(int i = 0;i<startingNumberOfSquads;++i)
     {
+        newSquad->revealed = true;
+        newSquad->clickable = true;
         newSquad = new Squad(squadPositions[i], squadColours[i], squadCircleSize);
         squads.emplace_back(newSquad);
     }

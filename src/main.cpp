@@ -26,6 +26,7 @@ int main()
 	shape.setFillColor( sf::Color::Green );
 	window.setFramerateLimit(60);
 
+	sf::Clock deltaClock;
 	Input input;
 	Map map(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, STARTING_NUMBER_OF_SQUADS, SQUAD_CIRCLE_SIZE, SQUAD_STARTING_POSITIONS, SQUAD_COLOURS);
 	Context context(&window, &input, &map);
@@ -33,6 +34,7 @@ int main()
 
 	while(window.isOpen() )
 	{
+		float deltaTime = deltaClock.restart().asSeconds();
 
 		input.getMouseInput(sf::Mouse::getPosition(window));
 
