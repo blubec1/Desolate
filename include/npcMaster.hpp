@@ -3,7 +3,6 @@
 #include "npc.hpp"
 #include "squad.hpp"
 #include <vector>
-#include <iostream>
 
 enum NPCType
 {

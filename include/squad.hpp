@@ -4,19 +4,13 @@
 #include "input.hpp"
 #include "npc.hpp"
 
-enum SQUAD_STATE {
-    STILL,
-    MOVING,
-    FIGHTING
-};
-
 class Squad : public sf::Drawable, public NPC
 {
     public:
 
 
     TracedPath *currPath = nullptr;
-    SQUAD_STATE state;
+    NPC_STATE state;
 
 
     Squad(sf::Vector2f position, sf::Color colour, float sizeRadius, float startingSpeed);
