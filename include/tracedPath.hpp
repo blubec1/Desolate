@@ -11,6 +11,7 @@ class TracedPath
 public:
 
     TracedPathNode* start = nullptr;
+    TracedPathNode* last = nullptr;
     TracedPathNode* curr = nullptr;
 
     TracedPath() = default;
@@ -22,6 +23,7 @@ public:
     void popNode();
     void clearPath();
     sf::Vector2f currentTrajectory();
+    bool isAtTheEnd();
 
     TracedPathNode* getStart() const;
 };

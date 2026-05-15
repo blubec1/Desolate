@@ -9,13 +9,14 @@ void TracedPath::startPath(sf::Vector2f startCoords)
 {
     start = new TracedPathNode(startCoords, this, nullptr);
     curr = start;
+    last = start;
 }
 
 TracedPathNode* TracedPath::getStart() const { return start; }
 
 void TracedPath::extendPath(Input &input, float targetDistance)
 {
-    if (!curr) 
+    if (!last) 
     {
         startPath(sf::Vector2f(input.mousePos));
         return;
@@ -23,18 +24,18 @@ void TracedPath::extendPath(Input &input, float targetDistance)
 
     while (true)
     {
-        sf::Vector2f delta = sf::Vector2f(input.mousePos) - curr->coords;
+        sf::Vector2f delta = sf::Vector2f(input.mousePos) - last->coords;
         float currentDistance = delta.length(); 
 
         if (currentDistance < targetDistance)
             break; 
 
         sf::Vector2f direction = delta / currentDistance;
-        sf::Vector2f newNodePos = curr->coords + (direction * targetDistance);
+        sf::Vector2f newNodePos = last->coords + (direction * targetDistance);
 
-        TracedPathNode* newNode = new TracedPathNode(newNodePos, this, curr);
-        curr->next = newNode;
-        curr = newNode;
+        TracedPathNode* newNode = new TracedPathNode(newNodePos, this, last);
+        last->next = newNode;
+        last = newNode;
     }
 }
 
@@ -117,5 +118,17 @@ void TracedPath::clearPath()
 
 sf::Vector2f TracedPath::currentTrajectory()
 {
-    
+    if(curr != nullptr && curr->next != nullptr)
+    {
+        return curr->next->coords - curr->coords;
+    }
+    else
+    {
+        return sf::Vector2f(0,0);
+    }
+}
+
+bool TracedPath::isAtTheEnd()
+{
+    return curr->next == nullptr;
 }

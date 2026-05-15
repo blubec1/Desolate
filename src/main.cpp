@@ -3,6 +3,8 @@
 #include <vector>
 #include "input.hpp"
 #include "map.hpp"
+#include "squad.hpp"
+#include "npcMaster.hpp"
 
 enum CURRENTTOOL {
 	NO_TOOL,
@@ -12,11 +14,14 @@ enum CURRENTTOOL {
 
 const unsigned int MAP_HEIGHT = 800;
 const unsigned int MAP_WIDTH = 800;
-const int BRUSH_STARTING_RADIUS = 50;
+const int BRUSH_STARTING_RADIUS = 10;
 const int STARTING_NUMBER_OF_SQUADS = 2;
 const int SQUAD_CIRCLE_SIZE = 50;
+const float SQUAD_SPEED = 30;
+
 std::vector<sf::Vector2f> SQUAD_STARTING_POSITIONS = {{100, 100}, {100,500}};
 std::vector<sf::Color> SQUAD_COLOURS = {sf::Color::Magenta, sf::Color::Cyan};
+
 
 int main()
 {
@@ -26,12 +31,26 @@ int main()
 	shape.setFillColor( sf::Color::Green );
 	window.setFramerateLimit(60);
 
+    Squad* newSquad;
+	std::vector<Squad*> squads;
+
+    for(int i = 0;i<STARTING_NUMBER_OF_SQUADS;++i)
+    {
+        newSquad = new Squad(SQUAD_STARTING_POSITIONS[i], SQUAD_COLOURS[i], SQUAD_CIRCLE_SIZE, SQUAD_SPEED);
+        newSquad->revealed = true;
+        newSquad->clickable = true;
+        squads.emplace_back(newSquad);
+    }
+
 	sf::Clock deltaClock;
 	Input input;
-	Map map(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, STARTING_NUMBER_OF_SQUADS, SQUAD_CIRCLE_SIZE, SQUAD_STARTING_POSITIONS, SQUAD_COLOURS);
+	Map map(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, squads);
+	NPCMaster npcMaster(squads);
 	Context context(&window, &input, &map);
 	CURRENTTOOL currTool = MAP;
 
+
+	
 	while(window.isOpen() )
 	{
 		float deltaTime = deltaClock.restart().asSeconds();
@@ -75,7 +94,9 @@ int main()
 			case MAP:
 				map.updateMap(context);
 		};
-		
+	
+		npcMaster.move(deltaTime);
+
 		window.clear();
 		window.draw(context);
 		window.display();

@@ -1,7 +1,7 @@
 #include "map.hpp"
 #include <iostream>
 
-Map::Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, int startingNumberOfSquads, float squadCircleSize, std::vector<sf::Vector2f> squadPositions, std::vector<sf::Color> squadColours)
+Map::Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, std::vector<Squad*> squads)
     : canvas(sf::Vector2u(canvasX, canvasY)),
       canvasSprite(canvas.getTexture())
 {
@@ -13,14 +13,7 @@ Map::Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, int starti
     brush.setRadius(brushRadius);
     brush.setOrigin({static_cast<float>(brushRadius), static_cast<float>(brushRadius)});
     
-    Squad* newSquad;
-    for(int i = 0;i<startingNumberOfSquads;++i)
-    {
-        newSquad->revealed = true;
-        newSquad->clickable = true;
-        newSquad = new Squad(squadPositions[i], squadColours[i], squadCircleSize);
-        squads.emplace_back(newSquad);
-    }
+    this->squads = squads;
 }
 
 void Map::drawLine(Context &context, sf::Color colour)
@@ -138,7 +131,6 @@ void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const
                     drawRectBetween2Pts(target, node->coords, node->next->coords, squad->colour, 12.f);
                 }
                 
-                // Draw the circular node cap
                 sf::CircleShape& mutableBrush = const_cast<sf::CircleShape&>(brush);
                 mutableBrush.setPosition(node->coords);
                 mutableBrush.setFillColor(squad->colour);

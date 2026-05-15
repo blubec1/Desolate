@@ -12,6 +12,6 @@ class NPC
     bool revealed;
     bool clickable;
 
-    virtual void move(float deltaTime);
+    virtual void move(float deltaTime) = 0;
 
 };

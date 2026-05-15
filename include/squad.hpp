@@ -19,7 +19,7 @@ class Squad : public sf::Drawable, public NPC
     SQUAD_STATE state;
 
 
-    Squad(sf::Vector2f position, sf::Color colour, float sizeRadius);
+    Squad(sf::Vector2f position, sf::Color colour, float sizeRadius, float startingSpeed);
 
     bool isClicked(Input &input) const;
 
