@@ -1,7 +1,8 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "npc.hpp"
-#include "squad.hpp"
+#include "NPCs/squad.hpp"
+#include <iostream>
 #include <vector>
 
 enum NPCType
@@ -16,7 +17,7 @@ class NPCMaster
 
     std::vector<NPC*> npcs;
 
-    NPCMaster(std::vector<Squad*> squads);
+    NPCMaster(std::vector<NPC*> npcs);
     void addNPC(NPC *newNPC, NPCType type);
     bool removeNPC(NPC *NPC);
     void move(float deltaTime);

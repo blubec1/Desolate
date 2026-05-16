@@ -1,7 +1,7 @@
 #include "map.hpp"
 #include <iostream>
 
-Map::Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, std::vector<Squad*> squads)
+Map::Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, std::vector<Squad*> squads, std::vector<Enemy*> enemies)
     : canvas(sf::Vector2u(canvasX, canvasY)),
       canvasSprite(canvas.getTexture())
 {
@@ -14,6 +14,7 @@ Map::Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, std::vecto
     brush.setOrigin({static_cast<float>(brushRadius), static_cast<float>(brushRadius)});
     
     this->squads = squads;
+    this->enemies = enemies;
 }
 
 void Map::drawLine(Context &context, sf::Color colour)
@@ -139,5 +140,13 @@ void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const
                 node = node->next;
             }
         }
+    }
+
+    for(auto enemy : enemies)
+    {                
+        sf::CircleShape& mutableBrush = const_cast<sf::CircleShape&>(brush);
+        mutableBrush.setPosition(enemy->shape.getPosition());
+        mutableBrush.setFillColor(enemy->colour);
+        target.draw(mutableBrush, states);
     }
 }

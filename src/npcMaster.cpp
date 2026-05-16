@@ -1,9 +1,9 @@
 #include "npcMaster.hpp"
 
 
-NPCMaster::NPCMaster(std::vector<Squad*> squads)
+NPCMaster::NPCMaster(std::vector<NPC*> npcs)
 {
-    npcs.insert(npcs.end(), squads.begin(), squads.end());
+    this->npcs.insert(this->npcs.end(), npcs.begin(), npcs.end());
 }
 
 void NPCMaster::addNPC(NPC *newNPC, NPCType type)
@@ -20,6 +20,7 @@ void NPCMaster::move(float deltaTime)
 {
     for(auto npc : npcs)
     {
+        std::cout<<npc->shape.getPosition().x<<" ";
         npc->move(deltaTime);
     }
 }   

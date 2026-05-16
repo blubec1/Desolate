@@ -12,7 +12,8 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
-add_executable(main src/main.cpp src/map.cpp src/input.cpp src/context.cpp src/utils.cpp src/npc.cpp src/squad.cpp src/tracedPath.cpp src/npcMaster.cpp)
+add_executable(main src/main.cpp src/map.cpp src/input.cpp src/context.cpp src/utils.cpp src/npc.cpp src/NPCs/squad.cpp src/tracedPath.cpp src/npcMaster.cpp
+    src/NPCs/wanderer.cpp)
 target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PRIVATE SFML::Graphics)

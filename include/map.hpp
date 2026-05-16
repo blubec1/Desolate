@@ -5,7 +5,7 @@
 #include "context.hpp"
 #include "utils.hpp"
 #include "tracedPath.hpp"
-#include "squad.hpp"
+#include "NPCs/squad.hpp"
 
 enum PAINT_STATE {
     PAINTING,
@@ -25,6 +25,7 @@ class Map : public sf::Drawable
 
         std::vector<TracedPath*> paths;
         std::vector<Squad*> squads;
+        std::vector<Enemy*> enemies;
         sf::Color drawColor = sf::Color::Red;
         sf::Color eraseColor;
 
@@ -33,7 +34,7 @@ class Map : public sf::Drawable
         float tracedPathNodeDist = 50;
         bool firstFrameAfterMousePress = true;
 
-    Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, std::vector<Squad*> squads);
+    Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, std::vector<Squad*> squads, std::vector<Enemy*> enemies);
 
     void updateMap(Context &context);
 

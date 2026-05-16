@@ -5,8 +5,9 @@ TracedPath::~TracedPath()
     clearPath();
 }
 
-void TracedPath::startPath(sf::Vector2f startCoords)
+void TracedPath::startPath(sf::Vector2f startCoords, bool isLoop)
 {
+    this->isLooping = isLoop;
     start = new TracedPathNode(startCoords, this, nullptr);
     curr = start;
     last = start;
@@ -18,7 +19,7 @@ void TracedPath::extendPath(Input &input, float targetDistance)
 {
     if (!last) 
     {
-        startPath(sf::Vector2f(input.mousePos));
+        startPath(sf::Vector2f(input.mousePos), false);
         return;
     }
 
@@ -36,6 +37,11 @@ void TracedPath::extendPath(Input &input, float targetDistance)
         TracedPathNode* newNode = new TracedPathNode(newNodePos, this, last);
         last->next = newNode;
         last = newNode;
+
+        if(isLooping == true)
+        {
+            last->next = start;
+        }
     }
 }
 
@@ -49,7 +55,7 @@ void TracedPath::debugExtendPath(Input &input, float targetDistance, sf::RenderT
 
     if (!curr) 
     {
-        startPath(sf::Vector2f(input.mousePos));
+        startPath(sf::Vector2f(input.mousePos), false);
         
         nodeBrush.setPosition(curr->coords);
         targetCanvas.draw(nodeBrush);

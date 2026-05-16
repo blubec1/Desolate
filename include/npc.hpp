@@ -14,6 +14,7 @@ class NPC
 
     sf::CircleShape shape;
     sf::Color colour;
+    NPC_STATE state;
     float radius;
     float speed;
     float damage;
@@ -26,5 +27,5 @@ class NPC
 
 class Enemy : public NPC
 {
-    virtual void search() = 0;
+    virtual void search(std::vector<NPC*> npcs) = 0;
 };

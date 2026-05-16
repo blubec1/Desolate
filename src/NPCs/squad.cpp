@@ -1,4 +1,4 @@
-#include "squad.hpp"
+#include "NPCs/squad.hpp"
 
 
 Squad::Squad(sf::Vector2f position, sf::Color colour, float sizeRadius, float startingSpeed)
@@ -22,7 +22,7 @@ bool Squad::isClicked(Input &input) const
 void Squad::createNewPath(Input &input)
 {
     currPath = new TracedPath();
-    currPath->startPath(shape.getPosition());
+    currPath->startPath(shape.getPosition(), false);
 }
 
 void Squad::extendPath(Input &input, float targetDistance)

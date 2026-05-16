@@ -14,10 +14,12 @@ public:
     TracedPathNode* last = nullptr;
     TracedPathNode* curr = nullptr;
 
+    bool isLooping = false;
+
     TracedPath() = default;
     ~TracedPath();
 
-    void startPath(sf::Vector2f startCoords);
+    void startPath(sf::Vector2f startCoords, bool isLoop);
     void extendPath(Input &input, float targetDistance);
     void debugExtendPath(Input &input, float targetDistance, sf::RenderTexture &targetCanvas, float brushRadius, float rectWidth, sf::Color colour);
     void popNode();

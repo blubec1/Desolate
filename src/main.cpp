@@ -3,7 +3,8 @@
 #include <vector>
 #include "input.hpp"
 #include "map.hpp"
-#include "squad.hpp"
+#include "NPCs/squad.hpp"
+#include "NPCs/wanderer.hpp"
 #include "npcMaster.hpp"
 
 enum CURRENTTOOL {
@@ -33,6 +34,7 @@ int main()
 
     Squad* newSquad;
 	std::vector<Squad*> squads;
+	std::vector<Enemy*> enemies;
 
     for(int i = 0;i<STARTING_NUMBER_OF_SQUADS;++i)
     {
@@ -42,10 +44,19 @@ int main()
         squads.emplace_back(newSquad);
     }
 
+	Wanderer* newWanderer = new Wanderer(sf::Vector2f(300,300), sf::Vector2f(0,0), 12.f, sf::Color::Yellow);
+
+	enemies.emplace_back(newWanderer);
+
+	std::vector<NPC*> npcs;
+
+	npcs.insert(npcs.end(), squads.begin(), squads.end());
+	npcs.insert(npcs.end(), enemies.begin(), enemies.end());
+
 	sf::Clock deltaClock;
 	Input input;
-	Map map(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, squads);
-	NPCMaster npcMaster(squads);
+	Map map(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, squads, enemies);
+	NPCMaster npcMaster(npcs);
 	Context context(&window, &input, &map);
 	CURRENTTOOL currTool = MAP;
 
