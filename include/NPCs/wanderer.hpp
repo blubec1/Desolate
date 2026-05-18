@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <iostream>
 #include "npc.hpp"
 #include "NPCs/squad.hpp"
 
@@ -7,6 +8,10 @@
 class Wanderer : public Enemy
 {
 public:
+
+    float aggroCooldown = 3.f;
+    float aggroCDLeft;
+
     // Patrol path tracking coordinates
     sf::Vector2f patrolStart;
     sf::Vector2f patrolEnd;
@@ -21,6 +26,7 @@ public:
 
     Wanderer(sf::Vector2f start, sf::Vector2f end, float sizeRadius, sf::Color colour);
 
-    void move(float deltaTime) override;
-    void search(std::vector<NPC*> npcs) override; 
+    void move(float deltaTime);
+    void update(Context &context) override;
+    void search(std::vector<NPC*> *npcs); 
 };

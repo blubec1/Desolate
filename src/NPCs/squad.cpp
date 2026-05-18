@@ -37,7 +37,7 @@ void Squad::draw(sf::RenderTarget& target, sf::RenderStates states) const
     target.draw(shape, states);
 }    
 
-void Squad::move(float deltaTime)
+void Squad::update(Context &context)
 {
 
     // 1. Guard Clause: If there's no path, or the squad has cleared all nodes, stop moving.
@@ -60,7 +60,7 @@ void Squad::move(float deltaTime)
     
     // speed variable is assumed inherited from NPC or declared in your class (e.g., 150.f)
     // If your NPC base class uses a different name, swap 'moveSpeed' to match it.
-    float step = speed * deltaTime;
+    float step = speed * context.deltaTime;
 
     // 4. Movement Logic & Overshoot Prevention
     if (step >= distance)

@@ -5,6 +5,7 @@
 
 class Input;
 class Map;
+class NPC;
 
 class Context : public sf::Drawable
 {
@@ -12,8 +13,11 @@ class Context : public sf::Drawable
     sf::RenderWindow *window;
     Input *input;
     Map *map;
+    float deltaTime;
 
-    Context(sf::RenderWindow *window, Input *input, Map *map);
+    std::vector<NPC*> *npcs;
+
+    Context(sf::RenderWindow *window, Input *input, Map *map, std::vector<NPC*> *npcs);
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

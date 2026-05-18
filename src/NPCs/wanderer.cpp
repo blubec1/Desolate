@@ -20,15 +20,17 @@ Wanderer::Wanderer(sf::Vector2f start, sf::Vector2f end, float sizeRadius, sf::C
     shape.setPosition(start);
 }
 
-void Wanderer::search(std::vector<NPC*> npcs)
+void Wanderer::search(std::vector<NPC*> *npcs)
 {
     // Only scan for squads if we are currently patrolling
     if (state != MOVING) return;
 
-    for (auto npc : npcs)
+    if(aggroCDLeft > 0) return;
+
+    for (auto npc : *npcs)
     {
         Squad* squad = dynamic_cast<Squad*>(npc);
-        if (squad != nullptr) continue;
+        if (squad == nullptr) continue;
 
         sf::Vector2f delta = squad->getPosition() - shape.getPosition();
         float distance = delta.length();
@@ -38,7 +40,7 @@ void Wanderer::search(std::vector<NPC*> npcs)
             state = CHASING; 
             targetSquad = squad;
             chaseStartPoint = shape.getPosition(); 
-            this->speed = 180.f; // Aggro speed boost
+            this->speed = 150.f; // Aggro speed boost
             break;
         }
     }
@@ -46,6 +48,14 @@ void Wanderer::search(std::vector<NPC*> npcs)
 
 void Wanderer::move(float deltaTime)
 {
+
+    std::cout<<aggroCDLeft<<"\n";
+
+    if(aggroCDLeft >= 0)
+    {
+        aggroCDLeft -= deltaTime;
+    }
+
     sf::Vector2f currentPos = shape.getPosition();
     sf::Vector2f targetPos;
 
@@ -92,6 +102,7 @@ void Wanderer::move(float deltaTime)
                 targetSquad = nullptr;
                 state = MOVING; 
                 this->speed = 100.f; 
+                aggroCDLeft = aggroCooldown;
             }
             else
             {
@@ -107,4 +118,10 @@ void Wanderer::move(float deltaTime)
             // Handled by combat managers or custom logic when overlapping a squad
             break;
     }
+}
+
+void Wanderer::update(Context &context)
+{
+    move(context.deltaTime);
+    search(context.npcs);
 }

@@ -3,6 +3,7 @@
 #include "tracedPath.hpp"
 #include "input.hpp"
 #include "npc.hpp"
+#include "context.hpp"
 
 class Squad : public sf::Drawable, public NPC
 {
@@ -25,6 +26,6 @@ class Squad : public sf::Drawable, public NPC
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;    
 
-    void move(float deltaTime) override;
+    void update(Context &context) override;
 
 };

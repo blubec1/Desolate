@@ -16,11 +16,10 @@ bool NPCMaster::removeNPC(NPC *NPC)
     return false;
 }
 
-void NPCMaster::move(float deltaTime)
+void NPCMaster::update(Context &context)
 {
     for(auto npc : npcs)
     {
-        std::cout<<npc->shape.getPosition().x<<" ";
-        npc->move(deltaTime);
+        npc->update(context);
     }
 }   

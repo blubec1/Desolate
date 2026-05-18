@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include "context.hpp"
 #include "input.hpp"
 #include "map.hpp"
 #include "NPCs/squad.hpp"
@@ -26,7 +27,6 @@ std::vector<sf::Color> SQUAD_COLOURS = {sf::Color::Magenta, sf::Color::Cyan};
 
 int main()
 {
-
 	sf::RenderWindow window( sf::VideoMode( { 1000, 1000 } ), "Desolate" );
 	sf::CircleShape shape( 100.f );
 	shape.setFillColor( sf::Color::Green );
@@ -44,7 +44,7 @@ int main()
         squads.emplace_back(newSquad);
     }
 
-	Wanderer* newWanderer = new Wanderer(sf::Vector2f(300,300), sf::Vector2f(0,0), 12.f, sf::Color::Yellow);
+	Wanderer* newWanderer = new Wanderer(sf::Vector2f(500,500), sf::Vector2f(800,800), 12.f, sf::Color::Yellow);
 
 	enemies.emplace_back(newWanderer);
 
@@ -57,14 +57,14 @@ int main()
 	Input input;
 	Map map(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, squads, enemies);
 	NPCMaster npcMaster(npcs);
-	Context context(&window, &input, &map);
+	Context context(&window, &input, &map, &npcMaster.npcs);
 	CURRENTTOOL currTool = MAP;
 
-
-	
-	while(window.isOpen() )
+	while(window.isOpen())
 	{
 		float deltaTime = deltaClock.restart().asSeconds();
+
+		context.deltaTime = deltaTime;
 
 		input.getMouseInput(sf::Mouse::getPosition(window));
 
@@ -106,7 +106,7 @@ int main()
 				map.updateMap(context);
 		};
 	
-		npcMaster.move(deltaTime);
+		npcMaster.update(context);
 
 		window.clear();
 		window.draw(context);

@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "npc.hpp"
 #include "NPCs/squad.hpp"
+#include "context.hpp"
 #include <iostream>
 #include <vector>
 
@@ -20,6 +21,6 @@ class NPCMaster
     NPCMaster(std::vector<NPC*> npcs);
     void addNPC(NPC *newNPC, NPCType type);
     bool removeNPC(NPC *NPC);
-    void move(float deltaTime);
+    void update(Context &context);
 
 };

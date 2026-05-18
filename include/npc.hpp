@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "context.hpp"
 
 enum NPC_STATE {
     STILL,
@@ -21,11 +22,10 @@ class NPC
     bool revealed;
     bool clickable;
 
-    virtual void move(float deltaTime) = 0;
-
+    virtual void update(Context &context) = 0;
 };
 
 class Enemy : public NPC
 {
-    virtual void search(std::vector<NPC*> npcs) = 0;
+
 };
