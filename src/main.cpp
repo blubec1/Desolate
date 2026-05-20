@@ -18,8 +18,8 @@ const unsigned int MAP_HEIGHT = 800;
 const unsigned int MAP_WIDTH = 800;
 const int BRUSH_STARTING_RADIUS = 10;
 const int STARTING_NUMBER_OF_SQUADS = 2;
-const int SQUAD_CIRCLE_SIZE = 50;
-const float SQUAD_SPEED = 30;
+const int SQUAD_CIRCLE_SIZE = 30;
+const float SQUAD_SPEED = 100;
 
 std::vector<sf::Vector2f> SQUAD_STARTING_POSITIONS = {{100, 100}, {100,500}};
 std::vector<sf::Color> SQUAD_COLOURS = {sf::Color::Magenta, sf::Color::Cyan};

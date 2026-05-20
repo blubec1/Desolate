@@ -19,6 +19,7 @@ public:
 
     // Detection settings
     float viewRange;
+    float attackRange;
     float maxChaseDistance;
     sf::Vector2f chaseStartPoint; 
 

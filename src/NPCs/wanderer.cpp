@@ -13,6 +13,7 @@ Wanderer::Wanderer(sf::Vector2f start, sf::Vector2f end, float sizeRadius, sf::C
     this->state = MOVING; // Utilizing your NPC_STATE::MOVING for patrol
 
     this->viewRange = 200.f;       
+    this->attackRange = 10.f;
     this->maxChaseDistance = 350.f; 
 
     shape.setRadius(radius);
@@ -23,9 +24,11 @@ Wanderer::Wanderer(sf::Vector2f start, sf::Vector2f end, float sizeRadius, sf::C
 void Wanderer::search(std::vector<NPC*> *npcs)
 {
     // Only scan for squads if we are currently patrolling
-    if (state != MOVING) return;
 
     if(aggroCDLeft > 0) return;
+
+    float minDistance = FLT_MAX;
+    Squad *possibleTargetSquad = nullptr;
 
     for (auto npc : *npcs)
     {
@@ -37,12 +40,26 @@ void Wanderer::search(std::vector<NPC*> *npcs)
 
         if (distance <= viewRange)
         {
-            state = CHASING; 
-            targetSquad = squad;
-            chaseStartPoint = shape.getPosition(); 
-            this->speed = 150.f; // Aggro speed boost
-            break;
+            if(minDistance > distance)
+            {
+                minDistance = distance;
+                possibleTargetSquad = squad;
+            }
         }
+    }
+
+    if(possibleTargetSquad == nullptr) return;
+    
+    if(state == CHASING)
+    {
+        targetSquad = possibleTargetSquad;
+    }
+    else
+    {
+        targetSquad = possibleTargetSquad;
+        state = CHASING; 
+        chaseStartPoint = shape.getPosition(); 
+        this->speed = 100.f; // Aggro speed boost
     }
 }
 
@@ -113,7 +130,9 @@ void Wanderer::move(float deltaTime)
         }
 
         case STILL:
+            break;
         case FIGHTING:
+            break;
         default:
             // Handled by combat managers or custom logic when overlapping a squad
             break;

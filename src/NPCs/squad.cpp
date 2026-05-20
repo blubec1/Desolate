@@ -7,6 +7,9 @@ Squad::Squad(sf::Vector2f position, sf::Color colour, float sizeRadius, float st
     this->colour = colour;
     this->speed = startingSpeed;
 
+    this->viewRange = 300.f;
+    this->helpRange = 100.f;
+
     shape.setRadius(radius);
     shape.setFillColor(colour);
     shape.setOrigin({radius, radius});
@@ -36,10 +39,8 @@ void Squad::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(shape, states);
 }    
-
-void Squad::update(Context &context)
+void Squad::move(float deltaTime)
 {
-
     // 1. Guard Clause: If there's no path, or the squad has cleared all nodes, stop moving.
     if (currPath == nullptr || currPath->start == nullptr || currPath->isAtTheEnd())
     {
@@ -60,7 +61,7 @@ void Squad::update(Context &context)
     
     // speed variable is assumed inherited from NPC or declared in your class (e.g., 150.f)
     // If your NPC base class uses a different name, swap 'moveSpeed' to match it.
-    float step = speed * context.deltaTime;
+    float step = speed * deltaTime;
 
     // 4. Movement Logic & Overshoot Prevention
     if (step >= distance)
@@ -79,4 +80,9 @@ void Squad::update(Context &context)
         shape.move(direction * step);
     }
 
+}
+
+void Squad::update(Context &context)
+{
+    move(context.deltaTime);
 }
