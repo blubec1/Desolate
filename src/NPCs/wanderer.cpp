@@ -65,70 +65,82 @@ void Wanderer::search(std::vector<NPC*> *npcs)
 
 void Wanderer::move(float deltaTime)
 {
+    sf::Vector2f currentPos = shape.getPosition();
+    sf::Vector2f targetPos;
 
+    targetPos = currentTargetNode;
+    sf::Vector2f delta = targetPos - currentPos;
+    float distance = delta.length();
+
+    if (distance <= speed * deltaTime)
+    {
+        shape.setPosition(currentTargetNode);
+        // If it reached a patrol end-node, pivot back to the other one
+        currentTargetNode = (currentTargetNode == patrolEnd) ? patrolStart : patrolEnd;
+    }
+    else
+    {
+        sf::Vector2f direction = delta / distance;
+        shape.move(direction * speed * deltaTime);
+    }
+}
+
+void Wanderer::chase(float deltaTime)
+{    
+    sf::Vector2f currentPos = shape.getPosition();
+    sf::Vector2f targetPos;
+
+    if (!targetSquad)
+    {
+        state = MOVING;
+        this->speed = 100.f;
+        return;
+    }
+
+    targetPos = targetSquad->getPosition();
+    sf::Vector2f delta = targetPos - currentPos;
+    float distance = delta.length();
+
+    // Calculate overall distance from the point where the chase sequence started
+    sf::Vector2f chaseDelta = currentPos - chaseStartPoint;
+    if (chaseDelta.length() >= maxChaseDistance)
+    {
+        // De-aggro: drop target and set course back to patrol point
+        targetSquad = nullptr;
+        state = MOVING; 
+        this->speed = 100.f; 
+        aggroCDLeft = aggroCooldown;
+    }
+    else
+    {
+        sf::Vector2f direction = delta / distance;
+        shape.move(direction * speed * deltaTime);
+    }
+}
+
+void Wanderer::update(Context &context)
+{
     std::cout<<aggroCDLeft<<"\n";
+
+    search(context.npcs);
 
     if(aggroCDLeft >= 0)
     {
-        aggroCDLeft -= deltaTime;
+        aggroCDLeft -= context.deltaTime;
     }
-
-    sf::Vector2f currentPos = shape.getPosition();
-    sf::Vector2f targetPos;
 
     switch (state)
     {
         case MOVING: // Handles both regular patrol and returning to path
         {
-            targetPos = currentTargetNode;
-            sf::Vector2f delta = targetPos - currentPos;
-            float distance = delta.length();
-
-            if (distance <= speed * deltaTime)
-            {
-                shape.setPosition(currentTargetNode);
-                // If it reached a patrol end-node, pivot back to the other one
-                currentTargetNode = (currentTargetNode == patrolEnd) ? patrolStart : patrolEnd;
-            }
-            else
-            {
-                sf::Vector2f direction = delta / distance;
-                shape.move(direction * speed * deltaTime);
-            }
+            move(context.deltaTime);
             break;
         }
-
         case CHASING:
         {
-            if (!targetSquad)
-            {
-                state = MOVING;
-                this->speed = 100.f;
-                return;
-            }
-
-            targetPos = targetSquad->getPosition();
-            sf::Vector2f delta = targetPos - currentPos;
-            float distance = delta.length();
-
-            // Calculate overall distance from the point where the chase sequence started
-            sf::Vector2f chaseDelta = currentPos - chaseStartPoint;
-            if (chaseDelta.length() >= maxChaseDistance)
-            {
-                // De-aggro: drop target and set course back to patrol point
-                targetSquad = nullptr;
-                state = MOVING; 
-                this->speed = 100.f; 
-                aggroCDLeft = aggroCooldown;
-            }
-            else
-            {
-                sf::Vector2f direction = delta / distance;
-                shape.move(direction * speed * deltaTime);
-            }
+            chase(context.deltaTime);
             break;
         }
-
         case STILL:
             break;
         case FIGHTING:
@@ -137,10 +149,4 @@ void Wanderer::move(float deltaTime)
             // Handled by combat managers or custom logic when overlapping a squad
             break;
     }
-}
-
-void Wanderer::update(Context &context)
-{
-    move(context.deltaTime);
-    search(context.npcs);
 }

@@ -40,17 +40,7 @@ void Squad::draw(sf::RenderTarget& target, sf::RenderStates states) const
     target.draw(shape, states);
 }    
 void Squad::move(float deltaTime)
-{
-    // 1. Guard Clause: If there's no path, or the squad has cleared all nodes, stop moving.
-    if (currPath == nullptr || currPath->start == nullptr || currPath->isAtTheEnd())
-    {
-        state = STILL;
-        return;
-    }
-
-    // Update state to moving since we have a valid target node
-    state = MOVING;
-
+{                
     // 2. Identify target coordinates from the current start of the path chain
     sf::Vector2f targetPos = currPath->start->coords;
     sf::Vector2f currentPos = shape.getPosition();
@@ -84,5 +74,23 @@ void Squad::move(float deltaTime)
 
 void Squad::update(Context &context)
 {
-    move(context.deltaTime);
+    // 1. Guard Clause: If there's no path, or the squad has cleared all nodes, stop moving.
+    if (currPath == nullptr || currPath->start == nullptr || currPath->isAtTheEnd())
+    {
+        state = STILL;
+        return;
+    }
+
+    // Update state to moving since we have a valid target node
+    state = MOVING;
+
+    switch (state) 
+    {
+        case MOVING:
+            move(context.deltaTime);
+        case STILL:
+            break;
+        default:
+            break;
+    }
 }

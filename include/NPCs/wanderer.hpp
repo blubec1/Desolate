@@ -28,6 +28,7 @@ public:
     Wanderer(sf::Vector2f start, sf::Vector2f end, float sizeRadius, sf::Color colour);
 
     void move(float deltaTime);
+    void chase(float deltaTime);
     void update(Context &context) override;
     void search(std::vector<NPC*> *npcs); 
 };

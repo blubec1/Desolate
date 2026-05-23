@@ -18,11 +18,13 @@ class NPC
     NPC_STATE state;
     float radius;
     float speed;
+    float HP;
     float damage;
     bool revealed;
     bool clickable;
 
     virtual void update(Context &context) = 0;
+    virtual void damageNPC(int damageValue);
 };
 
 class Enemy : public NPC
