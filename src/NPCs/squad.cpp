@@ -7,8 +7,8 @@ Squad::Squad(sf::Vector2f position, sf::Color colour, float sizeRadius, float st
     this->colour = colour;
     this->speed = startingSpeed;
 
-    this->maxHP = 2.f;
-    this->HP = 2.f;
+    this->maxHP = 20.f;
+    this->HP = 20.f;
     this->damage = 100.f;
     this->viewRange = 300.f;
     this->attackRange = 100.f;
@@ -93,8 +93,26 @@ void Squad::updateCooldowns(float deltaTime)
         attackCooldown -= deltaTime;
 }
 
+void Squad::updateShapeDmgIndicator()
+{
+    float colourHP = HP;
+    if (colourHP < 0.f) colourHP = 0.f;
+    if (colourHP > maxHP) colourHP = maxHP;
+
+    float ratio = colourHP / maxHP;
+
+    sf::Color dynamicColour;
+    dynamicColour.r = static_cast<int>(colour.r * ratio);
+    dynamicColour.g = static_cast<int>(colour.g * ratio);
+    dynamicColour.b = static_cast<int>(colour.b * ratio);
+    
+    dynamicColour.a = 255;
+    shape.setFillColor(dynamicColour);
+}
+
 void Squad::update(Context &context)
 {
+    updateShapeDmgIndicator();
     updateCooldowns(context.deltaTime);
     if (currPath == nullptr || currPath->start == nullptr || currPath->isAtTheEnd())
     {

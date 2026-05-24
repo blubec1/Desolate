@@ -7,7 +7,7 @@ Wanderer::Wanderer(sf::Vector2f start, sf::Vector2f end, float sizeRadius, sf::C
     this->maxHP = 10.f;
     this->HP = 10.f;
     this->speed = 100.f;
-    this->damage = 1.f;
+    this->damage = 5.f;
     
     this->patrolStart = start;
     this->patrolEnd = end;

@@ -131,11 +131,11 @@ void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const
                     {
                         if (node->next != nullptr)
                         {
-                            drawRectBetween2Pts(target, node->coords, node->next->coords, squad->colour, 12.f);
+                            drawRectBetween2Pts(target, node->coords, node->next->coords, squad->shape.getFillColor(), 12.f);
                         }
                         
                         drawBrush.setPosition(node->coords);
-                        drawBrush.setFillColor(squad->colour);
+                        drawBrush.setFillColor(squad->shape.getFillColor());
                         target.draw(drawBrush, states);
                         
                         node = node->next;

@@ -26,5 +26,6 @@ class Squad : public sf::Drawable, public NPC
     void move(float deltaTime);
     void attack(std::vector<NPC*> &npcs);
     void updateCooldowns(float deltaTime);
+    void updateShapeDmgIndicator();
 
 };
