@@ -12,12 +12,10 @@ public:
     float aggroCooldown = 3.f;
     float aggroCDLeft;
 
-    // Patrol path tracking coordinates
     sf::Vector2f patrolStart;
     sf::Vector2f patrolEnd;
     sf::Vector2f currentTargetNode;
 
-    // Detection settings
     float viewRange;
     float attackRange;
     float maxChaseDistance;
@@ -27,6 +25,7 @@ public:
 
     Wanderer(sf::Vector2f start, sf::Vector2f end, float sizeRadius, sf::Color colour);
 
+    void attack(float deltaTime);
     void move(float deltaTime);
     void chase(float deltaTime);
     void update(Context &context) override;

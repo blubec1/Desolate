@@ -13,18 +13,22 @@ class NPC
 {
     public:
 
+    virtual ~NPC() = default;
+
     sf::CircleShape shape;
     sf::Color colour;
     NPC_STATE state;
     float radius;
     float speed;
     float HP;
+    float maxHP;
     float damage;
-    bool revealed;
+    bool revealed = 1;
     bool clickable;
 
+    bool isAlive();
     virtual void update(Context &context) = 0;
-    virtual void damageNPC(int damageValue);
+    virtual void damageNPC(int damageValue, float deltaTime);
 };
 
 class Enemy : public NPC

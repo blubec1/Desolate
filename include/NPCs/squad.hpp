@@ -9,12 +9,10 @@ class Squad : public sf::Drawable, public NPC
 {
     public:
 
-
     TracedPath *currPath = nullptr;
     NPC_STATE state;
     float viewRange;
-    float helpRange;
-
+    float attackRange;
 
     Squad(sf::Vector2f position, sf::Color colour, float sizeRadius, float startingSpeed);
 
@@ -25,5 +23,6 @@ class Squad : public sf::Drawable, public NPC
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;    
     void update(Context &context) override;
     void move(float deltaTime);
+    void attack(std::vector<NPC*> &npcs, float deltaTime);
 
 };

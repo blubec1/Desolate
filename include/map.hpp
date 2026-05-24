@@ -17,24 +17,23 @@ enum PAINT_STATE {
 class Map : public sf::Drawable
 {
 
-    public:
-        sf::Sprite canvasSprite;
-        sf::RenderTexture canvas;
-        sf::CircleShape brush;
-        sf::RectangleShape interpRect;
+public:
+    sf::Sprite canvasSprite;
+    sf::RenderTexture canvas;
+    sf::CircleShape brush;
+    sf::RectangleShape interpRect;
 
-        std::vector<TracedPath*> paths;
-        std::vector<Squad*> squads;
-        std::vector<Enemy*> enemies;
-        sf::Color drawColor = sf::Color::Red;
-        sf::Color eraseColor;
+    std::vector<TracedPath*> paths;
+    sf::Color drawColor = sf::Color::Red;
+    sf::Color eraseColor;
+    std::vector<NPC*> *npcs;
 
-        PAINT_STATE state = IDLING;
-        TracedPath *currentPathBeingDrawn = nullptr;
-        float tracedPathNodeDist = 50;
-        bool firstFrameAfterMousePress = true;
+    PAINT_STATE state = IDLING;
+    TracedPath *currentPathBeingDrawn = nullptr;
+    float tracedPathNodeDist = 50;
+    bool firstFrameAfterMousePress = true;
 
-    Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, std::vector<Squad*> squads, std::vector<Enemy*> enemies);
+    Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, std::vector<NPC*> *npcs);
 
     void updateMap(Context &context);
 

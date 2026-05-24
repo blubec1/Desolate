@@ -13,5 +13,4 @@ class Input
     void getMouseInput(sf::Vector2i coords);
 
     void lateUpdate();
-
 };

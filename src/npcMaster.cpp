@@ -18,8 +18,23 @@ bool NPCMaster::removeNPC(NPC *NPC)
 
 void NPCMaster::update(Context &context)
 {
-    for(auto npc : npcs)
+    std::vector<NPC*> deadNPCs;
+
+    for (auto npc : npcs)
     {
-        npc->update(context);
+        if (npc->isAlive())
+        {
+            npc->update(context);
+        }
+        else 
+        {
+            deadNPCs.push_back(npc);
+        }
+    }
+
+    for (auto deadNpc : deadNPCs)
+    {         
+        delete deadNpc;
+        npcs.erase(std::remove(npcs.begin(), npcs.end(), deadNpc), npcs.end());
     }
 }   

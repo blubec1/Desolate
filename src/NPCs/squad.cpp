@@ -7,8 +7,11 @@ Squad::Squad(sf::Vector2f position, sf::Color colour, float sizeRadius, float st
     this->colour = colour;
     this->speed = startingSpeed;
 
+    this->maxHP = 2.f;
+    this->HP = 2.f;
+    this->damage = 100.f;
     this->viewRange = 300.f;
-    this->helpRange = 100.f;
+    this->attackRange = 100.f;
 
     shape.setRadius(radius);
     shape.setFillColor(colour);
@@ -41,47 +44,53 @@ void Squad::draw(sf::RenderTarget& target, sf::RenderStates states) const
 }    
 void Squad::move(float deltaTime)
 {                
-    // 2. Identify target coordinates from the current start of the path chain
     sf::Vector2f targetPos = currPath->start->coords;
     sf::Vector2f currentPos = shape.getPosition();
 
-    // 3. Compute vector differences
     sf::Vector2f delta = targetPos - currentPos;
     float distance = delta.length();
     
-    // speed variable is assumed inherited from NPC or declared in your class (e.g., 150.f)
-    // If your NPC base class uses a different name, swap 'moveSpeed' to match it.
     float step = speed * deltaTime;
 
-    // 4. Movement Logic & Overshoot Prevention
     if (step >= distance)
     {
-        // Snap explicitly to the node to eliminate fine micro-stuttering
         shape.setPosition(targetPos);
 
-        // Advance the path's start pointer to the next checkpoint.
-        // We do not delete the node, keeping the entire trajectory history alive!
         currPath->start = currPath->start->next;
     }
     else
     {
-        // Standardize direction vector and translate smoothly across time
         sf::Vector2f direction = delta / distance;
         shape.move(direction * step);
     }
+}
 
+void Squad::attack(std::vector<NPC*> &npcs, float deltaTime)
+{
+    for(auto npc : npcs)
+    {
+        auto enemy = dynamic_cast<Enemy*>(npc);
+
+        if(enemy != nullptr)
+        {   
+            sf::Vector2f delta = enemy->shape.getPosition() - shape.getPosition();
+            
+            if(delta.length() <= attackRange)
+            {
+                enemy->damageNPC(damage, deltaTime);
+            }
+        }
+    }
 }
 
 void Squad::update(Context &context)
 {
-    // 1. Guard Clause: If there's no path, or the squad has cleared all nodes, stop moving.
     if (currPath == nullptr || currPath->start == nullptr || currPath->isAtTheEnd())
     {
         state = STILL;
         return;
     }
 
-    // Update state to moving since we have a valid target node
     state = MOVING;
 
     switch (state) 
@@ -89,6 +98,7 @@ void Squad::update(Context &context)
         case MOVING:
             move(context.deltaTime);
         case STILL:
+            attack(*context.npcs, context.deltaTime);
             break;
         default:
             break;

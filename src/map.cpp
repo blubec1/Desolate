@@ -1,7 +1,7 @@
 #include "map.hpp"
 #include <iostream>
 
-Map::Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, std::vector<Squad*> squads, std::vector<Enemy*> enemies)
+Map::Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, std::vector<NPC*> *npcs)
     : canvas(sf::Vector2u(canvasX, canvasY)),
       canvasSprite(canvas.getTexture())
 {
@@ -13,8 +13,7 @@ Map::Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, std::vecto
     brush.setRadius(brushRadius);
     brush.setOrigin({static_cast<float>(brushRadius), static_cast<float>(brushRadius)});
     
-    this->squads = squads;
-    this->enemies = enemies;
+    this->npcs = npcs;
 }
 
 void Map::drawLine(Context &context, sf::Color colour)
@@ -63,20 +62,25 @@ void Map::updateMap(Context &context)
                 break;
             
             case IDLING:
-                for(auto squad : squads)
+                for(auto npc : *npcs)
                 {   
-                    if(squad->isClicked(*context.input))
-                    {
-                        if(squad->currPath != nullptr)
-                        {
-                            squad->currPath->clearPath();
-                            delete squad->currPath;
-                        }
+                    auto squad = dynamic_cast<Squad*>(npc);
 
-                        state = PATHING;
-                        squad->createNewPath(*context.input);
-                        currentPathBeingDrawn = squad->currPath;
-                        break;
+                    if(squad != nullptr)
+                    {
+                        if(squad->isClicked(*context.input))
+                        {
+                            if(squad->currPath != nullptr)
+                            {
+                                squad->currPath->clearPath();
+                                delete squad->currPath;
+                            }
+
+                            state = PATHING;
+                            squad->createNewPath(*context.input);
+                            currentPathBeingDrawn = squad->currPath;
+                            break;
+                        }
                     }
                 }
 
@@ -111,42 +115,50 @@ void Map::updateMap(Context &context)
 
 void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const 
 {
-    //canvasSprite.setTexture(canvas.getTexture()); NEEDS mutable keyword TO WORK
-
     target.draw(canvasSprite, states);   
-
-    for(auto squad : squads)
-    {   
-        squad->draw(target, states);
-    }
     
-    for(auto squad : squads)
+    sf::CircleShape drawBrush(12.f); 
+    drawBrush.setOrigin({12.f, 12.f}); 
+
+    for(auto npc : *npcs)
     {
-        if (squad->currPath != nullptr)
+        auto squad = dynamic_cast<Squad*>(npc);
+        auto enemy = dynamic_cast<Enemy*>(npc);
+
+        if (squad != nullptr)
         {
-            TracedPathNode* node = squad->currPath->getStart();
-            while (node != nullptr)
+            if (squad->revealed)
             {
-                if (node->next != nullptr)
+                squad->draw(target, states);
+
+                if (squad->currPath != nullptr)
                 {
-                    drawRectBetween2Pts(target, node->coords, node->next->coords, squad->colour, 12.f);
+                    TracedPathNode* node = squad->currPath->getStart();
+                    
+                    while (node != nullptr)
+                    {
+                        if (node->next != nullptr)
+                        {
+                            drawRectBetween2Pts(target, node->coords, node->next->coords, squad->colour, 12.f);
+                        }
+                        
+                        drawBrush.setPosition(node->coords);
+                        drawBrush.setFillColor(squad->colour);
+                        target.draw(drawBrush, states);
+                        
+                        node = node->next;
+                    }
                 }
-                
-                sf::CircleShape& mutableBrush = const_cast<sf::CircleShape&>(brush);
-                mutableBrush.setPosition(node->coords);
-                mutableBrush.setFillColor(squad->colour);
-                target.draw(mutableBrush, states);
-                
-                node = node->next;
             }
         }
-    }
-
-    for(auto enemy : enemies)
-    {                
-        sf::CircleShape& mutableBrush = const_cast<sf::CircleShape&>(brush);
-        mutableBrush.setPosition(enemy->shape.getPosition());
-        mutableBrush.setFillColor(enemy->colour);
-        target.draw(mutableBrush, states);
+        else if(enemy != nullptr)
+        {       
+            if (enemy->revealed)
+            {
+                drawBrush.setPosition(enemy->shape.getPosition());
+                drawBrush.setFillColor(enemy->colour);
+                target.draw(drawBrush, states);
+            }
+        }
     }
 }

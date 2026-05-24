@@ -4,13 +4,15 @@ Wanderer::Wanderer(sf::Vector2f start, sf::Vector2f end, float sizeRadius, sf::C
 {
     this->colour = colour;
     this->radius = sizeRadius;
-    this->speed = 100.f; // Base patrol speed
-    this->damage = 10.f;
+    this->maxHP = 10.f;
+    this->HP = 10.f;
+    this->speed = 100.f;
+    this->damage = 1.f;
     
     this->patrolStart = start;
     this->patrolEnd = end;
     this->currentTargetNode = end;
-    this->state = MOVING; // Utilizing your NPC_STATE::MOVING for patrol
+    this->state = MOVING;
 
     this->viewRange = 200.f;       
     this->attackRange = 10.f;
@@ -23,7 +25,6 @@ Wanderer::Wanderer(sf::Vector2f start, sf::Vector2f end, float sizeRadius, sf::C
 
 void Wanderer::search(std::vector<NPC*> *npcs)
 {
-    // Only scan for squads if we are currently patrolling
 
     if(aggroCDLeft > 0) return;
 
@@ -59,7 +60,7 @@ void Wanderer::search(std::vector<NPC*> *npcs)
         targetSquad = possibleTargetSquad;
         state = CHASING; 
         chaseStartPoint = shape.getPosition(); 
-        this->speed = 100.f; // Aggro speed boost
+        this->speed = 100.f;
     }
 }
 
@@ -101,11 +102,9 @@ void Wanderer::chase(float deltaTime)
     sf::Vector2f delta = targetPos - currentPos;
     float distance = delta.length();
 
-    // Calculate overall distance from the point where the chase sequence started
     sf::Vector2f chaseDelta = currentPos - chaseStartPoint;
     if (chaseDelta.length() >= maxChaseDistance)
     {
-        // De-aggro: drop target and set course back to patrol point
         targetSquad = nullptr;
         state = MOVING; 
         this->speed = 100.f; 
@@ -115,6 +114,16 @@ void Wanderer::chase(float deltaTime)
     {
         sf::Vector2f direction = delta / distance;
         shape.move(direction * speed * deltaTime);
+    }
+}
+
+void Wanderer::attack(float deltaTime)
+{
+    sf::Vector2f delta = targetSquad->getPosition() - shape.getPosition();
+
+    if(delta.length() <= attackRange)
+    {
+        targetSquad->damageNPC(damage, deltaTime);
     }
 }
 
@@ -138,6 +147,7 @@ void Wanderer::update(Context &context)
         }
         case CHASING:
         {
+            attack(context.deltaTime);
             chase(context.deltaTime);
             break;
         }

@@ -55,8 +55,8 @@ int main()
 
 	sf::Clock deltaClock;
 	Input input;
-	Map map(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, squads, enemies);
 	NPCMaster npcMaster(npcs);
+	Map map(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, &npcMaster.npcs);
 	Context context(&window, &input, &map, &npcMaster.npcs);
 	CURRENTTOOL currTool = MAP;
 
