@@ -1,8 +1,8 @@
 #include "npc.hpp"
 
-void NPC::damageNPC(int damageValue, float deltaTime)
+void NPC::damageNPC(int damageValue)
 {
-    HP -= damageValue * deltaTime;
+    HP -= damageValue;
 
     if(!isAlive())
     {

@@ -26,9 +26,12 @@ class NPC
     bool revealed = 1;
     bool clickable;
 
+    float attackCooldown;
+    float attackTimer;
+
     bool isAlive();
     virtual void update(Context &context) = 0;
-    virtual void damageNPC(int damageValue, float deltaTime);
+    virtual void damageNPC(int damageValue);
 };
 
 class Enemy : public NPC

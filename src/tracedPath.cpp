@@ -86,27 +86,6 @@ void TracedPath::debugExtendPath(Input &input, float targetDistance, sf::RenderT
     targetCanvas.display();
 }
 
-void TracedPath::popNode()
-{
-    if (!curr) 
-        return;
-
-    TracedPathNode* nodeToDelete = curr;
-
-    if (curr == start)
-    {
-        start = nullptr;
-        curr = nullptr;
-    }
-    else
-    {
-        curr = curr->prev;
-        curr->next = nullptr;
-    }
-
-    delete nodeToDelete;
-}
-
 void TracedPath::clearPath()
 {
     TracedPathNode* nodeToClear = start;

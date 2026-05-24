@@ -13,6 +13,9 @@ Squad::Squad(sf::Vector2f position, sf::Color colour, float sizeRadius, float st
     this->viewRange = 300.f;
     this->attackRange = 100.f;
 
+    this->attackTimer = 0.5f;
+    this->attackCooldown = 0.f;
+
     shape.setRadius(radius);
     shape.setFillColor(colour);
     shape.setOrigin({radius, radius});
@@ -36,7 +39,7 @@ void Squad::extendPath(Input &input, float targetDistance)
     currPath->extendPath(input, targetDistance);
 }
 
-sf::Vector2f Squad::getPosition() const { return shape.getPosition(); }
+sf::Vector2f Squad::getPosition() const { return shape.getPosition();}
 
 void Squad::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
@@ -65,7 +68,7 @@ void Squad::move(float deltaTime)
     }
 }
 
-void Squad::attack(std::vector<NPC*> &npcs, float deltaTime)
+void Squad::attack(std::vector<NPC*> &npcs)
 {
     for(auto npc : npcs)
     {
@@ -77,28 +80,41 @@ void Squad::attack(std::vector<NPC*> &npcs, float deltaTime)
             
             if(delta.length() <= attackRange)
             {
-                enemy->damageNPC(damage, deltaTime);
+                std::cout<<"ATTACKED\n\n";
+                attackCooldown = attackTimer;
+                enemy->damageNPC(damage);
             }
         }
     }
 }
+void Squad::updateCooldowns(float deltaTime)
+{
+    if(attackCooldown >= 0)
+        attackCooldown -= deltaTime;
+}
 
 void Squad::update(Context &context)
 {
+    updateCooldowns(context.deltaTime);
     if (currPath == nullptr || currPath->start == nullptr || currPath->isAtTheEnd())
     {
         state = STILL;
-        return;
     }
-
-    state = MOVING;
+    else
+    {
+        state = MOVING;
+    }
 
     switch (state) 
     {
         case MOVING:
             move(context.deltaTime);
+            break;
         case STILL:
-            attack(*context.npcs, context.deltaTime);
+            if(attackCooldown <= 0)
+            {
+                attack(*context.npcs);
+            }
             break;
         default:
             break;

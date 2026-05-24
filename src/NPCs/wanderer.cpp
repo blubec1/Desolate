@@ -18,6 +18,9 @@ Wanderer::Wanderer(sf::Vector2f start, sf::Vector2f end, float sizeRadius, sf::C
     this->attackRange = 10.f;
     this->maxChaseDistance = 350.f; 
 
+    this->attackTimer = 0.5f;
+    this->attackCooldown = 0.f;
+
     shape.setRadius(radius);
     shape.setOrigin({radius, radius});
     shape.setPosition(start);
@@ -117,26 +120,30 @@ void Wanderer::chase(float deltaTime)
     }
 }
 
-void Wanderer::attack(float deltaTime)
+void Wanderer::attack()
 {
     sf::Vector2f delta = targetSquad->getPosition() - shape.getPosition();
 
     if(delta.length() <= attackRange)
     {
-        targetSquad->damageNPC(damage, deltaTime);
+        attackCooldown = attackTimer;
+        targetSquad->damageNPC(damage);
     }
+}
+
+void Wanderer::updateCooldowns(float deltaTime)
+{
+    if(aggroCDLeft >= 0)
+        aggroCDLeft -= deltaTime;
+    if(attackCooldown >= 0)
+        attackCooldown -= deltaTime;
 }
 
 void Wanderer::update(Context &context)
 {
-    std::cout<<aggroCDLeft<<"\n";
 
     search(context.npcs);
-
-    if(aggroCDLeft >= 0)
-    {
-        aggroCDLeft -= context.deltaTime;
-    }
+    updateCooldowns(context.deltaTime);
 
     switch (state)
     {
@@ -147,7 +154,10 @@ void Wanderer::update(Context &context)
         }
         case CHASING:
         {
-            attack(context.deltaTime);
+            if(attackCooldown <= 0)
+            {
+                attack();
+            }
             chase(context.deltaTime);
             break;
         }

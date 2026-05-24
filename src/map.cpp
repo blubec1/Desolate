@@ -36,7 +36,6 @@ void Map::drawLine(Context &context, sf::Color colour)
 
 void Map::updateMap(Context &context)
 {
-    std::cout<<state<<"\n";
     if(context.input->isHoldingLeftMouseButton)
     {
         switch (state) {
@@ -50,14 +49,7 @@ void Map::updateMap(Context &context)
             case PATHING:
                 if(currentPathBeingDrawn != nullptr)
                 {
-                    if (context.input->isHoldingRightMouseButton && !context.input->previousRightMouseButtonState)
-                    {
-                        currentPathBeingDrawn->popNode();
-                    }
-                    else
-                    {
-                        currentPathBeingDrawn->extendPath(*context.input, tracedPathNodeDist);
-                    }
+                    currentPathBeingDrawn->extendPath(*context.input, tracedPathNodeDist);
                 }
                 break;
             
