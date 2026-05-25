@@ -24,7 +24,7 @@ class Squad : public sf::Drawable, public NPC
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;    
     void update(Context &context) override;
     void move(float deltaTime);
-    void attack(std::vector<NPC*> &npcs);
+    void attack(Context &context);
     void updateCooldowns(float deltaTime);
     void updateShapeDmgIndicator();
 

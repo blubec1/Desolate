@@ -68,9 +68,9 @@ void Squad::move(float deltaTime)
     }
 }
 
-void Squad::attack(std::vector<NPC*> &npcs)
+void Squad::attack(Context &context)
 {
-    for(auto npc : npcs)
+    for(auto npc : *context.npcs)
     {
         auto enemy = dynamic_cast<Enemy*>(npc);
 
@@ -80,7 +80,7 @@ void Squad::attack(std::vector<NPC*> &npcs)
             
             if(delta.length() <= attackRange)
             {
-                std::cout<<"ATTACKED\n\n";
+
                 attackCooldown = attackTimer;
                 enemy->damageNPC(damage);
             }
@@ -131,7 +131,7 @@ void Squad::update(Context &context)
         case STILL:
             if(attackCooldown <= 0)
             {
-                attack(*context.npcs);
+                attack(context);
             }
             break;
         default:
