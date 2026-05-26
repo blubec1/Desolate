@@ -5,6 +5,7 @@
 #include "input.hpp"
 #include "npc.hpp"
 #include "context.hpp"
+#include "Animations/attackAnimation.hpp"
 
 class Squad : public sf::Drawable, public NPC
 {

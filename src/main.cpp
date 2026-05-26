@@ -107,6 +107,7 @@ int main()
 		};
 	
 		npcMaster.update(context);
+		context.update();
 
 		window.clear();
 		window.draw(context);

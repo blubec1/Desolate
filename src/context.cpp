@@ -12,9 +12,27 @@ Context::Context(sf::RenderWindow *window, Input *input, Map *map, std::vector<N
 
 void Context::update()
 {
-    for(auto effect : activeEffects)
+    std::vector<AttackAnimation*> effectsToRemove;
+
+    for (auto effect : activeEffects)
     {
-        effect->update(deltaTime);
+        if (effect != nullptr)
+        {
+            if (effect->update(deltaTime))
+            {
+                effectsToRemove.push_back(effect);
+            }
+        }
+    }
+
+    for (auto deadEffect : effectsToRemove)
+    {
+        delete deadEffect;
+
+        activeEffects.erase(
+            std::remove(activeEffects.begin(), activeEffects.end(), deadEffect), 
+            activeEffects.end()
+        );
     }
 }
 

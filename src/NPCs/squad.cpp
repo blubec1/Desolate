@@ -7,11 +7,11 @@ Squad::Squad(sf::Vector2f position, sf::Color colour, float sizeRadius, float st
     this->colour = colour;
     this->speed = startingSpeed;
 
-    this->maxHP = 20.f;
-    this->HP = 20.f;
-    this->damage = 100.f;
+    this->maxHP = 1000.f;
+    this->HP = 1000.f;
+    this->damage = 1.f;
     this->viewRange = 300.f;
-    this->attackRange = 100.f;
+    this->attackRange = 500.f;
 
     this->attackTimer = 0.5f;
     this->attackCooldown = 0.f;
@@ -80,7 +80,9 @@ void Squad::attack(Context &context)
             
             if(delta.length() <= attackRange)
             {
-
+                context.activeEffects.push_back(
+                    new AttackAnimation(shape.getPosition(), enemy->shape.getPosition(), 0.15f)
+                );
                 attackCooldown = attackTimer;
                 enemy->damageNPC(damage);
             }

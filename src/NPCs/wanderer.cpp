@@ -5,7 +5,7 @@ Wanderer::Wanderer(sf::Vector2f start, sf::Vector2f end, float sizeRadius, sf::C
     this->colour = colour;
     this->radius = sizeRadius;
     this->maxHP = 10.f;
-    this->HP = 10.f;
+    this->HP = 1000.f;
     this->speed = 100.f;
     this->damage = 5.f;
     
