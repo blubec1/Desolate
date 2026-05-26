@@ -7,7 +7,7 @@ void NPC::damageNPC(int damageValue)
     if(!isAlive())
     {
         clickable = 0;
-        revealed = 0;
+        spottedThisFrame = 0;
     }
 }
 

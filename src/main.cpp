@@ -39,7 +39,7 @@ int main()
     for(int i = 0;i<STARTING_NUMBER_OF_SQUADS;++i)
     {
         newSquad = new Squad(SQUAD_STARTING_POSITIONS[i], SQUAD_COLOURS[i], SQUAD_CIRCLE_SIZE, SQUAD_SPEED);
-        newSquad->revealed = true;
+        newSquad->spottedThisFrame = true;
         newSquad->clickable = true;
         squads.emplace_back(newSquad);
     }

@@ -23,7 +23,9 @@ class NPC
     float HP;
     float maxHP;
     float damage;
-    bool revealed = 1;
+    float visibilityAlpha = 0.f;  
+    float fadeSpeed = 2.0f;       
+    bool spottedThisFrame = false;
     bool clickable;
 
     float attackCooldown;

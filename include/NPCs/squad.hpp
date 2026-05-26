@@ -26,6 +26,7 @@ class Squad : public sf::Drawable, public NPC
     void update(Context &context) override;
     void move(float deltaTime);
     void attack(Context &context);
+    void scan(Context &context);
     void updateCooldowns(float deltaTime);
     void updateShapeDmgIndicator();
 

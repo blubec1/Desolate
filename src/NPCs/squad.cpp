@@ -112,10 +112,31 @@ void Squad::updateShapeDmgIndicator()
     shape.setFillColor(dynamicColour);
 }
 
+void Squad::scan(Context &context)
+{
+    for (auto* npc : *context.npcs)
+    {
+        auto* enemy = dynamic_cast<Enemy*>(npc);
+
+        if (enemy != nullptr)
+        {
+            sf::Vector2f delta = enemy->shape.getPosition() - shape.getPosition();
+            
+            if (delta.length() <= viewRange)
+            {
+                enemy->spottedThisFrame = true;
+            }
+        }
+    }
+}
+
 void Squad::update(Context &context)
 {
     updateShapeDmgIndicator();
     updateCooldowns(context.deltaTime);
+
+    scan(context);
+
     if (currPath == nullptr || currPath->start == nullptr || currPath->isAtTheEnd())
     {
         state = STILL;

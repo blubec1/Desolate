@@ -19,8 +19,6 @@ class NPCMaster
     std::vector<NPC*> npcs;
 
     NPCMaster(std::vector<NPC*> npcs);
-    void addNPC(NPC *newNPC, NPCType type);
-    bool removeNPC(NPC *NPC);
     void update(Context &context);
 
 };

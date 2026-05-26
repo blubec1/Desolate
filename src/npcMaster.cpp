@@ -5,19 +5,16 @@ NPCMaster::NPCMaster(std::vector<NPC*> npcs)
 {
     this->npcs.insert(this->npcs.end(), npcs.begin(), npcs.end());
 }
-
-void NPCMaster::addNPC(NPC *newNPC, NPCType type)
-{
-
-}
-
-bool NPCMaster::removeNPC(NPC *NPC)
-{
-    return false;
-}
-
 void NPCMaster::update(Context &context)
 {
+    for (auto* npc : *context.npcs)
+    {
+        if (auto* enemy = dynamic_cast<Enemy*>(npc))
+        {
+            enemy->spottedThisFrame = false;
+        }
+    }
+
     std::vector<NPC*> deadNPCs;
 
     for (auto npc : npcs)

@@ -103,6 +103,29 @@ void Map::updateMap(Context &context)
         currentPathBeingDrawn = nullptr;
         state = IDLING;
     }
+
+    for(auto npc : *context.npcs)
+    {
+        if (auto* enemy = dynamic_cast<Enemy*>(npc))
+        {
+            if (enemy->spottedThisFrame)
+            {
+                enemy->visibilityAlpha += enemy->fadeSpeed * context.deltaTime;
+            }
+            else
+            {
+                enemy->visibilityAlpha -= enemy->fadeSpeed * context.deltaTime;
+            }
+
+            enemy->visibilityAlpha = std::clamp(enemy->visibilityAlpha, 0.f, 1.f);
+
+            sf::Color renderColor = enemy->colour;
+            renderColor.a = static_cast<uint8_t>(enemy->visibilityAlpha * 255);
+            enemy->shape.setFillColor(renderColor);
+
+            enemy->spottedThisFrame = false; 
+        }
+    }
 }
 
 void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const 
@@ -119,38 +142,32 @@ void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
         if (squad != nullptr)
         {
-            if (squad->revealed)
-            {
-                squad->draw(target, states);
+            squad->draw(target, states);
 
-                if (squad->currPath != nullptr)
+            if (squad->currPath != nullptr)
+            {
+                TracedPathNode* node = squad->currPath->getStart();
+                
+                while (node != nullptr)
                 {
-                    TracedPathNode* node = squad->currPath->getStart();
-                    
-                    while (node != nullptr)
+                    if (node->next != nullptr)
                     {
-                        if (node->next != nullptr)
-                        {
-                            drawRectBetween2Pts(target, node->coords, node->next->coords, squad->shape.getFillColor(), 12.f);
-                        }
-                        
-                        drawBrush.setPosition(node->coords);
-                        drawBrush.setFillColor(squad->shape.getFillColor());
-                        target.draw(drawBrush, states);
-                        
-                        node = node->next;
+                        drawRectBetween2Pts(target, node->coords, node->next->coords, squad->shape.getFillColor(), 12.f);
                     }
+                    
+                    drawBrush.setPosition(node->coords);
+                    drawBrush.setFillColor(squad->shape.getFillColor());
+                    target.draw(drawBrush, states);
+                    
+                    node = node->next;
                 }
             }
         }
         else if(enemy != nullptr)
-        {       
-            if (enemy->revealed)
-            {
-                drawBrush.setPosition(enemy->shape.getPosition());
-                drawBrush.setFillColor(enemy->colour);
-                target.draw(drawBrush, states);
-            }
+        {
+            drawBrush.setPosition(enemy->shape.getPosition());
+            drawBrush.setFillColor(enemy->colour);
+            target.draw(drawBrush, states);
         }
     }
 }
