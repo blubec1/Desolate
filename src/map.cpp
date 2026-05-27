@@ -166,7 +166,7 @@ void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const
         else if(enemy != nullptr)
         {
             drawBrush.setPosition(enemy->shape.getPosition());
-            drawBrush.setFillColor(enemy->colour);
+            drawBrush.setFillColor(enemy->shape.getFillColor());
             target.draw(drawBrush, states);
         }
     }
