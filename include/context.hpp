@@ -7,6 +7,7 @@ class Input;
 class Map;
 class NPC;
 class AttackAnimation;
+class Location;
 
 class Context : public sf::Drawable
 {
@@ -17,9 +18,10 @@ class Context : public sf::Drawable
     float deltaTime;
 
     std::vector<NPC*> *npcs;
+    std::vector<Location*> *locations;
     std::vector<AttackAnimation*> activeEffects;
 
-    Context(sf::RenderWindow *window, Input *input, Map *map, std::vector<NPC*> *npcs);
+    Context(sf::RenderWindow *window, Input *input, Map *map, std::vector<NPC*> *npcs, std::vector<Location*> *locations);
 
     void update();
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;

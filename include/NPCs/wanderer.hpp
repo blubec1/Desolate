@@ -31,4 +31,5 @@ public:
     void update(Context &context) override;
     void search(std::vector<NPC*> *npcs); 
     void updateCooldowns(float deltaTime);
+    void updateShading(float deltaTime);
 };

@@ -139,15 +139,36 @@ void Wanderer::updateCooldowns(float deltaTime)
         attackCooldown -= deltaTime;
 }
 
+void Wanderer::updateShading(float deltaTime)
+{
+    if (spottedThisFrame)
+    {
+        visibilityAlpha += fadeSpeed * deltaTime;
+    }
+    else
+    {
+        visibilityAlpha -= fadeSpeed * deltaTime;
+    }
+
+    visibilityAlpha = std::clamp(visibilityAlpha, 0.f, 1.f);
+
+    sf::Color renderColor = colour;
+    renderColor.a = static_cast<uint8_t>(visibilityAlpha * 255);
+    shape.setFillColor(renderColor);
+
+    spottedThisFrame = false; 
+}
+
 void Wanderer::update(Context &context)
 {
 
     search(context.npcs);
     updateCooldowns(context.deltaTime);
+    updateShading(context.deltaTime);
 
     switch (state)
     {
-        case MOVING: // Handles both regular patrol and returning to path
+        case MOVING:
         {
             move(context.deltaTime);
             break;
@@ -166,7 +187,6 @@ void Wanderer::update(Context &context)
         case FIGHTING:
             break;
         default:
-            // Handled by combat managers or custom logic when overlapping a squad
             break;
     }
 }

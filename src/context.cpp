@@ -2,12 +2,13 @@
 #include "map.hpp"
 #include "Animations/attackAnimation.hpp"
 
-Context::Context(sf::RenderWindow *window, Input *input, Map *map, std::vector<NPC*> *npcs)
+Context::Context(sf::RenderWindow *window, Input *input, Map *map, std::vector<NPC*> *npcs, std::vector<Location*> *locations)
 {
     this->window = window;
     this->input = input;
     this->map = map;
     this->npcs = npcs;
+    this->locations = locations;
 }
 
 void Context::update()
@@ -16,7 +17,7 @@ void Context::update()
 
     for (auto effect : activeEffects)
     {
-        if (effect != nullptr)
+        if (effect != nullptr) 
         {
             if (effect->update(deltaTime))
             {

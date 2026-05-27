@@ -7,6 +7,8 @@
 #include "NPCs/squad.hpp"
 #include "NPCs/wanderer.hpp"
 #include "npcMaster.hpp"
+#include "Locations/location.hpp"
+#include "Locations/outpost.hpp"
 
 enum CURRENTTOOL {
 	NO_TOOL,
@@ -48,16 +50,21 @@ int main()
 
 	enemies.emplace_back(newWanderer);
 
+	Outpost* newOutpost = new Outpost(sf::Vector2f(300,300), sf::Color::Blue, sf::Color::Green, 50.f, 200.f, 10.f);
+
 	std::vector<NPC*> npcs;
+	std::vector<Location*> locations;
 
 	npcs.insert(npcs.end(), squads.begin(), squads.end());
 	npcs.insert(npcs.end(), enemies.begin(), enemies.end());
 
+	locations.push_back(newOutpost);
+
 	sf::Clock deltaClock;
 	Input input;
-	NPCMaster npcMaster(npcs);
-	Map map(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, &npcMaster.npcs);
-	Context context(&window, &input, &map, &npcMaster.npcs);
+	NPCMaster npcMaster(npcs, locations);
+	Map map(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, &npcMaster.npcs, &npcMaster.locations);
+	Context context(&window, &input, &map, &npcMaster.npcs, &npcMaster.locations);
 	CURRENTTOOL currTool = MAP;
 
 	while(window.isOpen())

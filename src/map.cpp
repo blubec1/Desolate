@@ -1,7 +1,7 @@
 #include "map.hpp"
 #include <iostream>
 
-Map::Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, std::vector<NPC*> *npcs)
+Map::Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, std::vector<NPC*> *npcs, std::vector<Location*> *locations)
     : canvas(sf::Vector2u(canvasX, canvasY)),
       canvasSprite(canvas.getTexture())
 {
@@ -14,6 +14,7 @@ Map::Map(unsigned int canvasX, unsigned int canvasY, int brushRadius, std::vecto
     brush.setOrigin({static_cast<float>(brushRadius), static_cast<float>(brushRadius)});
     
     this->npcs = npcs;
+    this->locations = locations;
 }
 
 void Map::drawLine(Context &context, sf::Color colour)
@@ -102,29 +103,6 @@ void Map::updateMap(Context &context)
     {
         currentPathBeingDrawn = nullptr;
         state = IDLING;
-    }
-
-    for(auto npc : *context.npcs)
-    {
-        if (auto* enemy = dynamic_cast<Enemy*>(npc))
-        {
-            if (enemy->spottedThisFrame)
-            {
-                enemy->visibilityAlpha += enemy->fadeSpeed * context.deltaTime;
-            }
-            else
-            {
-                enemy->visibilityAlpha -= enemy->fadeSpeed * context.deltaTime;
-            }
-
-            enemy->visibilityAlpha = std::clamp(enemy->visibilityAlpha, 0.f, 1.f);
-
-            sf::Color renderColor = enemy->colour;
-            renderColor.a = static_cast<uint8_t>(enemy->visibilityAlpha * 255);
-            enemy->shape.setFillColor(renderColor);
-
-            enemy->spottedThisFrame = false; 
-        }
     }
 }
 

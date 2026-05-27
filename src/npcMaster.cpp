@@ -1,9 +1,10 @@
 #include "npcMaster.hpp"
 
 
-NPCMaster::NPCMaster(std::vector<NPC*> npcs)
+NPCMaster::NPCMaster(std::vector<NPC*> npcs, std::vector<Location*> locations)
 {
     this->npcs.insert(this->npcs.end(), npcs.begin(), npcs.end());
+    this->locations.insert(this->locations.end(), locations.begin(), locations.end());
 }
 void NPCMaster::update(Context &context)
 {
@@ -33,5 +34,10 @@ void NPCMaster::update(Context &context)
     {         
         delete deadNpc;
         npcs.erase(std::remove(npcs.begin(), npcs.end(), deadNpc), npcs.end());
+    }
+
+    for(auto location : locations)
+    {
+        location->update(context);
     }
 }   
