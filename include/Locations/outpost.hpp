@@ -15,6 +15,8 @@ class Outpost : public Location
 
     Outpost(sf::Vector2f position, sf::Color unCapturedColour, sf::Color capturedColour, float radius, float viewRange, float healPerSecond)
     {
+        isCaptured = 0;
+
         this->position = position;
         this->radius = radius;
         this->viewRange = viewRange;

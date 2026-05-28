@@ -113,6 +113,11 @@ void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const
     sf::CircleShape drawBrush(12.f); 
     drawBrush.setOrigin({12.f, 12.f}); 
 
+    for(auto location : *locations)
+    {
+        target.draw(*location, states);
+    }
+
     for(auto npc : *npcs)
     {
         auto squad = dynamic_cast<Squad*>(npc);
