@@ -50,7 +50,7 @@ int main()
 
 	enemies.emplace_back(newWanderer);
 
-	Outpost* newOutpost = new Outpost(sf::Vector2f(300,300), sf::Color::Blue, sf::Color::Green, 50.f, 500.f, 10.f);
+	Outpost* newOutpost = new Outpost(sf::Vector2f(300,300), sf::Color::Blue, sf::Color::Green, 50.f, 800.f, 10.f);
 
 	std::vector<NPC*> npcs;
 	std::vector<Location*> locations;

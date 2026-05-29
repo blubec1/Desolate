@@ -1,7 +1,7 @@
 #include "Locations/outpost.hpp"
 
-void Outpost::update(Context &context)
-{
+void Outpost::scan(Context &context)
+{    
     for (auto* npc : *context.npcs)
     {
         if (auto* squad = dynamic_cast<Squad*>(npc))
@@ -32,6 +32,11 @@ void Outpost::update(Context &context)
         }
     }
 
+}
+    
+void Outpost::updateShading(Context &context)
+{
+
     if (spottedThisFrame)
     {
         visibilityAlpha += fadeSpeed * context.deltaTime;
@@ -59,5 +64,45 @@ void Outpost::update(Context &context)
     shape.setFillColor(currentOuterColor);
 
     spottedThisFrame = false;
+
+}
+
+
+void Outpost::attack(Context &context)
+{
+    for(auto npc : *context.npcs)
+    {
+        auto enemy = dynamic_cast<Enemy*>(npc);
+
+        if(enemy != nullptr)
+        {   
+            sf::Vector2f delta = enemy->shape.getPosition() - shape.getPosition();
+            
+            if(delta.length() <= attackRange)
+            {
+                context.activeEffects.push_back(
+                    new AttackAnimation(shape.getPosition(), enemy->shape.getPosition(), 0.15f)
+                );
+                attackCooldown = attackTime;
+                enemy->damageNPC(damage);
+            }
+        }
+    }
+}
+
+void Outpost::updateCooldowns(float deltaTime)
+{
+    if(attackCooldown >= 0.f)
+        attackCooldown -= deltaTime;
+}
+
+void Outpost::update(Context &context)
+{
+    updateCooldowns(context.deltaTime);
+    scan(context);
+    updateShading(context);
+
+    if(isCaptured && attackCooldown <= 0.f)
+        attack(context);
 
 }

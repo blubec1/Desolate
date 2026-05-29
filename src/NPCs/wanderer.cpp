@@ -50,6 +50,8 @@ void Wanderer::search(std::vector<NPC*> *npcs)
                 possibleTargetSquad = squad;
             }
         }
+
+        
     }
 
     if(possibleTargetSquad == nullptr) return;
