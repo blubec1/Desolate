@@ -45,47 +45,6 @@ void TracedPath::extendPath(Input &input, float targetDistance)
     }
 }
 
-void TracedPath::debugExtendPath(Input &input, float targetDistance, sf::RenderTexture &targetCanvas, float brushRadius, float rectWidth, sf::Color colour)
-{
-
-    sf::CircleShape nodeBrush;
-
-    nodeBrush.setRadius(brushRadius);
-    nodeBrush.setOrigin({brushRadius, brushRadius});
-
-    if (!curr) 
-    {
-        startPath(sf::Vector2f(input.mousePos), false);
-        
-        nodeBrush.setPosition(curr->coords);
-        targetCanvas.draw(nodeBrush);
-        return;
-    }
-
-    while (true)
-    {
-        sf::Vector2f delta = sf::Vector2f(input.mousePos) - curr->coords;
-        float currentDistance = delta.length(); 
-
-        if (currentDistance < targetDistance)
-            break; 
-
-        sf::Vector2f direction = delta / currentDistance;
-        sf::Vector2f newNodePos = curr->coords + (direction * targetDistance);
-        
-        drawRectBetween2Pts(targetCanvas, curr->coords, newNodePos, colour, rectWidth);
-
-        TracedPathNode* newNode = new TracedPathNode(newNodePos, this, curr);
-        curr->next = newNode;
-        curr = newNode;
-
-        nodeBrush.setPosition(curr->coords);
-        targetCanvas.draw(nodeBrush);
-    }
-    
-    targetCanvas.display();
-}
-
 void TracedPath::clearPath()
 {
     TracedPathNode* nodeToClear = start;

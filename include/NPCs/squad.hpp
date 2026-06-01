@@ -29,5 +29,4 @@ class Squad : public sf::Drawable, public NPC
     void scan(Context &context);
     void updateCooldowns(float deltaTime);
     void updateShapeDmgIndicator();
-
 };

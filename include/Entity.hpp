@@ -1,0 +1,44 @@
+#pragma once
+#include <vector>
+#include <memory>
+#include <SFML/Graphics.hpp>
+#include "Components/Component.hpp"
+
+class Entity : public sf::Drawable 
+{
+private:
+    std::vector<std::unique_ptr<Component>> components;
+
+public:
+    sf::Vector2f position;
+
+    virtual ~Entity() = default;
+    
+    template <typename T, typename... Args>
+    T* addComponent(Args&&... args) 
+    {
+        auto component = std::make_unique<T>(std::forward<Args>(args)...);
+        T* ptr = component.get();
+        component->setOwner(this);
+        components.push_back(std::move(component));
+        return ptr;
+    }
+
+    template <typename T>
+    T* getComponent()
+    {
+        for (const auto& component : components)
+        {
+            if (T* boundComponent = dynamic_cast<T*>(component.get()))
+            {
+                return boundComponent;
+            }
+        }
+        
+        return nullptr;
+    }
+    
+    void update(Context& context);
+
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+};

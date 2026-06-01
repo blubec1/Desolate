@@ -16,7 +16,15 @@ add_executable(main src/main.cpp src/map.cpp src/input.cpp src/context.cpp src/u
     src/NPCs/wanderer.cpp
     src/Animations/attackAnimation.cpp
     src/Locations/location.cpp
-    src/Locations/outpost.cpp)
+    src/Locations/outpost.cpp
+    src/Entity.cpp
+    src/Components/HealthComponent.cpp
+    src/Components/StillAttackComponent.cpp
+    src/Components/AreaScanComponent.cpp
+    src/Components/RenderComponent.cpp
+    src/Components/PathFollower.cpp
+    src/Components/MapDrawingComponent.cpp
+    src/Components/MouseHitboxComponent.cpp)
 target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(main PRIVATE cxx_std_20)
 target_link_libraries(main PRIVATE SFML::Graphics)
