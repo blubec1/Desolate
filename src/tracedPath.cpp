@@ -13,11 +13,9 @@ void TracedPath::startPath(sf::Vector2f startCoords, bool isLoop)
     last = start;
 }
 
-TracedPathNode* TracedPath::getStart() const { return start; }
-
 void TracedPath::extendPath(Input &input, float targetDistance)
 {
-    if (!last) 
+    if (last == nullptr)
     {
         startPath(sf::Vector2f(input.mousePos), false);
         return;
@@ -74,5 +72,5 @@ sf::Vector2f TracedPath::currentTrajectory()
 
 bool TracedPath::isAtTheEnd()
 {
-    return curr->next == nullptr;
+    return curr == last;
 }

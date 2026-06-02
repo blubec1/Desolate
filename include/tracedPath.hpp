@@ -25,8 +25,6 @@ public:
     void clearPath();
     sf::Vector2f currentTrajectory();
     bool isAtTheEnd();
-
-    TracedPathNode* getStart() const;
 };
 
 class TracedPathNode 

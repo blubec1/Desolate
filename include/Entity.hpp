@@ -10,7 +10,8 @@ private:
     std::vector<std::unique_ptr<Component>> components;
 
 public:
-    sf::Vector2f position;
+    sf::Vector2f position = {0,0};
+    sf::Vector2f prevPosition = {0,0};
 
     virtual ~Entity() = default;
     

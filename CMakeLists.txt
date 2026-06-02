@@ -25,7 +25,12 @@ add_executable(main src/main.cpp src/map.cpp src/input.cpp src/context.cpp src/u
     src/Components/PathFollowerComponent.cpp
     src/Components/MouseHitboxComponent.cpp
     src/EntityFactory.cpp
-    src/Components/CircleRenderComponent.cpp)
+    src/Components/CircleRenderComponent.cpp
+    src/Components/AttackComponent.cpp
+    src/Components/ChaseAttackComponent.cpp
+    src/StrategyDriver.cpp
+    src/Strategies/PathFollowerStrategy.cpp
+    src/Strategies/ChaseStrategy.cpp)
 target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(main PRIVATE cxx_std_20)
 target_link_libraries(main PRIVATE SFML::Graphics)

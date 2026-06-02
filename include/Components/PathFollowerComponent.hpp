@@ -6,19 +6,23 @@
 class PathFollowerComponent : public MovementComponent
 {
 public:
-    bool assignableViaUserInput;
+    bool assignableViaUserInput = true;
+    sf::Color pathColour;
 
     TracedPath* currentPath = nullptr;
 
-    PathFollowerComponent(float movementSpeed)
+    PathFollowerComponent(float movementSpeed, sf::Color clr, bool assignableViaUserInpt)
+    :   assignableViaUserInput(assignableViaUserInpt)
     {
         moveSpeed = movementSpeed;
+        pathColour = clr;
     }
 
     ~PathFollowerComponent() override {
         if (currentPath != nullptr) delete currentPath;
     }
 
-    void update(Context& context) override;
     bool isMoving() override;
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) override;
+    void update(Context& context) override;
 };

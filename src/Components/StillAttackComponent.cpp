@@ -1,6 +1,6 @@
 #include "Components/StillAttackComponent.hpp"
 
-void StillAttackComponent::attack(Context &context) 
+void StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> entities)
 {
     auto moveComponent = owner->getComponent<MovementComponent>();
 

@@ -129,7 +129,7 @@ void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
             if (squad->currPath != nullptr)
             {
-                TracedPathNode* node = squad->currPath->getStart();
+                TracedPathNode* node = squad->currPath->start;
                 
                 while (node != nullptr)
                 {

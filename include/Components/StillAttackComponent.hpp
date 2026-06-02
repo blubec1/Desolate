@@ -1,12 +1,12 @@
 #pragma once
-#include "Components/Component.hpp"
+#include "Components/AttackComponent.hpp"
 #include "Components/HealthComponent.hpp"
 #include "Animations/AttackAnimation.hpp"
 #include "MovementComponent.hpp"
 #include "ScanComponent.hpp"
 #include "Entity.hpp"
 
-class StillAttackComponent : public Component
+class StillAttackComponent : public AttackComponent
 {
     public:
     float damage;
@@ -14,9 +14,11 @@ class StillAttackComponent : public Component
     float attackTimer;
     float attackCooldown;
 
-    StillAttackComponent(float dmg, float atkCD)
+    StillAttackComponent(float dmg, float attackRng, float atkCD)
     :   damage(dmg), attackCooldown(atkCD)
-    {};
+    {
+        attackRange = attackRng;
+    };
 
-    void attack(Context& context);
+    virtual void attackDerived(Context& context, std::vector<Entity*> entities) override;
 };

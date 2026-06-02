@@ -7,6 +7,7 @@ class RenderComponent : public Component
 public:
 
     bool shouldBeDrawn;
+    sf::Color shapeColour;
 
     virtual ~RenderComponent() = default;
 

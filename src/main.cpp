@@ -63,7 +63,7 @@ int main()
 
 	std::vector<Entity*> entities;
 
-	Entity* ENT_Squad = Desolate::Factory::createSquadEntity(sf::Vector2f(100,100),sf::Color::Red, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, 100.f, 500.f, 100.f);
+	Entity* ENT_Squad = Desolate::Factory::createSquadEntity(sf::Vector2f(100,100),sf::Color::Red, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, 100.f, 500.f, 0.5f, 100.f);
 	Entity* ENT_Map = Desolate::Factory::createMapEntity(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, sf::Color::Red, sf::Color::Black, 50.f);
 
 	entities.push_back(ENT_Map);

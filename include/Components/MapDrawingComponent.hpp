@@ -81,7 +81,7 @@ class MapDrawingComponent : public Component
                         auto pathFollowerComponent = entity->getComponent<PathFollowerComponent>();
                         auto mouseHitboxComponent = entity->getComponent<MouseHitboxComponent>();
 
-                        if(pathFollowerComponent != nullptr && mouseHitboxComponent)
+                        if(pathFollowerComponent != nullptr && mouseHitboxComponent != nullptr)
                         {
                             if(pathFollowerComponent->assignableViaUserInput == false)
                             {

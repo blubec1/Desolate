@@ -6,6 +6,7 @@ void Entity::update(Context& context)
     {
         component->update(context);
     }
+    prevPosition = position;
 }
 
 void Entity::draw(sf::RenderTarget& target, sf::RenderStates states) const 

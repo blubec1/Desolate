@@ -16,7 +16,7 @@
 
 namespace Desolate::Factory
 {
-    inline Entity* createSquadEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float MaxHP)
+    inline Entity* createSquadEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP)
     {
         Entity *Squad = new Entity();
 
@@ -25,8 +25,8 @@ namespace Desolate::Factory
         Squad->addComponent<HealthComponent>(MaxHP, MaxHP);
         Squad->addComponent<AreaScanComponent>();
         Squad->addComponent<MouseHitboxComponent>(radius);
-        Squad->addComponent<PathFollowerComponent>(moveSpeed);
-        Squad->addComponent<StillAttackComponent>(damage, shootRange);
+        Squad->addComponent<PathFollowerComponent>(moveSpeed, colour, true);
+        Squad->addComponent<StillAttackComponent>(damage, shootRange, attackCD);
 
         return Squad;
     }
@@ -40,6 +40,21 @@ namespace Desolate::Factory
         Map->addComponent<MapDrawingComponent>(canvasX, canvasY, brushRadius, drawColour, eraseColour, tracedPathNodeDist);
 
         return Map;
+    }
+
+    inline Entity* createWandererEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP)
+    {
+        Entity* Wanderer = new Entity();
+
+        Wanderer->position = position;
+        Wanderer->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
+        Wanderer->addComponent<HealthComponent>(MaxHP, MaxHP);
+        Wanderer->addComponent<AreaScanComponent>();
+        Wanderer->addComponent<MouseHitboxComponent>(radius);
+        Wanderer->addComponent<PathFollowerComponent>(moveSpeed, colour, true);
+        Wanderer->addComponent<StillAttackComponent>(damage, shootRange, attackCD);
+
+        return Wanderer;
     }
 
 }

@@ -3,22 +3,57 @@
 
 void PathFollowerComponent::update(Context& context)
 {
-    // Do nothing if there's no path assigned or we completed it
-    if (currentPath == nullptr || currentPath->isAtTheEnd()) return;
+    if (currentPath == nullptr || (!currentPath->isLooping && currentPath->isAtTheEnd())) return;
 
-    // Get the coordinate of the current node we are walking toward
-    sf::Vector2f targetPos = currentPath->curr->coords;
+    sf::Vector2f targetPos = currentPath->curr->next->coords;
     sf::Vector2f delta = targetPos - owner->position;
     float distance = delta.length();
     float step = moveSpeed * context.deltaTime;
 
     if (step >= distance) {
-        // We reached this node! Advance to the next one
         owner->position = targetPos;
-        currentPath->curr = currentPath->curr->next; 
+        currentPath->curr = currentPath->curr->next;
     } else {
-        // Keep sliding toward the current node
         owner->position += (delta / distance) * step;
+    }
+}
+
+void PathFollowerComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
+{
+    // If the squad doesn't have an active path, there's nothing to draw!
+    if (currentPath == nullptr || (!currentPath->isLooping && currentPath->isAtTheEnd())) return;
+
+    // 1. Create local shapes for rendering the path nodes
+    // Using a 12px radius brush to match your original configuration
+    sf::CircleShape drawBrush(12.f); 
+    drawBrush.setOrigin({12.f, 12.f}); 
+
+    // Default path color to white, or a specific accent color if desired
+    sf::Color pathClr = pathColour; 
+    
+    // If you want the path to match the entity's own color, you can fetch it from the owner:
+    // if (owner != nullptr) { /* fetch owner color if your entity has a color field */ }
+
+    drawBrush.setFillColor(pathClr);
+
+    // 2. Start iterating from the beginning of the traced path linked list
+    TracedPathNode* node = currentPath->curr->next;
+    
+    while (node != nullptr)
+    {
+        // If there is a next node, draw a solid rectangular line segment connecting them
+        if (node->next != nullptr)
+        {
+            // Utilizing your global custom utility function to gap the distance
+            drawRectBetween2Pts(target, node->coords, node->next->coords, pathClr, 12.f);
+        }
+        
+        // Draw the circular joint node itself
+        drawBrush.setPosition(node->coords);
+        target.draw(drawBrush, states);
+        
+        // Advance to the next node in the linked list chain
+        node = node->next;
     }
 }
 
