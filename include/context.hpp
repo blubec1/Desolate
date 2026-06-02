@@ -23,8 +23,12 @@ class Context : public sf::Drawable
     std::vector<Location*> *locations;
     std::vector<AttackAnimation*> activeEffects;
 
-    Context(sf::RenderWindow *window, Input *input, Map *map, std::vector<NPC*> *npcs, std::vector<Location*> *locations);
+    Context(sf::RenderWindow *window, Input *input, Map *map, std::vector<NPC*> *npcs, std::vector<Location*> *locations, std::vector<Entity*> entities);
+
+
 
     void update();
+    void entityUpdate();
+    void entityDraw(sf::RenderTarget& target, sf::RenderStates states);
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

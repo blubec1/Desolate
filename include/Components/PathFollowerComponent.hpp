@@ -6,12 +6,14 @@
 class PathFollowerComponent : public MovementComponent
 {
 public:
-    float speed;
     bool assignableViaUserInput;
 
     TracedPath* currentPath = nullptr;
 
-    PathFollowerComponent(float movementSpeed) : speed(movementSpeed) {}
+    PathFollowerComponent(float movementSpeed)
+    {
+        moveSpeed = movementSpeed;
+    }
 
     ~PathFollowerComponent() override {
         if (currentPath != nullptr) delete currentPath;

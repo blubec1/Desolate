@@ -5,23 +5,39 @@
 #include "Components/PathFollowerComponent.hpp"
 #include "Components/MouseHitboxComponent.hpp"
 
-enum PAINT_STATE {
-    PAINTING,
-    ERASING,
-    PATHING,
-    IDLING
+enum ENT_PAINT_STATE {
+    ENT_PAINTING,
+    ENT_ERASING,
+    ENT_PATHING,
+    ENT_IDLING
 };
 
 class MapDrawingComponent : public Component
 {
     public:
+    sf::Sprite canvasSprite;
+    sf::RenderTexture canvas;
     TracedPath* activePath = nullptr;
     Entity* selectedSquad = nullptr;
     sf::Color drawColour, eraseColour;
     sf::CircleShape brush;
     sf::RectangleShape interpRect;
-    PAINT_STATE state;
-    float tracedPathNodeDist;
+    ENT_PAINT_STATE state;
+    float tracedPathNodeDistance;
+
+    MapDrawingComponent(float canvasX, float canvasY, float brushRadius, sf::Color drawClr, sf::Color eraseClr, float tracedPathNodeDist)
+    : drawColour(drawClr), eraseColour(eraseClr), tracedPathNodeDistance(tracedPathNodeDist), canvas(sf::Vector2u(canvasX, canvasY)), canvasSprite(canvas.getTexture())
+    {
+        brush.setRadius(brushRadius);
+        brush.setOrigin(sf::Vector2f(brushRadius, brushRadius));
+        
+        state = ENT_IDLING;
+
+        canvas.clear(eraseColour);
+
+        canvasSprite.setPosition({0.f, 0.f});
+        canvasSprite.setTextureRect(sf::IntRect({0, 0}, {(int)canvasX, (int)canvasY}));
+    };
 
     void drawLine(Context &context, sf::Color colour)
     {        
@@ -32,11 +48,12 @@ class MapDrawingComponent : public Component
         interpRect.setFillColor(colour);
 
         brush.setPosition(previousWorldPos);
-        context.window->draw(brush);      
+        canvas.draw(brush);      
         brush.setPosition(worldPos);
-        context.window->draw(brush); 
+        canvas.draw(brush); 
         
-        drawRectBetween2Pts(*context.window, previousWorldPos, worldPos, colour, brush.getRadius());
+        drawRectBetween2Pts(canvas, previousWorldPos, worldPos, colour, brush.getRadius());
+        canvas.display();
     }
 
     void update(Context& context) override
@@ -44,21 +61,21 @@ class MapDrawingComponent : public Component
         if(context.input->isHoldingLeftMouseButton)
         {
             switch (state) {
-                case PAINTING:    
+                case ENT_PAINTING:    
                     if(context.input->isHoldingLeftMouseButton && context.input->previousLeftMouseButtonState)
                     {
                         drawLine(context, drawColour);
                     }
                     break;
 
-                case PATHING:
+                case ENT_PATHING:
                     if(activePath != nullptr)
                     {
-                        activePath->extendPath(*context.input, tracedPathNodeDist);
+                        activePath->extendPath(*context.input, tracedPathNodeDistance);
                     }
                     break;
                 
-                case IDLING:
+                case ENT_IDLING:
                     for(auto entity : context.entities)
                     {   
                         auto pathFollowerComponent = entity->getComponent<PathFollowerComponent>();
@@ -79,7 +96,7 @@ class MapDrawingComponent : public Component
                                     delete pathFollowerComponent->currentPath;
                                 }
 
-                                state = PATHING;
+                                state = ENT_PATHING;
                                 pathFollowerComponent->currentPath = new TracedPath();
                                 pathFollowerComponent->currentPath->startPath(entity->position, false);
                                 activePath = pathFollowerComponent->currentPath;
@@ -88,32 +105,37 @@ class MapDrawingComponent : public Component
                         }
                     }
 
-                    if(state == PATHING)
+                    if(state == ENT_PATHING)
                         break;
 
-                    state = PAINTING;
+                    state = ENT_PAINTING;
                     break;
             }
         }
         else if(context.input->isHoldingRightMouseButton)
         {
             switch(state){
-                case ERASING:
+                case ENT_ERASING:
                     if(context.input->isHoldingRightMouseButton && context.input->previousRightMouseButtonState)
                     {
                         drawLine(context, eraseColour);
                     }  
                     break;
 
-                case IDLING:
-                    state = ERASING;
+                case ENT_IDLING:
+                    state = ENT_ERASING;
                     break;
             }
         }
         else
         {
             activePath = nullptr;
-            state = IDLING;
+            state = ENT_IDLING;
         }
+    }
+
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) override
+    {
+        target.draw(canvasSprite, states);
     }
 };

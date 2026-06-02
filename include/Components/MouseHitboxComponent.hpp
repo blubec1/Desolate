@@ -9,5 +9,8 @@ class MouseHitboxComponent : public Component
     public:
     float radius;
 
+    MouseHitboxComponent(float rds)
+    : radius(rds) {};
+
     bool isClicked(Context& context);
 };

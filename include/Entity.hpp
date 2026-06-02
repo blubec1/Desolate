@@ -19,7 +19,7 @@ public:
     {
         auto component = std::make_unique<T>(std::forward<Args>(args)...);
         T* ptr = component.get();
-        component->setOwner(this);
+        component->owner = this;
         components.push_back(std::move(component));
         return ptr;
     }

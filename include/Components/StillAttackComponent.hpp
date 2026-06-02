@@ -13,10 +13,9 @@ class StillAttackComponent : public Component
     float attackRange;
     float attackTimer;
     float attackCooldown;
-    AttackAnimation attackAnimation;
 
-    StillAttackComponent(float dmg, AttackAnimation& attackAnim, float atkCD)
-    :   damage(dmg), attackAnimation(attackAnim), attackCooldown(atkCD)
+    StillAttackComponent(float dmg, float atkCD)
+    :   damage(dmg), attackCooldown(atkCD)
     {};
 
     void attack(Context& context);
