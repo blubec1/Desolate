@@ -2,33 +2,49 @@
 #include "StrategyDrivers/StrategyDriver.hpp"
 #include "Entity.hpp"
 
+void ChaseStrategy::init()
+{
+    chaseStartPoint = driver->owner->position;
+}
+
 void ChaseStrategy::update(Context& context)
 {
+
+    scanComponent = driver->owner->getComponent<ScanComponent>();
+    entities = scanComponent->getCollection();
 
     sf::Vector2f currentPos = driver->owner->position;
     sf::Vector2f targetPos;
 
-    if (chasedEntity == nullptr)
+    float minDist = FLT_MAX;
+    Entity* minEnt = nullptr;
+
+    for(auto entity : entities)
     {
-        return;
+        sf::Vector2f delta = currentPos - entity->position;
+
+        if(delta.length() <= aggroRange && delta.length() < minDist)
+        {
+            minDist = delta.length();
+            minEnt = entity;
+        }
     }
+
+    chasedEntity = minEnt;
 
     targetPos = chasedEntity->position;
     sf::Vector2f delta = targetPos - currentPos;
     float distance = delta.length();
 
     sf::Vector2f chaseDelta = currentPos - chaseStartPoint;
-    if (chaseDelta.length() >= maxChaseDistance)
+    if (chaseDelta.length() >= deAggroRange)
     {
-        targetSquad = nullptr;
-        state = MOVING; 
-        this->speed = 100.f; 
-        aggroCDLeft = aggroCooldown;
+        chasedEntity = nullptr;
+        deAggroTimer = deAggroCooldown;
     }
     else
     {
         sf::Vector2f direction = delta / distance;
-        shape.move(direction * speed * deltaTime);
+        driver->move(direction * moveSpeed * context.deltaTime);
     }
-
 }

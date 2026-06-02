@@ -7,14 +7,18 @@ class ChaseStrategy : public Strategy
 {
     public:
 
+
     float moveSpeed;
     float aggroRange;
     float deAggroRange;
+    float deAggroCooldown, deAggroTimer;
     ScanComponent* scanComponent;
+    std::vector<Entity*> entities;
     Entity* chasedEntity;
+    sf::Vector2f chaseStartPoint;
 
-    ChaseStrategy(StrategyDriver* driver, float moveSpd )
-    : Strategy(driver), moveSpeed(moveSpd) {}
+    ChaseStrategy(StrategyDriver* driver, float moveSpd, float deAggroCD)
+    : Strategy(driver), moveSpeed(moveSpd), deAggroCooldown(deAggroCD) {}
 
 
     virtual void init() override;
