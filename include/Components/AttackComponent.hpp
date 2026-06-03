@@ -10,6 +10,6 @@ class AttackComponent : public Component
     float damage;
     float attackRange;
 
-    void attack(Context& context);
+    void update(Context& context) override;
     virtual void attackDerived(Context& context, std::vector<Entity*> entities) = 0;
 };

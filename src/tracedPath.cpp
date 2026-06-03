@@ -8,9 +8,27 @@ TracedPath::~TracedPath()
 void TracedPath::startPath(sf::Vector2f startCoords, bool isLoop)
 {
     this->isLooping = isLoop;
-    start = new TracedPathNode(startCoords, this, nullptr);
+    start = new TracedPathNode(startCoords, this);
     curr = start;
     last = start;
+
+    if(isLoop)
+    {
+        start->prev = last;
+    }
+}
+
+void TracedPath::addNode(TracedPathNode *node)
+{
+    node->parentPath = this;
+    last->next = node;
+    node->prev = last;
+    last = node;
+    
+    if(isLooping)
+    {
+        node->next = start;
+    }
 }
 
 void TracedPath::extendPath(Input &input, float targetDistance)
@@ -48,14 +66,17 @@ void TracedPath::clearPath()
     TracedPathNode* nodeToClear = start;
     TracedPathNode* nextNode;
 
-    while (nodeToClear != nullptr)
+    while (nodeToClear != last)
     {
         nextNode = nodeToClear->next;
         delete nodeToClear;
         nodeToClear = nextNode;
     }
+
+    delete nodeToClear;
     start = nullptr;
     curr = nullptr;
+
 }
 
 sf::Vector2f TracedPath::currentTrajectory()

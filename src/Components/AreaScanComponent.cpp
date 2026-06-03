@@ -2,20 +2,25 @@
 
 void AreaScanComponent::update(Context& context)
 {
+    this->entities.clear();
     for(auto entity : context.entities)
     {
-        auto visComponent = entity->getComponent<VisibilityComponent>();
-        auto renderComponent = entity->getComponent<RenderComponent>();
-        if(visComponent != nullptr && renderComponent != nullptr)
+        if(entity != owner)
         {
-            sf::Vector2f delta = entity->position - owner->position;
-            if(delta.length() <= visComponent->viewRange)
+            auto visComponent = entity->getComponent<VisibilityComponent>();
+            auto renderComponent = entity->getComponent<RenderComponent>();
+            if(visComponent != nullptr && renderComponent != nullptr)
             {
-                renderComponent->shouldBeDrawn = true;
-            }
-            else
-            {
-                renderComponent->shouldBeDrawn = false;
+                sf::Vector2f delta = entity->position - owner->position;
+                if(delta.length() <= visComponent->viewRange)
+                {
+                    renderComponent->shouldBeDrawn = true;
+                    this->entities.push_back(entity);
+                }
+                else
+                {
+                    renderComponent->shouldBeDrawn = false;
+                }
             }
         }
     }

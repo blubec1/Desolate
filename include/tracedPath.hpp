@@ -20,8 +20,8 @@ public:
     ~TracedPath();
 
     void startPath(sf::Vector2f startCoords, bool isLoop);
+    void addNode(TracedPathNode* node);
     void extendPath(Input &input, float targetDistance);
-    void debugExtendPath(Input &input, float targetDistance, sf::RenderTexture &targetCanvas, float brushRadius, float rectWidth, sf::Color colour);
     void clearPath();
     sf::Vector2f currentTrajectory();
     bool isAtTheEnd();
@@ -37,4 +37,5 @@ public:
 
     TracedPathNode(sf::Vector2f position, TracedPath *parentPath, TracedPathNode* previousNode = nullptr)
         : parentPath(parentPath), prev(previousNode), coords(position) {}
+    ~TracedPathNode() = default;
 };

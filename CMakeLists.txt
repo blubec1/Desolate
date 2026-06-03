@@ -12,11 +12,8 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
-add_executable(main src/main.cpp src/map.cpp src/input.cpp src/context.cpp src/utils.cpp src/npc.cpp src/NPCs/squad.cpp src/tracedPath.cpp src/npcMaster.cpp
-    src/NPCs/wanderer.cpp
+add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src/tracedPath.cpp
     src/Animations/attackAnimation.cpp
-    src/Locations/location.cpp
-    src/Locations/outpost.cpp
     src/Entity.cpp
     src/Components/HealthComponent.cpp
     src/Components/StillAttackComponent.cpp
@@ -28,9 +25,13 @@ add_executable(main src/main.cpp src/map.cpp src/input.cpp src/context.cpp src/u
     src/Components/CircleRenderComponent.cpp
     src/Components/AttackComponent.cpp
     src/Components/ChaseAttackComponent.cpp
-    src/StrategyDriver.cpp
     src/Strategies/PathFollowerStrategy.cpp
-    src/Strategies/ChaseStrategy.cpp)
+    src/Strategies/ChaseStrategy.cpp
+    src/StrategyDrivers/StrategyDriver.cpp
+    src/StrategyDrivers/WandererStrategyDriver.cpp
+    src/Components/TimedAttackComponent.cpp
+    src/Components/HPColorShadingComponent.cpp
+    src/Components/DeathSystemComponent.cpp)
 target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(main PRIVATE cxx_std_20)
 target_link_libraries(main PRIVATE SFML::Graphics)

@@ -13,6 +13,6 @@ class Strategy
     Strategy(StrategyDriver * driver)
     : driver(driver) {}
 
-    virtual void init() = 0;
+    virtual void init() {};
     virtual void update(Context& context) = 0;
 };

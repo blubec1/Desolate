@@ -11,7 +11,9 @@ public:
 
     virtual ~RenderComponent() = default;
 
+
     void draw(sf::RenderTarget& target, sf::RenderStates states) override;
 
+    virtual void updateVisual() = 0;
     virtual void drawVisual(sf::RenderTarget& target, sf::RenderStates states) const = 0;
 };

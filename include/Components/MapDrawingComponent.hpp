@@ -92,7 +92,6 @@ class MapDrawingComponent : public Component
                             {
                                 if(pathFollowerComponent->currentPath != nullptr)
                                 {
-                                    pathFollowerComponent->currentPath->clearPath();
                                     delete pathFollowerComponent->currentPath;
                                 }
 

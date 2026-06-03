@@ -17,7 +17,7 @@ class StrategyDriver : public Component
 
     void move(sf::Vector2f delta);
 
-    void attack(Context& context);
+    void setPos(sf::Vector2f pos);
 
     void setStrategy(Strategy * strategy);
 };

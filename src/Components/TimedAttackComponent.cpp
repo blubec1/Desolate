@@ -1,13 +1,13 @@
-#include "Components/StillAttackComponent.hpp"
+#include "Components/TimedAttackComponent.hpp"
+#include "Components/ScanComponent.hpp"
+#include "Components/HealthComponent.hpp"
+#include "Components/Component.hpp"
+#include "Entity.hpp"
 
-void StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> entities)
+void TimedAttackComponent::attackDerived(Context& context, std::vector<Entity*> entities)
 {
-    auto moveComponent = owner->getComponent<MovementComponent>();
-
-    if(moveComponent == nullptr)
-        return;
-
-    if(attackTimer <= 0 && !moveComponent->isMoving())
+    
+    if(attackTimer <= 0)
     {
         auto scanComponent = owner->getComponent<ScanComponent>();
 
@@ -23,9 +23,6 @@ void StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> 
 
                     if(delta.length() <= attackRange)
                     {
-                        context.activeEffects.push_back(
-                            new AttackAnimation(owner->position, entity->position, 0.15f)
-                        );
                         hpComponent->affectHealth(damage);
                         attackTimer = attackCooldown;
                         break;
@@ -38,5 +35,5 @@ void StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> 
     {
         attackTimer -= context.deltaTime;
     }
-
+    
 }

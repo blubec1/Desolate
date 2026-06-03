@@ -3,12 +3,6 @@
 #include <vector>
 #include "context.hpp"
 #include "input.hpp"
-#include "map.hpp"
-#include "NPCs/squad.hpp"
-#include "NPCs/wanderer.hpp"
-#include "npcMaster.hpp"
-#include "Locations/location.hpp"
-#include "Locations/outpost.hpp"
 #include "EntityFactory.hpp"
 
 enum CURRENTTOOL {
@@ -35,45 +29,28 @@ int main()
 	shape.setFillColor( sf::Color::Green );
 	window.setFramerateLimit(60);
 
-    Squad* newSquad;
-	std::vector<Squad*> squads;
-	std::vector<Enemy*> enemies;
-
-    for(int i = 0;i<STARTING_NUMBER_OF_SQUADS;++i)
-    {
-        newSquad = new Squad(SQUAD_STARTING_POSITIONS[i], SQUAD_COLOURS[i], SQUAD_CIRCLE_SIZE, SQUAD_SPEED);
-        newSquad->spottedThisFrame = true;
-        newSquad->clickable = true;
-        squads.emplace_back(newSquad);
-    }
-
-	Wanderer* newWanderer = new Wanderer(sf::Vector2f(500,500), sf::Vector2f(800,800), 12.f, sf::Color::Yellow);
-
-	enemies.emplace_back(newWanderer);
-
-	Outpost* newOutpost = new Outpost(sf::Vector2f(300,300), sf::Color::Blue, sf::Color::Green, 50.f, 800.f, 10.f);
-
-	std::vector<NPC*> npcs;
-	std::vector<Location*> locations;
-
-	npcs.insert(npcs.end(), squads.begin(), squads.end());
-	npcs.insert(npcs.end(), enemies.begin(), enemies.end());
-
-	locations.push_back(newOutpost);
-
 	std::vector<Entity*> entities;
 
-	Entity* ENT_Squad = Desolate::Factory::createSquadEntity(sf::Vector2f(100,100),sf::Color::Red, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, 100.f, 500.f, 0.5f, 100.f);
-	Entity* ENT_Map = Desolate::Factory::createMapEntity(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, sf::Color::Red, sf::Color::Black, 50.f);
+	TracedPath* path = new TracedPath();
+	TracedPathNode* node = new TracedPathNode(sf::Vector2f(800, 800), path);
 
+	path->startPath(sf::Vector2f(400,400), true);
+
+	path->addNode(node);
+
+	Entity* ENT_DeathSystem = Desolate::Factory::createDeathSystemEntity();
+	Entity* ENT_Map = Desolate::Factory::createMapEntity(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, sf::Color::Red, sf::Color::Black, 50.f);
+	Entity* ENT_Wanderer = Desolate::Factory::createWandererEntity(sf::Vector2f(400,400), sf::Color::Yellow, 50.f, 100.f, 200.f, 50.f, 50.f, 1.f, 500.f, path, 300.f, 300.f, 3.f, 500.f);
+	Entity* ENT_Squad = Desolate::Factory::createSquadEntity(sf::Vector2f(100,100),sf::Color::Red, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, 100.f, 500.f, 0.5f, 100.f, 500.f);
+	
+	entities.push_back(ENT_DeathSystem);
 	entities.push_back(ENT_Map);
 	entities.push_back(ENT_Squad);
+	entities.push_back(ENT_Wanderer);
 
 	sf::Clock deltaClock;
 	Input input;
-	NPCMaster npcMaster(npcs, locations);
-	Map map(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, &npcMaster.npcs, &npcMaster.locations);
-	Context context(&window, &input, &map, &npcMaster.npcs, &npcMaster.locations, entities);
+	Context context(&window, &input, entities);
 	CURRENTTOOL currTool = MAP;
 
 
@@ -117,20 +94,13 @@ int main()
 				}
 			}
         }
-
-		switch (currTool)
-		{
-			case MAP:
-				map.updateMap(context);
-		};
 	
-		npcMaster.update(context);
 		context.update();
 		context.entityUpdate();
 
 		window.clear();
 		context.entityDraw(window, sf::RenderStates::Default);
-		//window.draw(context);
+		window.draw(context);
 		window.display();
 
 		input.lateUpdate();

@@ -17,5 +17,7 @@ public:
         if (currentPath != nullptr) delete currentPath;
     }
 
+    void setPath(TracedPath* path) {currentPath = path;}
+
     void update(Context& context) override;
 };

@@ -1,15 +1,11 @@
 #include "context.hpp"
-#include "map.hpp"
 #include "Entity.hpp"
 #include "Animations/attackAnimation.hpp"
 
-Context::Context(sf::RenderWindow *window, Input *input, Map *map, std::vector<NPC*> *npcs, std::vector<Location*> *locations, std::vector<Entity*> entities)
+Context::Context(sf::RenderWindow *window, Input *input, std::vector<Entity*> entities)
 {
     this->window = window;
     this->input = input;
-    this->map = map;
-    this->npcs = npcs;
-    this->locations = locations;
     this->entities = entities;
 }
 
@@ -41,7 +37,7 @@ void Context::update()
 
 void Context::draw(sf::RenderTarget& target, sf::RenderStates states) const 
 {
-    target.draw(*map);
+    //target.draw(*map);
 
     for(auto effect : activeEffects)
     {

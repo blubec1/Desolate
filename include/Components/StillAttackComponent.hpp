@@ -15,7 +15,7 @@ class StillAttackComponent : public AttackComponent
     float attackCooldown;
 
     StillAttackComponent(float dmg, float attackRng, float atkCD)
-    :   damage(dmg), attackCooldown(atkCD)
+    :  damage(dmg), attackCooldown(atkCD)
     {
         attackRange = attackRng;
     };

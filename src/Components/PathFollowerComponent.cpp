@@ -59,5 +59,9 @@ void PathFollowerComponent::draw(sf::RenderTarget& target, sf::RenderStates stat
 
 bool PathFollowerComponent::isMoving()
 {
-    return currentPath != nullptr;
+    if(currentPath == nullptr)
+        return false;
+    if(currentPath->isAtTheEnd())
+        return false;
+    return true;
 }

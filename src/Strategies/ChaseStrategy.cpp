@@ -32,19 +32,21 @@ void ChaseStrategy::update(Context& context)
 
     chasedEntity = minEnt;
 
-    targetPos = chasedEntity->position;
-    sf::Vector2f delta = targetPos - currentPos;
-    float distance = delta.length();
+    if(chasedEntity != nullptr)
+    {
+        targetPos = chasedEntity->position;
+        sf::Vector2f delta = targetPos - currentPos;
+        float distance = delta.length();
 
-    sf::Vector2f chaseDelta = currentPos - chaseStartPoint;
-    if (chaseDelta.length() >= deAggroRange)
-    {
-        chasedEntity = nullptr;
-        deAggroTimer = deAggroCooldown;
-    }
-    else
-    {
-        sf::Vector2f direction = delta / distance;
-        driver->move(direction * moveSpeed * context.deltaTime);
+        sf::Vector2f chaseDelta = currentPos - chaseStartPoint;
+        if (chaseDelta.length() >= deAggroRange)
+        {
+            chasedEntity = nullptr;
+        }
+        else if(distance != 0)
+        {
+            sf::Vector2f direction = delta / distance;
+            driver->move(direction * moveSpeed * context.deltaTime);
+        }
     }
 }

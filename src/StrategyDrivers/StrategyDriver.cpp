@@ -1,4 +1,4 @@
-#include "StrategyDriver.hpp"
+#include "StrategyDrivers/StrategyDriver.hpp"
 #include "Components/Component.hpp"
 #include "Entity.hpp"
 
@@ -12,14 +12,14 @@ void StrategyDriver::move(sf::Vector2f delta)
     owner->position += delta;
 }
 
+void StrategyDriver::setPos(sf::Vector2f pos)
+{
+    owner->position = pos;
+}
+
 bool StrategyDriver::isMoving()
 {
     return owner->position == owner->prevPosition;
-}
-
-void StrategyDriver::attack(Context& context)
-{
-    owner->getComponent<AttackComponent>()->attack(context);
 }
 
 void StrategyDriver::setStrategy(Strategy * strategy)

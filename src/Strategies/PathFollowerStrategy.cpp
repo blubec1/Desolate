@@ -1,9 +1,12 @@
 #include "Strategies/PathFollowerStrategy.hpp"
 #include "Strategies/Strategy.hpp"
 #include "StrategyDrivers/StrategyDriver.hpp"
+#include <iostream>
 
 void PathFollowerStrategy::update(Context& context)
 {
+    std::cout<<driver->owner->position.x<<" "<<driver->owner->position.y<<"\n";
+
     if (currentPath == nullptr || (!currentPath->isLooping && currentPath->isAtTheEnd())) return;
 
     sf::Vector2f targetPos = currentPath->curr->next->coords;
@@ -12,7 +15,7 @@ void PathFollowerStrategy::update(Context& context)
     float step = moveSpeed * context.deltaTime;
 
     if (step >= distance) {
-        driver->move(targetPos);
+        driver->setPos(targetPos);
         currentPath->curr = currentPath->curr->next;
     } else {
         driver->move((delta / distance) * step);

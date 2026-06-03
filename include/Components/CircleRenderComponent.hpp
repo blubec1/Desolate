@@ -6,16 +6,17 @@ class CircleRenderComponent : public RenderComponent
     public:
 
     sf::CircleShape shape;
-    sf::Color shapeColour;
+
 
     CircleRenderComponent(sf::Vector2f relativePosition, float radius, sf::Color clr)
-    : shapeColour(clr) 
     {
+        shapeColour = clr;
         shape.setPosition(relativePosition);
         shape.setFillColor(shapeColour);
         shape.setRadius(radius);
         shape.setOrigin(sf::Vector2f(radius, radius));
     };
 
+    virtual void updateVisual() override;
     virtual void drawVisual(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
