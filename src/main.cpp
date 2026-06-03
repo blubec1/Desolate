@@ -32,11 +32,13 @@ int main()
 
 	path->addNode(node);
 
+	Entity* ENT_FogofWarSystem = Desolate::Factory::createFogofWarEntity();
 	Entity* ENT_DeathSystem = Desolate::Factory::createDeathSystemEntity();
 	Entity* ENT_Map = Desolate::Factory::createMapEntity(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, sf::Color::Red, sf::Color::Black, 50.f);
-	Entity* ENT_Wanderer = Desolate::Factory::createWandererEntity(sf::Vector2f(400,400), sf::Color::Yellow, 50.f, 100.f, 200.f, 50.f, 50.f, 1.f, 500.f, path, 300.f, 300.f, 3.f, 500.f, MONSTER_FACTION);
-	Entity* ENT_Outpost = Desolate::Factory::createOutpostEntity(sf::Vector2f(200,200), sf::Color::Cyan, 200.f, 250.f, 50.f, 1.f, PLAYER_FACTION);
-	Entity* ENT_Squad = Desolate::Factory::createSquadEntity(sf::Vector2f(100,100),sf::Color::Red, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, 100.f, 500.f, 0.5f, 100.f, 500.f, PLAYER_FACTION);
+	Entity* ENT_Wanderer = Desolate::Factory::createWandererEntity(sf::Vector2f(400,400), sf::Color::Yellow, 50.f, 100.f, 200.f, 50.f, 50.f, 1.f, 500.f, path, 300.f, 300.f, 3.f, 500.f, MONSTER_FACTION, 1.f);
+	Entity* ENT_Outpost = Desolate::Factory::createOutpostEntity(sf::Vector2f(200,200), sf::Color::Cyan, 100.f, 250.f, 50.f, 1.f, PLAYER_FACTION);
+	Entity* ENT_Squad = Desolate::Factory::createSquadEntity(sf::Vector2f(100,100),sf::Color::Red, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, 100.f, 500.f, 0.5f, 100.f, 500.f, PLAYER_FACTION, 1.f
+);
 
 	sf::Clock deltaClock;
 	Input input;
@@ -48,6 +50,7 @@ int main()
 	context.addEntity(ENT_Wanderer);
 	context.addEntity(ENT_Outpost);
 	context.addEntity(ENT_Squad);
+	context.addEntity(ENT_FogofWarSystem);
 
 	while(window.isOpen())
 	{

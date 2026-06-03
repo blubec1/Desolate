@@ -8,4 +8,6 @@ void RenderComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
     states.transform.translate(owner->position);
 
     drawVisual(target, states);
+    
+    shapeColour = originalColour;
 }

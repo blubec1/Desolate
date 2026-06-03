@@ -9,7 +9,7 @@ class CircleRenderComponent : public RenderComponent
 
     CircleRenderComponent(sf::Vector2f relativePosition, float radius, sf::Color clr)
     {
-        shapeColour = clr;
+        originalColour = shapeColour = clr;
         shape.setPosition(relativePosition);
         shape.setFillColor(shapeColour);
         shape.setRadius(radius);

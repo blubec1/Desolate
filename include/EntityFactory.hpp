@@ -17,13 +17,14 @@
 #include "Components/DeathSystemComponent.hpp"
 #include "Components/HealComponent.hpp"
 #include "Components/FactionComponent.hpp"
+#include "Components/FogofWarComponent.hpp"
 #include "StrategyDrivers/WandererStrategyDriver.hpp"
 
 //завод!
 
 namespace Desolate::Factory
 {
-    inline Entity* createSquadEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID)
+    inline Entity* createSquadEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID, float timeToAppear)
     {
         Entity *Squad = new Entity();
 
@@ -37,8 +38,8 @@ namespace Desolate::Factory
         Squad->addComponent<MouseHitboxComponent>(radius);
         Squad->addComponent<PathFollowerComponent>(moveSpeed, colour, true);
         Squad->addComponent<StillAttackComponent>(damage, shootRange, attackCD, enemies);
-        Squad->addComponent<VisibilityComponent>(visibilityRng);
-        Squad->addComponent<HPColorShadingComponent>(colour);
+        Squad->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
+        Squad->addComponent<HPColorShadingComponent>();
         Squad->addComponent<FactionComponent>(ID);
 
         return Squad;
@@ -66,7 +67,7 @@ namespace Desolate::Factory
         return DeathSystem;
     }
 
-    inline Entity* createWandererEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, TracedPath* path, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID)
+    inline Entity* createWandererEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, TracedPath* path, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID, float timeToAppear)
     {
         Entity* Wanderer = new Entity();
 
@@ -80,8 +81,8 @@ namespace Desolate::Factory
         Wanderer->addComponent<HealthComponent>(MaxHP, MaxHP);
         Wanderer->addComponent<AreaScanComponent>();
         Wanderer->addComponent<TimedAttackComponent>(damage, shootRange, attackCD, enemies);
-        Wanderer->addComponent<VisibilityComponent>(visibilityRng);
-        Wanderer->addComponent<HPColorShadingComponent>(colour);
+        Wanderer->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
+        Wanderer->addComponent<HPColorShadingComponent>();
         Wanderer->addComponent<FactionComponent>(ID);
 
         return Wanderer;
@@ -98,5 +99,16 @@ namespace Desolate::Factory
         Outpost->addComponent<FactionComponent>(ID);
 
         return Outpost;
+    }
+
+    inline Entity* createFogofWarEntity()
+    {
+        Entity* FogofWarEntity = new Entity();
+
+        FogofWarEntity->position = sf::Vector2f(0,0);
+
+        FogofWarEntity->addComponent<FogofWarComponent>();
+
+        return FogofWarEntity;
     }
 }

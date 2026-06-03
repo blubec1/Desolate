@@ -14,12 +14,12 @@ void AreaScanComponent::update(Context& context)
                 sf::Vector2f delta = entity->position - owner->position;
                 if(delta.length() <= visComponent->viewRange)
                 {
-                    renderComponent->shouldBeDrawn = true;
                     this->entities.push_back(entity);
+                    visComponent->addViewer(owner);
                 }
                 else
                 {
-                    renderComponent->shouldBeDrawn = false;
+                    visComponent->removeViewer(owner);
                 }
             }
         }

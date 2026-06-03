@@ -5,10 +5,20 @@ class VisibilityComponent : public Component
 {
     public:
     float viewRange;
+    float timeAppeared;
+    float timeToAppear;
+    bool outOfVision;
+    sf::Color originalColour;
     std::set<Entity*> visibleTo;
 
-    VisibilityComponent(float viewRng)
-    : viewRange(viewRng) {};
+    VisibilityComponent(float viewRng, float timeToAppear)
+    : viewRange(viewRng), timeToAppear(timeToAppear)
+    {
+        outOfVision = false;
+        timeAppeared = 0.f;
+    };
+
+    virtual void update(Context& context) override;
 
     void addViewer(Entity* entity) { visibleTo.insert(entity); }
     void removeViewer(Entity* entity) { visibleTo.erase(entity); }

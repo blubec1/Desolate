@@ -2,7 +2,6 @@
 #include "context.hpp"
 #include "Entity.hpp"
 #include "Components/VisibilityComponent.hpp"
-#include "Components/RenderComponent.hpp"
 #include "Components/FactionComponent.hpp"
 
 void FogofWarComponent::update(Context& context)
@@ -11,23 +10,23 @@ void FogofWarComponent::update(Context& context)
     {
         auto factionComponent = entity->getComponent<FactionComponent>();
         auto visibilityComponent = entity->getComponent<VisibilityComponent>();
-        auto renderComponent = entity->getComponent<RenderComponent>();
 
-        if(factionComponent != nullptr && factionComponent->FactionID == factionVisionID)
+        if(factionComponent != nullptr && visibilityComponent != nullptr)
         {
-            renderComponent->shouldBeDrawn = true;
-            continue;
-        }
 
-        if(visibilityComponent != nullptr && renderComponent != nullptr)
-        {
-            if(!visibilityComponent->isSeenbyFaction(factionVisionID))
+            if(factionComponent->FactionID == factionVisionID)
             {
-                renderComponent->shouldBeDrawn = false;
+                visibilityComponent->outOfVision = false;
+                continue;
+            }
+
+            if(visibilityComponent->isSeenbyFaction(factionVisionID))
+            {
+                visibilityComponent->outOfVision = false;
             }
             else
             {
-                renderComponent->shouldBeDrawn = true;
+                visibilityComponent->outOfVision = true;
             }
         }
     }

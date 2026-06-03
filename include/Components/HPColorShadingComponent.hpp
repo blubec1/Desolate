@@ -7,12 +7,8 @@
 class HPColorShadingComponent : public Component
 {
     public:
-    sf::Color originalColour;
     HealthComponent* healthComponent;
     RenderComponent* renderComponent;
-
-    HPColorShadingComponent(sf::Color originalClr)
-    : originalColour(originalClr) {}
 
     virtual void update(Context& context) override;
 };
