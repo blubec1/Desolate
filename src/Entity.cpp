@@ -1,10 +1,14 @@
 #include "Entity.hpp"
+#include "Components/Component.hpp"
 
 void Entity::update(Context& context)
 {
     for (auto& component : components)  
     {
-        component->update(context);
+        if(!component->isDisabled())
+        {
+            component->update(context);
+        }
     }
     prevPosition = position;
 }

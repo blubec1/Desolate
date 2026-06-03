@@ -3,7 +3,7 @@
 void AreaScanComponent::update(Context& context)
 {
     this->entities.clear();
-    for(auto entity : context.entities)
+    for(auto entity : context.getEntities())
     {
         if(entity != owner)
         {

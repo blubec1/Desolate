@@ -1,6 +1,7 @@
 #include "Strategies/ChaseStrategy.hpp"
 #include "StrategyDrivers/StrategyDriver.hpp"
 #include "Entity.hpp"
+#include "Components/FactionComponent.hpp"
 
 void ChaseStrategy::init()
 {
@@ -9,7 +10,6 @@ void ChaseStrategy::init()
 
 void ChaseStrategy::update(Context& context)
 {
-
     scanComponent = driver->owner->getComponent<ScanComponent>();
     entities = scanComponent->getCollection();
 
@@ -23,7 +23,9 @@ void ChaseStrategy::update(Context& context)
     {
         sf::Vector2f delta = currentPos - entity->position;
 
-        if(delta.length() <= aggroRange && delta.length() < minDist)
+        auto factionComponent = entity->getComponent<FactionComponent>();
+
+        if(delta.length() <= aggroRange && delta.length() < minDist && enemies.contains(factionComponent->FactionID))
         {
             minDist = delta.length();
             minEnt = entity;

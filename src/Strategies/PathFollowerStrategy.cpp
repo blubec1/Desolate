@@ -5,8 +5,6 @@
 
 void PathFollowerStrategy::update(Context& context)
 {
-    std::cout<<driver->owner->position.x<<" "<<driver->owner->position.y<<"\n";
-
     if (currentPath == nullptr || (!currentPath->isLooping && currentPath->isAtTheEnd())) return;
 
     sf::Vector2f targetPos = currentPath->curr->next->coords;

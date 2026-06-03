@@ -1,4 +1,5 @@
 #include "Components/StillAttackComponent.hpp"
+#include "Components/FactionComponent.hpp"
 
 void StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> entities)
 {
@@ -16,8 +17,9 @@ void StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> 
             for(auto entity : scanComponent->getCollection())
             {
                 auto hpComponent = entity->getComponent<HealthComponent>();
+                auto factionComponent = entity->getComponent<FactionComponent>();
 
-                if(hpComponent != nullptr)
+                if(hpComponent != nullptr && factionComponent != nullptr && enemies.contains(factionComponent->FactionID))
                 {
                     sf::Vector2f delta = entity->position - owner->position;
 

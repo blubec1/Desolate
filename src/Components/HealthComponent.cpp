@@ -8,7 +8,7 @@ void HealthComponent::affectHealth(float damageValue)
 
     if(HealthValue < 0)
     {
-        owner->addComponent<DeadComponent>();
+        owner->destroy();
         HealthValue = 0;
     }
 

@@ -21,17 +21,18 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
     src/Components/RenderComponent.cpp
     src/Components/PathFollowerComponent.cpp
     src/Components/MouseHitboxComponent.cpp
-    src/EntityFactory.cpp
     src/Components/CircleRenderComponent.cpp
     src/Components/AttackComponent.cpp
-    src/Components/ChaseAttackComponent.cpp
     src/Strategies/PathFollowerStrategy.cpp
     src/Strategies/ChaseStrategy.cpp
     src/StrategyDrivers/StrategyDriver.cpp
     src/StrategyDrivers/WandererStrategyDriver.cpp
     src/Components/TimedAttackComponent.cpp
     src/Components/HPColorShadingComponent.cpp
-    src/Components/DeathSystemComponent.cpp)
+    src/Components/DeathSystemComponent.cpp
+    src/Components/HealComponent.cpp
+    src/Components/FogofWarComponent.cpp
+    src/Components/VisibilityComponent.cpp)
 target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(main PRIVATE cxx_std_20)
 target_link_libraries(main PRIVATE SFML::Graphics)

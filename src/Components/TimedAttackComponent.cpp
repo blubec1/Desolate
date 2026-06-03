@@ -1,6 +1,7 @@
 #include "Components/TimedAttackComponent.hpp"
 #include "Components/ScanComponent.hpp"
 #include "Components/HealthComponent.hpp"
+#include "Components/FactionComponent.hpp"
 #include "Components/Component.hpp"
 #include "Entity.hpp"
 
@@ -16,8 +17,9 @@ void TimedAttackComponent::attackDerived(Context& context, std::vector<Entity*> 
             for(auto entity : scanComponent->getCollection())
             {
                 auto hpComponent = entity->getComponent<HealthComponent>();
+                auto factionComponent = entity->getComponent<FactionComponent>();
 
-                if(hpComponent != nullptr)
+                if(hpComponent != nullptr && factionComponent != nullptr && enemies.contains(factionComponent->FactionID))
                 {
                     sf::Vector2f delta = entity->position - owner->position;
 

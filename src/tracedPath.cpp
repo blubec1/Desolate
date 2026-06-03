@@ -39,7 +39,7 @@ void TracedPath::extendPath(Input &input, float targetDistance)
         return;
     }
 
-    while (true)
+    while (true && last != nullptr)
     {
         sf::Vector2f delta = sf::Vector2f(input.mousePos) - last->coords;
         float currentDistance = delta.length(); 

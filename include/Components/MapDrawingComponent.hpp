@@ -18,7 +18,7 @@ class MapDrawingComponent : public Component
     sf::Sprite canvasSprite;
     sf::RenderTexture canvas;
     TracedPath* activePath = nullptr;
-    Entity* selectedSquad = nullptr;
+    Entity* selectedEntity = nullptr;
     sf::Color drawColour, eraseColour;
     sf::CircleShape brush;
     sf::RectangleShape interpRect;
@@ -69,14 +69,14 @@ class MapDrawingComponent : public Component
                     break;
 
                 case ENT_PATHING:
-                    if(activePath != nullptr)
+                    if(context.isEntityValid(selectedEntity) == true && activePath != nullptr)
                     {
                         activePath->extendPath(*context.input, tracedPathNodeDistance);
                     }
                     break;
                 
                 case ENT_IDLING:
-                    for(auto entity : context.entities)
+                    for(auto entity : context.getEntities())
                     {   
                         auto pathFollowerComponent = entity->getComponent<PathFollowerComponent>();
                         auto mouseHitboxComponent = entity->getComponent<MouseHitboxComponent>();
@@ -98,6 +98,7 @@ class MapDrawingComponent : public Component
                                 state = ENT_PATHING;
                                 pathFollowerComponent->currentPath = new TracedPath();
                                 pathFollowerComponent->currentPath->startPath(entity->position, false);
+                                selectedEntity = entity;
                                 activePath = pathFollowerComponent->currentPath;
                                 break;
                             }

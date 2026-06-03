@@ -1,4 +1,5 @@
 #include "Entity.hpp"
+#include "Constants.hpp"
 #include "Components/Component.hpp"
 #include "Components/AreaScanComponent.hpp"
 #include "Components/CircleRenderComponent.hpp"
@@ -14,16 +15,20 @@
 #include "Components/VisibilityComponent.hpp"
 #include "Components/HPColorShadingComponent.hpp"
 #include "Components/DeathSystemComponent.hpp"
+#include "Components/HealComponent.hpp"
+#include "Components/FactionComponent.hpp"
 #include "StrategyDrivers/WandererStrategyDriver.hpp"
-
 
 //завод!
 
 namespace Desolate::Factory
 {
-    inline Entity* createSquadEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng)
+    inline Entity* createSquadEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID)
     {
         Entity *Squad = new Entity();
+
+        std::set<int> enemies;
+        enemies.insert(MONSTER_FACTION);
 
         Squad->position = position;
         Squad->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
@@ -31,9 +36,10 @@ namespace Desolate::Factory
         Squad->addComponent<AreaScanComponent>();
         Squad->addComponent<MouseHitboxComponent>(radius);
         Squad->addComponent<PathFollowerComponent>(moveSpeed, colour, true);
-        Squad->addComponent<StillAttackComponent>(damage, shootRange, attackCD);
+        Squad->addComponent<StillAttackComponent>(damage, shootRange, attackCD, enemies);
         Squad->addComponent<VisibilityComponent>(visibilityRng);
         Squad->addComponent<HPColorShadingComponent>(colour);
+        Squad->addComponent<FactionComponent>(ID);
 
         return Squad;
     }
@@ -60,20 +66,37 @@ namespace Desolate::Factory
         return DeathSystem;
     }
 
-    inline Entity* createWandererEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, TracedPath* path, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng)
+    inline Entity* createWandererEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, TracedPath* path, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID)
     {
         Entity* Wanderer = new Entity();
 
+        std::set<int> enemies;
+
+        enemies.insert(PLAYER_FACTION);
+
         Wanderer->position = position;
-        Wanderer->addComponent<WandererStrategyDriver>(path, moveSpeed, chaseSpeed, aggroRng, deAggroRng, deAggroCD);
+        Wanderer->addComponent<WandererStrategyDriver>(path, moveSpeed, chaseSpeed, aggroRng, deAggroRng, deAggroCD, enemies);
         Wanderer->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
         Wanderer->addComponent<HealthComponent>(MaxHP, MaxHP);
         Wanderer->addComponent<AreaScanComponent>();
-        Wanderer->addComponent<TimedAttackComponent>(damage, shootRange, attackCD);
+        Wanderer->addComponent<TimedAttackComponent>(damage, shootRange, attackCD, enemies);
         Wanderer->addComponent<VisibilityComponent>(visibilityRng);
         Wanderer->addComponent<HPColorShadingComponent>(colour);
+        Wanderer->addComponent<FactionComponent>(ID);
 
         return Wanderer;
     }
 
+    inline Entity* createOutpostEntity(sf::Vector2f position, sf::Color colour, float radius, float healRange, float healValue, float healCooldown, float ID)
+    {
+        Entity* Outpost = new Entity();
+
+        Outpost->position = position;
+        Outpost->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
+        Outpost->addComponent<AreaScanComponent>();
+        Outpost->addComponent<HealComponent>(healRange, healValue, healCooldown);
+        Outpost->addComponent<FactionComponent>(ID);
+
+        return Outpost;
+    }
 }

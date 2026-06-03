@@ -8,9 +8,10 @@ class TimedAttackComponent : public AttackComponent
     float attackRange;
     float attackTimer;
     float attackCooldown;
+    std::set<int> enemies;
 
-    TimedAttackComponent(float dmg, float attackRng, float atkCD)
-    : damage(dmg), attackCooldown(atkCD)
+    TimedAttackComponent(float dmg, float attackRng, float atkCD, std::set<int> enemies)
+    : damage(dmg), attackCooldown(atkCD), enemies(enemies)
     {
         attackRange = attackRng;
     };

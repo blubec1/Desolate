@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
+#include <set>
 
 class Input;
 class AttackAnimation;
@@ -9,17 +10,25 @@ class Entity;
 
 class Context : public sf::Drawable
 {
+    private:
+    std::set<Entity*> entityCheck;
+    std::vector<Entity*> entities;
+    
     public:
     sf::RenderWindow *window;
     Input *input;
     float deltaTime;
 
-    std::vector<Entity*> entities;
     std::vector<AttackAnimation*> activeEffects;
 
-    Context(sf::RenderWindow *window, Input *input, std::vector<Entity*> entities);
+    Context(sf::RenderWindow *window, Input *input);
 
+    bool isEntityValid(Entity* entity);
+    
+    const std::vector<Entity*>& getEntities();
 
+    void addEntity(Entity* entity);
+    void removeEntity(Entity* entity);
     void update();
     void entityUpdate();
     void entityDraw(sf::RenderTarget& target, sf::RenderStates states);
