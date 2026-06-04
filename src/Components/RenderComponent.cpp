@@ -7,6 +7,7 @@ void RenderComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
     //Parents the renderComponent to the owner's position
     states.transform.translate(owner->position);
 
+    updateVisual();
     drawVisual(target, states);
     
     shapeColour = originalColour;

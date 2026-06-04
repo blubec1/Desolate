@@ -8,35 +8,41 @@ void ChaseStrategy::init()
     chaseStartPoint = driver->owner->position;
 }
 
-void ChaseStrategy::update(Context& context)
+Entity* ChaseStrategy::findNearestEnemy(Context& context)
 {
     scanComponent = driver->owner->getComponent<ScanComponent>();
+    if (scanComponent == nullptr) return nullptr;
+
     entities = scanComponent->getCollection();
 
     sf::Vector2f currentPos = driver->owner->position;
-    sf::Vector2f targetPos;
 
+    Entity* nearest = nullptr;
     float minDist = FLT_MAX;
-    Entity* minEnt = nullptr;
 
-    for(auto entity : entities)
+    for (auto entity : entities)
     {
         sf::Vector2f delta = currentPos - entity->position;
 
         auto factionComponent = entity->getComponent<FactionComponent>();
 
-        if(delta.length() <= aggroRange && delta.length() < minDist && enemies.contains(factionComponent->FactionID))
+        if (delta.length() <= aggroRange && delta.length() < minDist && enemies.contains(factionComponent->FactionID))
         {
             minDist = delta.length();
-            minEnt = entity;
+            nearest = entity;
         }
     }
 
-    chasedEntity = minEnt;
+    return nearest;
+}
 
-    if(chasedEntity != nullptr)
+void ChaseStrategy::update(Context& context)
+{
+    sf::Vector2f currentPos = driver->owner->position;
+
+    if(context.isEntityValid(chasedEntity) != false)
     {
-        targetPos = chasedEntity->position;
+        sf::Vector2f targetPos = chasedEntity->position;
         sf::Vector2f delta = targetPos - currentPos;
         float distance = delta.length();
 
@@ -45,7 +51,7 @@ void ChaseStrategy::update(Context& context)
         {
             chasedEntity = nullptr;
         }
-        else if(distance != 0)
+        else if(distance > stopDistance)
         {
             sf::Vector2f direction = delta / distance;
             driver->move(direction * moveSpeed * context.deltaTime);

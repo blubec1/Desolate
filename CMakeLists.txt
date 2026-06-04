@@ -24,8 +24,12 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
     src/Components/CircleRenderComponent.cpp
     src/Components/AttackComponent.cpp
     src/Strategies/PathFollowerStrategy.cpp
+    src/Strategies/AreaPatrolStrategy.cpp
     src/Strategies/ChaseStrategy.cpp
+    src/Strategies/MoveToEntityStrategy.cpp
     src/StrategyDrivers/StrategyDriver.cpp
+    src/StrategyDrivers/LurkerStrategyDriver.cpp
+    src/StrategyDrivers/TerritorialStrategyDriver.cpp
     src/StrategyDrivers/WandererStrategyDriver.cpp
     src/Components/TimedAttackComponent.cpp
     src/Components/HPColorShadingComponent.cpp

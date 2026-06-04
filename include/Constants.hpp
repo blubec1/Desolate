@@ -1,4 +1,5 @@
 #pragma once
+#include <SFML/Graphics/Color.hpp>
 
 const unsigned int MAP_HEIGHT = 800;
 const unsigned int MAP_WIDTH = 800;
@@ -9,3 +10,72 @@ const float SQUAD_SPEED = 100;
 
 const float PLAYER_FACTION = 1;
 const float MONSTER_FACTION = 2;
+
+const float TRACED_PATH_NODE_DIST = 50.f;
+
+const float STANDARD_VISIBILITY_RANGE = 500.f;
+
+const sf::Color MAP_DRAW_COLOUR = sf::Color::Red;
+const sf::Color MAP_ERASE_COLOUR = sf::Color::Black;
+const sf::Color WANDERER_COLOUR = sf::Color::Yellow;
+const sf::Color TERRITORIAL_COLOUR = sf::Color::Magenta;
+const sf::Color OUTPOST_COLOUR = sf::Color::Cyan;
+const sf::Color SQUAD_COLOUR = sf::Color::Red;
+const sf::Color RESOURCE_COLOUR = sf::Color::Green;
+const sf::Color LURKER_COLOUR = sf::Color(128, 64, 0);
+
+const float WANDERER_RADIUS = 50.f;
+const float WANDERER_MOVE_SPEED = 100.f;
+const float WANDERER_CHASE_SPEED = 200.f;
+const float WANDERER_DAMAGE = 50.f;
+const float WANDERER_SHOOT_RANGE = 50.f;
+const float WANDERER_ATTACK_COOLDOWN = 1.f;
+const float WANDERER_MAX_HEALTH = 500.f;
+const float WANDERER_AGGRO_RANGE = 300.f;
+const float WANDERER_DE_AGGRO_RANGE = 300.f;
+const float WANDERER_DE_AGGRO_COOLDOWN = 3.f;
+const float WANDERER_TIME_TO_APPEAR = 1.f;
+
+const float TERRITORIAL_RADIUS = 50.f;
+const float TERRITORIAL_PATROL_SPEED = 100.f;
+const float TERRITORIAL_PATROL_RADIUS = 200.f;
+const float TERRITORIAL_CHASE_SPEED = 200.f;
+const float TERRITORIAL_DAMAGE = 20.f;
+const float TERRITORIAL_SHOOT_RANGE = 60.f;
+const float TERRITORIAL_ATTACK_COOLDOWN = 0.5f;
+const float TERRITORIAL_MAX_HEALTH = 100.f;
+const float TERRITORIAL_AGGRO_RANGE = 100.f;
+const float TERRITORIAL_DE_AGGRO_RANGE = 300.f;
+const float TERRITORIAL_DE_AGGRO_COOLDOWN = 3.f;
+const float TERRITORIAL_TIME_TO_APPEAR = 1.f;
+
+const float OUTPOST_RADIUS = 100.f;
+const float OUTPOST_HEAL_RANGE = 250.f;
+const float OUTPOST_HEAL_VALUE = 50.f;
+const float OUTPOST_HEAL_COOLDOWN = 1.f;
+
+const float SQUAD_DAMAGE = 100.f;
+const float SQUAD_SHOOT_RANGE = 500.f;
+const float SQUAD_ATTACK_COOLDOWN = 0.5f;
+const float SQUAD_MAX_HEALTH = 100.f;
+const float SQUAD_TIME_TO_APPEAR = 1.f;
+const float SQUAD_VISIBILITY_RANGE = 500.f;
+
+const float RESOURCE_RADIUS = 30.f;
+const float RESOURCE_VIEW_RANGE = 2000.f;
+const float RESOURCE_TIME_TO_APPEAR = 1.f;
+
+const float LURKER_RADIUS = 40.f;
+const float LURKER_PATROL_SPEED = 80.f;
+const float LURKER_PATROL_RADIUS = 150.f;
+const float LURKER_CHASE_SPEED = 200.f;
+const float LURKER_DAMAGE = 30.f;
+const float LURKER_SHOOT_RANGE = 60.f;
+const float LURKER_ATTACK_COOLDOWN = 1.f;
+const float LURKER_MAX_HEALTH = 400.f;
+const float LURKER_AGGRO_RANGE = 250.f;
+const float LURKER_DE_AGGRO_RANGE = 350.f;
+const float LURKER_DE_AGGRO_COOLDOWN = 3.f;
+const float LURKER_ARRIVAL_DISTANCE = 100.f;
+const float LURKER_VISIBILITY_RANGE = 500.f;
+const float LURKER_TIME_TO_APPEAR = 1.f;

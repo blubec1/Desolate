@@ -1,20 +1,20 @@
-#include "StrategyDrivers/WandererStrategyDriver.hpp"
+#include "StrategyDrivers/TerritorialStrategyDriver.hpp"
 #include "Entity.hpp"
 
-void WandererStrategyDriver::update(Context &context)
+void TerritorialStrategyDriver::update(Context& context)
 {
-    if(chaseStrategy.deAggroTimer >= 0)
+    if (chaseStrategy.deAggroTimer >= 0)
     {
         chaseStrategy.deAggroTimer -= context.deltaTime;
     }
 
     switch (state)
     {
-        case PATH_FOLLOW:
+        case PATROL:
         {
-            if(chaseStrategy.deAggroTimer <= 0)
+            if (chaseStrategy.deAggroTimer <= 0)
             {
-                if(chaseStrategy.findNearestEnemy(context) != nullptr)
+                if (chaseStrategy.findNearestEnemy(context) != nullptr)
                 {
                     setStrategy(&chaseStrategy);
                     chaseStrategy.init();
@@ -34,16 +34,16 @@ void WandererStrategyDriver::update(Context &context)
             }
             else
             {
-                setStrategy(&pathFollowerStrategy);
+                setStrategy(&patrolStrategy);
                 chaseStrategy.deAggroTimer = chaseStrategy.deAggroCooldown;
-                state = PATH_FOLLOW;
+                state = PATROL;
             }
             break;
         }
     }
 
-    if(currentStrategy != nullptr)
-    {    
-       currentStrategy->update(context);
+    if (currentStrategy != nullptr)
+    {
+        currentStrategy->update(context);
     }
 }

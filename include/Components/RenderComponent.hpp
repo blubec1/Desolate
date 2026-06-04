@@ -6,7 +6,6 @@ class RenderComponent : public Component
 {
 public:
 
-    bool shouldHaveBeenDrawnLastFrame = 1;
     bool shouldBeDrawn = 1;
     sf::Color shapeColour;
     sf::Color originalColour;

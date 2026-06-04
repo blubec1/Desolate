@@ -18,7 +18,10 @@
 #include "Components/HealComponent.hpp"
 #include "Components/FactionComponent.hpp"
 #include "Components/FogofWarComponent.hpp"
+#include "Components/ResourceComponent.hpp"
 #include "StrategyDrivers/WandererStrategyDriver.hpp"
+#include "StrategyDrivers/TerritorialStrategyDriver.hpp"
+#include "StrategyDrivers/LurkerStrategyDriver.hpp"
 
 //завод!
 
@@ -76,7 +79,7 @@ namespace Desolate::Factory
         enemies.insert(PLAYER_FACTION);
 
         Wanderer->position = position;
-        Wanderer->addComponent<WandererStrategyDriver>(path, moveSpeed, chaseSpeed, aggroRng, deAggroRng, deAggroCD, enemies);
+        Wanderer->addComponent<WandererStrategyDriver>(path, moveSpeed, chaseSpeed, aggroRng, deAggroRng, deAggroCD, enemies, shootRange);
         Wanderer->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
         Wanderer->addComponent<HealthComponent>(MaxHP, MaxHP);
         Wanderer->addComponent<AreaScanComponent>();
@@ -110,5 +113,58 @@ namespace Desolate::Factory
         FogofWarEntity->addComponent<FogofWarComponent>();
 
         return FogofWarEntity;
+    }
+
+    inline Entity* createTerritorialEntity(sf::Vector2f position, sf::Color colour, float radius, float patrolSpeed, float patrolRadius, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID, float timeToAppear)
+    {
+        Entity* Territorial = new Entity();
+
+        std::set<int> enemies;
+
+        enemies.insert(PLAYER_FACTION);
+
+        Territorial->position = position;
+        Territorial->addComponent<TerritorialStrategyDriver>(patrolSpeed, patrolRadius, position, chaseSpeed, aggroRng, deAggroRng, deAggroCD, enemies, shootRange);
+        Territorial->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
+        Territorial->addComponent<HealthComponent>(MaxHP, MaxHP);
+        Territorial->addComponent<AreaScanComponent>();
+        Territorial->addComponent<TimedAttackComponent>(damage, shootRange, attackCD, enemies);
+        Territorial->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
+        Territorial->addComponent<HPColorShadingComponent>();
+        Territorial->addComponent<FactionComponent>(ID);
+
+        return Territorial;
+    }
+
+    inline Entity* createResourceLocation(sf::Vector2f position, sf::Color colour, float radius, float viewRng, float timeToAppear)
+    {
+        Entity* Resource = new Entity();
+
+        Resource->position = position;
+        Resource->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
+        Resource->addComponent<ResourceComponent>();
+        Resource->addComponent<VisibilityComponent>(viewRng, timeToAppear);
+
+        return Resource;
+    }
+
+    inline Entity* createLurkerEntity(sf::Vector2f position, sf::Color colour, float radius, float patrolSpeed, float patrolRadius, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, float aggroRng, float deAggroRng, float deAggroCD, float arrivalDist, float visibilityRng, float timeToAppear, float ID)
+    {
+        Entity* Lurker = new Entity();
+
+        std::set<int> enemies;
+        //enemies.insert(PLAYER_FACTION);
+
+        Lurker->position = position;
+        Lurker->addComponent<LurkerStrategyDriver>(patrolSpeed, patrolRadius, chaseSpeed, aggroRng, deAggroRng, shootRange, deAggroCD, arrivalDist, enemies);
+        Lurker->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
+        Lurker->addComponent<HealthComponent>(MaxHP, MaxHP);
+        Lurker->addComponent<AreaScanComponent>();
+        Lurker->addComponent<TimedAttackComponent>(damage, shootRange, attackCD, enemies);
+        Lurker->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
+        Lurker->addComponent<HPColorShadingComponent>();
+        Lurker->addComponent<FactionComponent>(ID);
+
+        return Lurker;
     }
 }

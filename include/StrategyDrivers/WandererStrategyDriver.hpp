@@ -8,13 +8,16 @@ class WandererStrategyDriver : public StrategyDriver
 {
     public:
     
+    enum State { PATH_FOLLOW, CHASE };
+
     float chaseRange;
     ChaseStrategy chaseStrategy;
     PathFollowerStrategy pathFollowerStrategy;
     std::set<int> enemies;
+    State state = PATH_FOLLOW;
 
-    WandererStrategyDriver(TracedPath* path, float moveSpd, float chaseSpd, float aggroRng, float deAggroRng, float deAggroCD, std::set<int>& enemies)
-    :   chaseStrategy(this, chaseSpd, aggroRng, deAggroRng, deAggroCD, enemies), pathFollowerStrategy(this, moveSpd), enemies(enemies)
+    WandererStrategyDriver(TracedPath* path, float moveSpd, float chaseSpd, float aggroRng, float deAggroRng, float deAggroCD, std::set<int>& enemies, float stopDist = 0.f)
+    :   chaseStrategy(this, chaseSpd, aggroRng, deAggroRng, stopDist, deAggroCD, enemies), pathFollowerStrategy(this, moveSpd), enemies(enemies)
     {
         currentStrategy = &pathFollowerStrategy;
         pathFollowerStrategy.setPath(path);
