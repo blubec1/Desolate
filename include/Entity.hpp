@@ -13,7 +13,8 @@ private:
 public:
     sf::Vector2f position = {0,0};
     sf::Vector2f prevPosition = {0,0};
-    
+    bool disabled = 1;
+
     virtual ~Entity() = default;
     
     template <typename T, typename... Args>

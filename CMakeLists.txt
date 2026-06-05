@@ -33,10 +33,12 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
     src/StrategyDrivers/WandererStrategyDriver.cpp
     src/Components/TimedAttackComponent.cpp
     src/Components/HPColorShadingComponent.cpp
-    src/Components/DeathSystemComponent.cpp
     src/Components/HealComponent.cpp
     src/Components/FogofWarComponent.cpp
-    src/Components/VisibilityComponent.cpp)
+    src/Components/VisibilityComponent.cpp
+    src/Components/ProtectionSystemComponent.cpp
+    src/Strategies/HuntStrategy.cpp
+    src/StrategyDrivers/HunterStrategyDriver.cpp)
 target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(main PRIVATE cxx_std_20)
 target_link_libraries(main PRIVATE SFML::Graphics)

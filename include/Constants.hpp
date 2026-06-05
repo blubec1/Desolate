@@ -79,3 +79,19 @@ const float LURKER_DE_AGGRO_COOLDOWN = 3.f;
 const float LURKER_ARRIVAL_DISTANCE = 100.f;
 const float LURKER_VISIBILITY_RANGE = 500.f;
 const float LURKER_TIME_TO_APPEAR = 1.f;
+
+const sf::Color HUNTER_COLOUR = sf::Color(30, 30, 30);
+const float HUNTER_RADIUS = 20.f;
+const float HUNTER_BASE_SPEED = 20.f;
+const float HUNTER_MAX_SPEED = 150.f;
+const float HUNTER_RAMP_UP_TIME = 5.f;
+const float HUNTER_KILL_RANGE = 15.f;
+const float HUNTER_VIEW_RANGE = 80.f;
+const float HUNTER_TIME_TO_APPEAR = 0.5f;
+const float HUNTER_MIN_RESPAWN_TIME = 2.f;
+const float HUNTER_MAX_RESPAWN_TIME = 5.f;
+
+const sf::Color HUNTER_LAIR_COLOUR = sf::Color(50, 50, 50);
+const float HUNTER_LAIR_RADIUS = 40.f;
+const float HUNTER_LAIR_VIEW_RANGE = 500.f;
+const float HUNTER_LAIR_TIME_TO_APPEAR = 1.f;

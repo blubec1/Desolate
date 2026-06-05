@@ -14,6 +14,10 @@ void StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> 
 
         if(scanComponent != nullptr)
         {
+            Entity* closest = nullptr;
+            float minDist = FLT_MAX;
+            sf::Vector2f ownerPos = owner->position;
+
             for(auto entity : scanComponent->getCollection())
             {
                 auto hpComponent = entity->getComponent<HealthComponent>();
@@ -21,18 +25,22 @@ void StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> 
 
                 if(hpComponent != nullptr && factionComponent != nullptr && enemies.contains(factionComponent->FactionID))
                 {
-                    sf::Vector2f delta = entity->position - owner->position;
-
-                    if(delta.length() <= attackRange)
+                    float dist = (entity->position - ownerPos).length();
+                    if(dist <= attackRange && dist < minDist)
                     {
-                        context.activeEffects.push_back(
-                            new AttackAnimation(owner->position, entity->position, 0.15f)
-                        );
-                        hpComponent->affectHealth(damage);
-                        attackTimer = attackCooldown;
-                        break;
+                        minDist = dist;
+                        closest = entity;
                     }
                 }
+            }
+
+            if(closest != nullptr)
+            {
+                context.activeEffects.push_back(
+                    new AttackAnimation(owner->position, closest->position, 0.15f)
+                );
+                closest->getComponent<HealthComponent>()->affectHealth(damage);
+                attackTimer = attackCooldown;
             }
         }
     }

@@ -14,14 +14,18 @@
 #include "Components/MapDrawingComponent.hpp"
 #include "Components/VisibilityComponent.hpp"
 #include "Components/HPColorShadingComponent.hpp"
-#include "Components/DeathSystemComponent.hpp"
 #include "Components/HealComponent.hpp"
 #include "Components/FactionComponent.hpp"
 #include "Components/FogofWarComponent.hpp"
 #include "Components/ResourceComponent.hpp"
+#include "Components/ProtectComponent.hpp"
+#include "Components/HunterLairComponent.hpp"
+#include "Components/ProtectionSystemComponent.hpp"
+#include "Components/ShockwaveComponent.hpp"
 #include "StrategyDrivers/WandererStrategyDriver.hpp"
 #include "StrategyDrivers/TerritorialStrategyDriver.hpp"
 #include "StrategyDrivers/LurkerStrategyDriver.hpp"
+#include "StrategyDrivers/HunterStrategyDriver.hpp"
 
 //завод!
 
@@ -44,6 +48,7 @@ namespace Desolate::Factory
         Squad->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
         Squad->addComponent<HPColorShadingComponent>();
         Squad->addComponent<FactionComponent>(ID);
+        Squad->addComponent<ShockwaveComponent>();
 
         return Squad;
     }
@@ -57,17 +62,6 @@ namespace Desolate::Factory
         Map->addComponent<MapDrawingComponent>(canvasX, canvasY, brushRadius, drawColour, eraseColour, tracedPathNodeDist);
 
         return Map;
-    }
-
-    inline Entity* createDeathSystemEntity()
-    {
-        Entity* DeathSystem = new Entity();
-
-        DeathSystem->position = sf::Vector2f(0,0);
-
-        DeathSystem->addComponent<DeathSystemComponent>();
-
-        return DeathSystem;
     }
 
     inline Entity* createWandererEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, TracedPath* path, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID, float timeToAppear)
@@ -153,7 +147,7 @@ namespace Desolate::Factory
         Entity* Lurker = new Entity();
 
         std::set<int> enemies;
-        //enemies.insert(PLAYER_FACTION);
+        enemies.insert(PLAYER_FACTION);
 
         Lurker->position = position;
         Lurker->addComponent<LurkerStrategyDriver>(patrolSpeed, patrolRadius, chaseSpeed, aggroRng, deAggroRng, shootRange, deAggroCD, arrivalDist, enemies);
@@ -166,5 +160,46 @@ namespace Desolate::Factory
         Lurker->addComponent<FactionComponent>(ID);
 
         return Lurker;
+    }
+
+    inline Entity* createHunterEntity(sf::Vector2f position, sf::Color colour, float radius, float baseSpeed, float maxSpeed, float rampTime, float killRange, float viewRng, float timeToAppear, float ID, float minRespawnTime, float maxRespawnTime, float arrivalDist)
+    {
+        Entity* Hunter = new Entity();
+
+        std::set<int> enemies;
+        enemies.insert(PLAYER_FACTION);
+
+        Hunter->position = position;
+        Hunter->addComponent<HunterStrategyDriver>(baseSpeed, maxSpeed, rampTime, killRange, arrivalDist);
+        Hunter->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
+        Hunter->addComponent<AreaScanComponent>();
+        Hunter->addComponent<VisibilityComponent>(viewRng, timeToAppear);
+        Hunter->addComponent<FactionComponent>(ID);
+        Hunter->addComponent<ShockwaveComponent>();
+
+        return Hunter;
+    }
+
+    inline Entity* createHunterLairEntity(sf::Vector2f position, sf::Color colour, float radius, float viewRng, float timeToAppear)
+    {
+        Entity* Lair = new Entity();
+
+        Lair->position = position;
+        Lair->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
+        Lair->addComponent<HunterLairComponent>();
+        Lair->addComponent<VisibilityComponent>(viewRng, timeToAppear);
+
+        return Lair;
+    }
+
+    inline Entity* createProtectionSystemEntity()
+    {
+        Entity* ProtectionSystem = new Entity();
+
+        ProtectionSystem->position = sf::Vector2f(0,0);
+
+        ProtectionSystem->addComponent<ProtectionSystemComponent>();
+
+        return ProtectionSystem;
     }
 }

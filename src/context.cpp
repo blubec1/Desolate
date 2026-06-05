@@ -50,7 +50,8 @@ void Context::entityUpdate()
 
     for(auto entity : entities)
     {
-        entity->update(*this);
+        if(entity->disabled == false)
+            entity->update(*this);
 
         if(entity->isMarkedForDeletion())
         {
@@ -76,7 +77,7 @@ void Context::entityDraw(sf::RenderTarget& target, sf::RenderStates states)
 
 bool Context::isEntityValid(Entity *entity)
 {
-    return entityCheck.contains(entity);
+    return entity == nullptr || entityCheck.contains(entity) || entity->disabled == true;
 }
 
 const std::vector<Entity *> &Context::getEntities()
