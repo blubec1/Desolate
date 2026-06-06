@@ -40,7 +40,8 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
     src/Strategies/HuntStrategy.cpp
     src/StrategyDrivers/HunterStrategyDriver.cpp
     src/Components/DeathSystemComponent.cpp
-    src/Components/RespawnComponent.cpp)
+    src/Components/RespawnComponent.cpp
+    src/Components/HealthIndicatorComponent.cpp)
 target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(main PRIVATE cxx_std_20)
 target_link_libraries(main PRIVATE SFML::Graphics)

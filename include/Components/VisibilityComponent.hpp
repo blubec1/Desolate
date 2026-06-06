@@ -7,6 +7,7 @@ class VisibilityComponent : public Component
     float viewRange;
     float timeAppeared;
     float timeToAppear;
+    float visionRatio;
     bool outOfVision;
     sf::Color originalColour;
     std::set<Entity*> visibleTo;

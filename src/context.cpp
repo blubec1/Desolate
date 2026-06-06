@@ -71,7 +71,7 @@ void Context::entityDraw(sf::RenderTarget& target, sf::RenderStates states)
 {
     for(auto entity : entities)
     {
-        if(entity->disabled == false)
+        if(entity->disabled == false && entity->hidden == false)
             entity->draw(target, states);
     }
 }

@@ -23,6 +23,7 @@
 #include "Components/ProtectionSystemComponent.hpp"
 #include "Components/DeathSystemComponent.hpp"
 #include "Components/ShockwaveComponent.hpp"
+#include "Components/HealthIndicatorComponent.hpp"
 #include "StrategyDrivers/WandererStrategyDriver.hpp"
 #include "StrategyDrivers/TerritorialStrategyDriver.hpp"
 #include "StrategyDrivers/LurkerStrategyDriver.hpp"
@@ -41,13 +42,13 @@ namespace Desolate::Factory
 
         Squad->position = position;
         Squad->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
+        Squad->addComponent<HealthIndicatorComponent>(radius + 5.f, 5.f);
         Squad->addComponent<HealthComponent>(MaxHP, MaxHP);
         Squad->addComponent<AreaScanComponent>();
         Squad->addComponent<MouseHitboxComponent>(radius);
         Squad->addComponent<PathFollowerComponent>(moveSpeed, colour, true);
         Squad->addComponent<StillAttackComponent>(damage, shootRange, attackCD, enemies);
         Squad->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
-        Squad->addComponent<HPColorShadingComponent>();
         Squad->addComponent<FactionComponent>(ID);
         Squad->addComponent<ShockwaveComponent>();
 
@@ -77,6 +78,7 @@ namespace Desolate::Factory
         Wanderer->addComponent<StandardRespawnComponent>(2.f, position);
         Wanderer->addComponent<WandererStrategyDriver>(path, moveSpeed, chaseSpeed, aggroRng, deAggroRng, deAggroCD, enemies, shootRange);
         Wanderer->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
+        Wanderer->addComponent<HealthIndicatorComponent>(radius + 5.f, 5.f);
         Wanderer->addComponent<HealthComponent>(MaxHP, MaxHP);
         Wanderer->addComponent<AreaScanComponent>();
         Wanderer->addComponent<TimedAttackComponent>(damage, shootRange, attackCD, enemies);
@@ -123,6 +125,7 @@ namespace Desolate::Factory
         Territorial->addComponent<StandardRespawnComponent>(2.f, position);
         Territorial->addComponent<TerritorialStrategyDriver>(patrolSpeed, patrolRadius, position, chaseSpeed, aggroRng, deAggroRng, deAggroCD, enemies, shootRange);
         Territorial->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
+        Territorial->addComponent<HealthIndicatorComponent>(radius + 5.f, 5.f);
         Territorial->addComponent<HealthComponent>(MaxHP, MaxHP);
         Territorial->addComponent<AreaScanComponent>();
         Territorial->addComponent<TimedAttackComponent>(damage, shootRange, attackCD, enemies);
@@ -155,6 +158,7 @@ namespace Desolate::Factory
         Lurker->position = position;
         Lurker->addComponent<LurkerStrategyDriver>(patrolSpeed, patrolRadius, chaseSpeed, aggroRng, deAggroRng, shootRange, deAggroCD, arrivalDist, enemies);
         Lurker->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
+        Lurker->addComponent<HealthIndicatorComponent>(radius + 5.f, 5.f);
         Lurker->addComponent<HealthComponent>(MaxHP, MaxHP);
         Lurker->addComponent<AreaScanComponent>();
         Lurker->addComponent<TimedAttackComponent>(damage, shootRange, attackCD, enemies);

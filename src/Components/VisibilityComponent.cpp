@@ -15,7 +15,7 @@ void VisibilityComponent::update(Context &context)
             if(!outOfVision)
             {
                 timeAppeared += context.deltaTime;
-                renderComponent->shouldBeDrawn = true;
+                owner->hidden = false;
             }
             else
             {
@@ -28,13 +28,11 @@ void VisibilityComponent::update(Context &context)
             if(timeAppeared < 0.f)
             {
                 timeAppeared = 0.f;
-                renderComponent->shouldBeDrawn = false;
+                owner->hidden = true;
             }
 
-            float ratio = timeAppeared / timeToAppear;
-
-            renderComponent->shapeColour = sf::Color(renderComponent->shapeColour.r, renderComponent->shapeColour.g, renderComponent->shapeColour.b, (int)(renderComponent->shapeColour.a * ratio));
-            renderComponent->updateVisual();
+            visionRatio = timeAppeared / timeToAppear;
+            visionRatio = std::clamp(visionRatio, 0.f, 1.f);
         }
     }
 }

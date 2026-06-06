@@ -95,3 +95,6 @@ const sf::Color HUNTER_LAIR_COLOUR = sf::Color(50, 50, 50);
 const float HUNTER_LAIR_RADIUS = 40.f;
 const float HUNTER_LAIR_VIEW_RANGE = 500.f;
 const float HUNTER_LAIR_TIME_TO_APPEAR = 1.f;
+
+const sf::Color PLAYER_HP_COLOUR = sf::Color::Blue;
+const sf::Color MONSTER_HP_COLOUR = sf::Color::Red;
