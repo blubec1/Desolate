@@ -2,6 +2,7 @@
 #include "StrategyDrivers/StrategyDriver.hpp"
 #include "Entity.hpp"
 #include "Components/FactionComponent.hpp"
+#include "Components/HealthComponent.hpp"
 
 void ChaseStrategy::init()
 {
@@ -10,6 +11,8 @@ void ChaseStrategy::init()
 
 Entity* ChaseStrategy::findNearestEnemy(Context& context)
 {
+    if(deAggroTimer > 0.f) return nullptr;
+
     scanComponent = driver->owner->getComponent<ScanComponent>();
     if (scanComponent == nullptr) return nullptr;
 
@@ -25,11 +28,15 @@ Entity* ChaseStrategy::findNearestEnemy(Context& context)
         sf::Vector2f delta = currentPos - entity->position;
 
         auto factionComponent = entity->getComponent<FactionComponent>();
+        auto healthComponent = entity->getComponent<HealthComponent>();
 
-        if (delta.length() <= aggroRange && delta.length() < minDist && enemies.contains(factionComponent->FactionID))
+        if(healthComponent != nullptr && factionComponent != nullptr)
         {
-            minDist = delta.length();
-            nearest = entity;
+            if (delta.length() <= aggroRange && delta.length() < minDist && enemies.contains(factionComponent->FactionID))
+            {
+                minDist = delta.length();
+                nearest = entity;
+            }
         }
     }
 
@@ -44,16 +51,15 @@ void ChaseStrategy::update(Context& context)
     {
         sf::Vector2f targetPos = chasedEntity->position;
         sf::Vector2f delta = targetPos - currentPos;
-        float distance = delta.length();
 
         sf::Vector2f chaseDelta = currentPos - chaseStartPoint;
-        if (chaseDelta.length() >= deAggroRange)
+        if(chaseDelta.length() > deAggroRange)
         {
-            chasedEntity = nullptr;
+            deAggroTimer = deAggroCooldown;
         }
-        else if(distance > stopDistance)
+        else if(delta.length() > stopDistance)
         {
-            sf::Vector2f direction = delta / distance;
+            sf::Vector2f direction = delta / delta.length();
             driver->move(direction * moveSpeed * context.deltaTime);
         }
     }

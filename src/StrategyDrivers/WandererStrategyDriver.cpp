@@ -14,7 +14,7 @@ void WandererStrategyDriver::update(Context &context)
         {
             if(chaseStrategy.deAggroTimer <= 0)
             {
-                if(chaseStrategy.findNearestEnemy(context) != nullptr)
+                if(context.isEntityValid(chaseStrategy.findNearestEnemy(context)))
                 {
                     setStrategy(&chaseStrategy);
                     chaseStrategy.init();
@@ -28,7 +28,7 @@ void WandererStrategyDriver::update(Context &context)
         {
             Entity* enemy = chaseStrategy.findNearestEnemy(context);
 
-            if (enemy != nullptr)
+            if (context.isEntityValid(enemy))
             {
                 chaseStrategy.chasedEntity = enemy;
             }

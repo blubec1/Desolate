@@ -13,7 +13,7 @@ private:
 public:
     sf::Vector2f position = {0,0};
     sf::Vector2f prevPosition = {0,0};
-    bool disabled = 1;
+    bool disabled = 0;
 
     virtual ~Entity() = default;
     

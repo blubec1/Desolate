@@ -71,13 +71,18 @@ void Context::entityDraw(sf::RenderTarget& target, sf::RenderStates states)
 {
     for(auto entity : entities)
     {
-        entity->draw(target, states);
+        if(entity->disabled == false)
+            entity->draw(target, states);
     }
 }
 
 bool Context::isEntityValid(Entity *entity)
 {
-    return entity == nullptr || entityCheck.contains(entity) || entity->disabled == true;
+    if(entity == nullptr)  
+        return false;
+    if(!entityCheck.contains(entity))
+        return false;
+    return entity->disabled == false;
 }
 
 const std::vector<Entity *> &Context::getEntities()

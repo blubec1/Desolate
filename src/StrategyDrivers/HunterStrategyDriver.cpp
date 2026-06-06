@@ -3,7 +3,6 @@
 #include "Components/ProtectComponent.hpp"
 #include "Components/HealthComponent.hpp"
 #include "Components/ScanComponent.hpp"
-#include "Components/DeadComponent.hpp"
 #include "Constants.hpp"
 #include "Entity.hpp"
 
@@ -71,8 +70,8 @@ void HunterStrategyDriver::update(Context& context)
             auto shockComp = huntStrategy.target->getComponent<ShockwaveComponent>();
             if (shockComp && shockComp->isShockwaved)
             {
-                auto deadComp = owner->getComponent<DeadComponent>();
-                deadComp->kill();
+                auto healthComp = owner->getComponent<HealthComponent>();
+                healthComp->kill();
                 setStrategy(&stillStrategy);
                 break;
             }

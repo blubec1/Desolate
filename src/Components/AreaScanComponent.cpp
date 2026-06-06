@@ -5,7 +5,7 @@ void AreaScanComponent::update(Context& context)
     this->entities.clear();
     for(auto entity : context.getEntities())
     {
-        if(entity != owner)
+        if(entity != owner && context.isEntityValid(entity))
         {
             auto visComponent = entity->getComponent<VisibilityComponent>();
             auto renderComponent = entity->getComponent<RenderComponent>();

@@ -32,6 +32,7 @@ int main()
 
 	path->addNode(node);
 
+	Entity* ENT_DeathSystem = Desolate::Factory::createDeathSystemEntity();
 	Entity* ENT_ProtectionSystem = Desolate::Factory::createProtectionSystemEntity();
 	Entity* ENT_FogofWarSystem = Desolate::Factory::createFogofWarEntity();
 	Entity* ENT_Map = Desolate::Factory::createMapEntity(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, MAP_DRAW_COLOUR, MAP_ERASE_COLOUR, TRACED_PATH_NODE_DIST);
@@ -40,23 +41,23 @@ int main()
 	Entity* ENT_Outpost = Desolate::Factory::createOutpostEntity(sf::Vector2f(200.f, 200.f), OUTPOST_COLOUR, OUTPOST_RADIUS, OUTPOST_HEAL_RANGE, OUTPOST_HEAL_VALUE, OUTPOST_HEAL_COOLDOWN, PLAYER_FACTION);
 	Entity* ENT_Squad = Desolate::Factory::createSquadEntity(sf::Vector2f(100.f, 100.f), SQUAD_COLOUR, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, SQUAD_DAMAGE, SQUAD_SHOOT_RANGE, SQUAD_ATTACK_COOLDOWN, SQUAD_MAX_HEALTH, STANDARD_VISIBILITY_RANGE, PLAYER_FACTION, SQUAD_TIME_TO_APPEAR);
 	Entity* ENT_Resource = Desolate::Factory::createResourceLocation(sf::Vector2f(100.f, 500.f), RESOURCE_COLOUR, RESOURCE_RADIUS, RESOURCE_VIEW_RANGE, RESOURCE_TIME_TO_APPEAR);
-	Entity* ENT_Lurker = Desolate::Factory::createLurkerEntity(sf::Vector2f(600.f, 600.f), LURKER_COLOUR, LURKER_RADIUS, LURKER_PATROL_SPEED, LURKER_PATROL_RADIUS, LURKER_CHASE_SPEED, LURKER_DAMAGE, LURKER_SHOOT_RANGE, LURKER_ATTACK_COOLDOWN, LURKER_MAX_HEALTH, LURKER_AGGRO_RANGE, LURKER_DE_AGGRO_RANGE, LURKER_DE_AGGRO_COOLDOWN, LURKER_ARRIVAL_DISTANCE, LURKER_VISIBILITY_RANGE, LURKER_TIME_TO_APPEAR, PLAYER_FACTION);
+	Entity* ENT_Lurker = Desolate::Factory::createLurkerEntity(sf::Vector2f(600.f, 600.f), LURKER_COLOUR, LURKER_RADIUS, LURKER_PATROL_SPEED, LURKER_PATROL_RADIUS, LURKER_CHASE_SPEED, LURKER_DAMAGE, LURKER_SHOOT_RANGE, LURKER_ATTACK_COOLDOWN, LURKER_MAX_HEALTH, LURKER_AGGRO_RANGE, LURKER_DE_AGGRO_RANGE, LURKER_DE_AGGRO_COOLDOWN, LURKER_ARRIVAL_DISTANCE, LURKER_VISIBILITY_RANGE, LURKER_TIME_TO_APPEAR, MONSTER_FACTION);
 	Entity* ENT_HunterLair1 = Desolate::Factory::createHunterLairEntity(sf::Vector2f(700.f, 100.f), HUNTER_LAIR_COLOUR, HUNTER_LAIR_RADIUS, HUNTER_LAIR_VIEW_RANGE, HUNTER_LAIR_TIME_TO_APPEAR);
 	Entity* ENT_HunterLair2 = Desolate::Factory::createHunterLairEntity(sf::Vector2f(700.f, 700.f), HUNTER_LAIR_COLOUR, HUNTER_LAIR_RADIUS, HUNTER_LAIR_VIEW_RANGE, HUNTER_LAIR_TIME_TO_APPEAR);
 	Entity* ENT_Hunter = Desolate::Factory::createHunterEntity(sf::Vector2f(700.f, 100.f), HUNTER_COLOUR, HUNTER_RADIUS, HUNTER_BASE_SPEED, HUNTER_MAX_SPEED, HUNTER_RAMP_UP_TIME, HUNTER_KILL_RANGE, HUNTER_VIEW_RANGE, HUNTER_TIME_TO_APPEAR, MONSTER_FACTION, HUNTER_MIN_RESPAWN_TIME, HUNTER_MAX_RESPAWN_TIME, 50.f);
 
-	ENT_Outpost->addComponent<VisibilityComponent>(OUTPOST_HEAL_RANGE, 0.f);
-	ENT_Outpost->addComponent<ProtectComponent>(true, true, 500.f);
-	ENT_Squad->addComponent<ProtectComponent>(false, false);
+	//ENT_Outpost->addComponent<VisibilityComponent>(OUTPOST_HEAL_RANGE, 0.f);
+	//ENT_Outpost->addComponent<ProtectComponent>(true, true, 500.f);
+	//ENT_Squad->addComponent<ProtectComponent>(false, false);
 
 	sf::Clock deltaClock;
 	Input input;
 	Context context(&window, &input);
 	CURRENTTOOL currTool = MAP;
 
-	context.addEntity(ENT_ProtectionSystem);
+	//context.addEntity(ENT_ProtectionSystem);
 	context.addEntity(ENT_Map);
-	//context.addEntity(ENT_Wanderer);
+	context.addEntity(ENT_Wanderer);
 	context.addEntity(ENT_Territorial);
 	context.addEntity(ENT_Outpost);
 	context.addEntity(ENT_Squad);
@@ -64,8 +65,9 @@ int main()
 	context.addEntity(ENT_Lurker);
 	context.addEntity(ENT_HunterLair1);
 	context.addEntity(ENT_HunterLair2);
-	context.addEntity(ENT_Hunter);
+//	context.addEntity(ENT_Hunter);
 	context.addEntity(ENT_FogofWarSystem);
+	context.addEntity(ENT_DeathSystem);
 
 	while(window.isOpen())
 	{

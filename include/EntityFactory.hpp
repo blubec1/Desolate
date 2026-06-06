@@ -21,6 +21,7 @@
 #include "Components/ProtectComponent.hpp"
 #include "Components/HunterLairComponent.hpp"
 #include "Components/ProtectionSystemComponent.hpp"
+#include "Components/DeathSystemComponent.hpp"
 #include "Components/ShockwaveComponent.hpp"
 #include "StrategyDrivers/WandererStrategyDriver.hpp"
 #include "StrategyDrivers/TerritorialStrategyDriver.hpp"
@@ -73,6 +74,7 @@ namespace Desolate::Factory
         enemies.insert(PLAYER_FACTION);
 
         Wanderer->position = position;
+        Wanderer->addComponent<StandardRespawnComponent>(2.f, position);
         Wanderer->addComponent<WandererStrategyDriver>(path, moveSpeed, chaseSpeed, aggroRng, deAggroRng, deAggroCD, enemies, shootRange);
         Wanderer->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
         Wanderer->addComponent<HealthComponent>(MaxHP, MaxHP);
@@ -118,6 +120,7 @@ namespace Desolate::Factory
         enemies.insert(PLAYER_FACTION);
 
         Territorial->position = position;
+        Territorial->addComponent<StandardRespawnComponent>(2.f, position);
         Territorial->addComponent<TerritorialStrategyDriver>(patrolSpeed, patrolRadius, position, chaseSpeed, aggroRng, deAggroRng, deAggroCD, enemies, shootRange);
         Territorial->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
         Territorial->addComponent<HealthComponent>(MaxHP, MaxHP);
@@ -201,5 +204,16 @@ namespace Desolate::Factory
         ProtectionSystem->addComponent<ProtectionSystemComponent>();
 
         return ProtectionSystem;
+    }
+
+inline Entity* createDeathSystemEntity()
+    {
+        Entity* DeathSystemEntity = new Entity();
+
+        DeathSystemEntity->position = sf::Vector2f(0,0);
+
+        DeathSystemEntity->addComponent<DeathSystemComponent>();
+
+        return DeathSystemEntity;
     }
 }
