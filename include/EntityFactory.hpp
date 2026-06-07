@@ -3,6 +3,7 @@
 #include "Components/Component.hpp"
 #include "Components/AreaScanComponent.hpp"
 #include "Components/CircleRenderComponent.hpp"
+#include "Components/RectRenderComponent.hpp"
 #include "Components/HealthComponent.hpp"
 #include "Components/MouseHitboxComponent.hpp"
 #include "Components/MovementComponent.hpp"
@@ -25,6 +26,8 @@
 #include "Components/ShockwaveComponent.hpp"
 #include "Components/HealthIndicatorComponent.hpp"
 #include "Components/NumberComponent.hpp"
+#include "Components/ButtonComponent.hpp"
+#include "Components/ResourceManagerComponent.hpp"
 #include "StrategyDrivers/WandererStrategyDriver.hpp"
 #include "StrategyDrivers/TerritorialStrategyDriver.hpp"
 #include "StrategyDrivers/LurkerStrategyDriver.hpp"
@@ -227,8 +230,23 @@ namespace Desolate::Factory
         Entity* UIEntity = new Entity();
 
         UIEntity->position = sf::Vector2f(0,800);
+        auto text = UIEntity->addComponent<NumberComponent>(sf::Vector2f(100.f, 100.f), fontNumbers);
+        text->changeNumber(1234567890);
+        auto* circle = UIEntity->addComponent<CircleRenderComponent>(sf::Vector2f(200.f, 100.f), 30.f, sf::Color::Blue);
+        UIEntity->addComponent<ButtonComponent>(circle->shape, "Click", fontLetters, [](){});
+        auto* rect = UIEntity->addComponent<RectRenderComponent>(sf::Vector2f(300.f, 100.f), sf::Vector2f(80.f, 50.f), sf::Color::Green);
+        UIEntity->addComponent<ButtonComponent>(rect->shape, "Push", fontLetters, [](){});
 
-        UIEntity->addComponent<NumberComponent>(sf::Vector2f(100.f, 100.f), fontNumbers);
+        auto* resMgr = UIEntity->addComponent<ResourceManagerComponent>();
+
+        auto* metalRect = UIEntity->addComponent<RectRenderComponent>(sf::Vector2f(400.f, 100.f), sf::Vector2f(80.f, 50.f), sf::Color::Yellow);
+        UIEntity->addComponent<ButtonComponent>(metalRect->shape, "Metal", fontLetters, resMgr->onAddMetal);
+
+        auto* foodRect = UIEntity->addComponent<RectRenderComponent>(sf::Vector2f(500.f, 100.f), sf::Vector2f(80.f, 50.f), sf::Color(100, 200, 100));
+        UIEntity->addComponent<ButtonComponent>(foodRect->shape, "Food", fontLetters, resMgr->onAddFood);
+
+        auto* peopleRect = UIEntity->addComponent<RectRenderComponent>(sf::Vector2f(600.f, 100.f), sf::Vector2f(80.f, 50.f), sf::Color::Cyan);
+        UIEntity->addComponent<ButtonComponent>(peopleRect->shape, "People", fontLetters, resMgr->onAddPeople);
 
         return UIEntity;
     }

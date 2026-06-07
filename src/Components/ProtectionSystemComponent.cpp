@@ -1,6 +1,5 @@
 #include "Components/ProtectionSystemComponent.hpp"
 #include "Components/ProtectComponent.hpp"
-#include "Components/StillAttackComponent.hpp"
 #include "Entity.hpp"
 #include <iostream>
 
@@ -38,10 +37,5 @@ void ProtectionSystemComponent::update(Context& context)
                 break;
             }
         }
-
-        auto check = entity->getComponent<StillAttackComponent>();
-
-        if(check != nullptr)
-            std::cout<<protectComponent->isProtected<<"\n";
     }
 }

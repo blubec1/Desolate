@@ -3,10 +3,10 @@
 
 void CircleRenderComponent::updateVisual()
 {
-    shape.setFillColor(shapeColour);
+    shapeCircle.setFillColor(shapeColour);
 }
 
 void CircleRenderComponent::drawVisual(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    target.draw(shape, states);
+    target.draw(shapeCircle, states);
 }

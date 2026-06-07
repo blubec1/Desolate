@@ -5,15 +5,16 @@ class CircleRenderComponent : public RenderComponent
 {
     public:
 
-    sf::CircleShape shape;
+    sf::CircleShape shapeCircle;
 
     CircleRenderComponent(sf::Vector2f relativePosition, float radius, sf::Color clr)
     {
         originalColour = shapeColour = clr;
-        shape.setPosition(relativePosition);
-        shape.setFillColor(shapeColour);
-        shape.setRadius(radius);
-        shape.setOrigin(sf::Vector2f(radius, radius));
+        shapeCircle.setPosition(relativePosition);
+        shapeCircle.setFillColor(shapeColour);
+        shapeCircle.setRadius(radius);
+        shapeCircle.setOrigin(sf::Vector2f(radius, radius));
+        shape = &shapeCircle;
     };
 
     virtual void updateVisual() override;

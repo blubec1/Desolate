@@ -6,6 +6,7 @@ class RenderComponent : public Component
 {
 public:
 
+    sf::Shape* shape = nullptr;
     sf::Vector2f position;
     bool shouldBeDrawn = 1;
     sf::Color shapeColour;

@@ -22,6 +22,7 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
     src/Components/PathFollowerComponent.cpp
     src/Components/MouseHitboxComponent.cpp
     src/Components/CircleRenderComponent.cpp
+    src/Components/RectRenderComponent.cpp
     src/Components/AttackComponent.cpp
     src/Strategies/PathFollowerStrategy.cpp
     src/Strategies/AreaPatrolStrategy.cpp
@@ -42,7 +43,9 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
     src/Components/DeathSystemComponent.cpp
     src/Components/RespawnComponent.cpp
     src/Components/HealthIndicatorComponent.cpp
-    src/Components/NumberComponent.cpp)
+    src/Components/NumberComponent.cpp
+    src/Components/ButtonComponent.cpp
+    src/Components/ResourceManagerComponent.cpp)
 target_compile_definitions(main PRIVATE RESOURCE_DIR="${CMAKE_SOURCE_DIR}/resources")
 target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(main PRIVATE cxx_std_20)
