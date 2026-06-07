@@ -28,19 +28,23 @@ Entity* HunterStrategyDriver::findNearestUnprotectedEnemy(Context& context)
     float minDist = FLT_MAX;
     sf::Vector2f currentPos = owner->position;
 
-    auto scanComp = owner->getComponent<ScanComponent>();
-    if (!scanComp) return nullptr;
+    auto scanComponent = owner->getComponent<ScanComponent>();
+    if (!scanComponent) return nullptr;
 
-    for (auto entity : scanComp->getCollection())
+    for (auto entity : scanComponent->getCollection())
     {
-        auto factionComp = entity->getComponent<FactionComponent>();
-        if (!factionComp || factionComp->FactionID != PLAYER_FACTION) continue;
+        auto factionComponent = entity->getComponent<FactionComponent>();
 
-        auto healthComp = entity->getComponent<HealthComponent>();
-        if (!healthComp) continue;
+        if(factionComponent == nullptr) continue;
 
-        auto protectComp = entity->getComponent<ProtectComponent>();
-        if (protectComp && protectComp->isProtected) continue;
+        if(!enemies.contains(factionComponent->FactionID)) continue;
+
+        auto healthComponent = entity->getComponent<HealthComponent>();
+        if (healthComponent == nullptr) continue;
+
+        auto protectComponent = entity->getComponent<ProtectComponent>();
+        if(protectComponent == nullptr) continue;
+        if(protectComponent->isProtected) continue;
 
         float dist = (entity->position - currentPos).length();
         if (dist < minDist)
@@ -59,7 +63,9 @@ void HunterStrategyDriver::update(Context& context)
     {
         case HUNT:
         {
-            if (!context.isEntityValid(huntStrategy.target))
+            Entity* enemy = findNearestUnprotectedEnemy(context);
+
+            if (!context.isEntityValid(enemy))
             {
                 huntStrategy.target = nullptr;
                 setStrategy(&stillStrategy);
@@ -70,8 +76,8 @@ void HunterStrategyDriver::update(Context& context)
             auto shockComp = huntStrategy.target->getComponent<ShockwaveComponent>();
             if (shockComp && shockComp->isShockwaved)
             {
-                auto healthComp = owner->getComponent<HealthComponent>();
-                healthComp->kill();
+                auto healthComponent = owner->getComponent<HealthComponent>();
+                healthComponent->kill();
                 setStrategy(&stillStrategy);
                 break;
             }
@@ -82,7 +88,8 @@ void HunterStrategyDriver::update(Context& context)
         case IDLE:
         {
             Entity* enemy = findNearestUnprotectedEnemy(context);
-            if (enemy != nullptr)
+
+            if (context.isEntityValid(enemy) != false)
             {
                 huntStrategy.setTarget(enemy);
                 setStrategy(&huntStrategy);
@@ -104,7 +111,8 @@ void HunterStrategyDriver::update(Context& context)
         case RETURN_TO_LAIR:
         {
             Entity* enemy = findNearestUnprotectedEnemy(context);
-            if (enemy != nullptr)
+
+            if (context.isEntityValid(enemy) != false)
             {
                 huntStrategy.setTarget(enemy);
                 setStrategy(&huntStrategy);

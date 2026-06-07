@@ -24,12 +24,13 @@
 #include "Components/DeathSystemComponent.hpp"
 #include "Components/ShockwaveComponent.hpp"
 #include "Components/HealthIndicatorComponent.hpp"
+#include "Components/NumberComponent.hpp"
 #include "StrategyDrivers/WandererStrategyDriver.hpp"
 #include "StrategyDrivers/TerritorialStrategyDriver.hpp"
 #include "StrategyDrivers/LurkerStrategyDriver.hpp"
 #include "StrategyDrivers/HunterStrategyDriver.hpp"
 
-//завод!
+//Завод!
 
 namespace Desolate::Factory
 {
@@ -177,7 +178,7 @@ namespace Desolate::Factory
         enemies.insert(PLAYER_FACTION);
 
         Hunter->position = position;
-        Hunter->addComponent<HunterStrategyDriver>(baseSpeed, maxSpeed, rampTime, killRange, arrivalDist);
+        Hunter->addComponent<HunterStrategyDriver>(baseSpeed, maxSpeed, rampTime, killRange, arrivalDist, enemies);
         Hunter->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
         Hunter->addComponent<AreaScanComponent>();
         Hunter->addComponent<VisibilityComponent>(viewRng, timeToAppear);
@@ -210,7 +211,7 @@ namespace Desolate::Factory
         return ProtectionSystem;
     }
 
-inline Entity* createDeathSystemEntity()
+    inline Entity* createDeathSystemEntity()
     {
         Entity* DeathSystemEntity = new Entity();
 
@@ -219,5 +220,16 @@ inline Entity* createDeathSystemEntity()
         DeathSystemEntity->addComponent<DeathSystemComponent>();
 
         return DeathSystemEntity;
+    }
+
+    inline Entity* createUIEntity(const sf::Font& fontNumbers, const sf::Font& fontLetters)
+    {
+        Entity* UIEntity = new Entity();
+
+        UIEntity->position = sf::Vector2f(0,800);
+
+        UIEntity->addComponent<NumberComponent>(sf::Vector2f(100.f, 100.f), fontNumbers);
+
+        return UIEntity;
     }
 }

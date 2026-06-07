@@ -1,14 +1,16 @@
 #include "Components/ProtectionSystemComponent.hpp"
 #include "Components/ProtectComponent.hpp"
+#include "Components/StillAttackComponent.hpp"
 #include "Entity.hpp"
+#include <iostream>
 
 void ProtectionSystemComponent::update(Context& context)
 {
     std::vector<Entity*> protectors;
     for (auto entity : context.getEntities())
     {
-        auto pc = entity->getComponent<ProtectComponent>();
-        if (pc && pc->protectsOthers)
+        auto protectComponent = entity->getComponent<ProtectComponent>();
+        if (protectComponent && protectComponent->protectsOthers)
         {
             protectors.push_back(entity);
         }
@@ -16,25 +18,30 @@ void ProtectionSystemComponent::update(Context& context)
 
     for (auto entity : context.getEntities())
     {
-        auto pc = entity->getComponent<ProtectComponent>();
-        if (!pc) continue;
+        auto protectComponent = entity->getComponent<ProtectComponent>();
+        if (!protectComponent) continue;
 
-        if (pc->protectsOthers)
+        if (protectComponent->protectsOthers)
         {
-            pc->isProtected = true;
+            protectComponent->isProtected = true;
             continue;
         }
 
-        pc->isProtected = false;
+        protectComponent->isProtected = false;
         for (auto protector : protectors)
         {
             auto protectorComp = protector->getComponent<ProtectComponent>();
             float dist = (entity->position - protector->position).length();
             if (dist <= protectorComp->protectRange)
             {
-                pc->isProtected = true;
+                protectComponent->isProtected = true;
                 break;
             }
         }
+
+        auto check = entity->getComponent<StillAttackComponent>();
+
+        if(check != nullptr)
+            std::cout<<protectComponent->isProtected<<"\n";
     }
 }

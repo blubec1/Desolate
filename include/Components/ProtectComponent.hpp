@@ -9,5 +9,5 @@ class ProtectComponent : public Component
     float protectRange;
 
     ProtectComponent(bool protects, bool protectedState, float protectRange = 0.f)
-    : protectsOthers(protects), isProtected(protectedState), protectRange(protectRange) {}
+    : protectsOthers(protects), isProtected(protectedState), protectRange(protectRange) {} 
 };
