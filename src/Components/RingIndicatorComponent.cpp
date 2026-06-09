@@ -77,6 +77,40 @@ sf::Color RingIndicatorComponent::healthColor(float ratio)
     }
 }
 
+sf::Color RingIndicatorComponent::supplyColor(float ratio)
+{
+    if (ratio > 0.6f)
+    {
+        float t = (ratio - 0.6f) / 0.4f;
+        return sf::Color(
+            static_cast<std::uint8_t>(static_cast<int>(64 * (1.f - t))),
+            static_cast<std::uint8_t>(static_cast<int>(128 + 127 * t)),
+            255,
+            255
+        );
+    }
+    else if (ratio > 0.3f)
+    {
+        float t = (ratio - 0.3f) / 0.3f;
+        return sf::Color(
+            0,
+            static_cast<std::uint8_t>(static_cast<int>(200 + 55 * (1.f - t))),
+            255,
+            255
+        );
+    }
+    else
+    {
+        float t = ratio / 0.3f;
+        return sf::Color(
+            static_cast<std::uint8_t>(static_cast<int>(255 * (1.f - t))),
+            static_cast<std::uint8_t>(static_cast<int>(100 * t)),
+            0,
+            255
+        );
+    }
+}
+
 void RingIndicatorComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
 {
     if (owner == nullptr) return;
@@ -98,7 +132,7 @@ void RingIndicatorComponent::draw(sf::RenderTarget& target, sf::RenderStates sta
         if(factionComponent != nullptr)
             factionID = factionComponent->FactionID;
 
-        sf::Color foregroundColor = healthColor(ratio);
+        sf::Color foregroundColor = (colorScheme == Supply) ? supplyColor(ratio) : healthColor(ratio);
         sf::VertexArray foregroundVertexArray;
 
         float start = -std::numbers::pi/2; //trigonometric circle is flipped because of how matrices work

@@ -25,11 +25,13 @@
 #include "Components/DeathSystemComponent.hpp"
 #include "Components/ShockwaveComponent.hpp"
 #include "Components/RingIndicatorComponent.hpp"
+#include "Components/SupplyComponent.hpp"
 #include "Components/NumberComponent.hpp"
 #include "Components/ButtonComponent.hpp"
 #include "Components/SliderComponent.hpp"
 #include "Components/TriggerRadiusComponent.hpp"
 #include "Components/ResourceManager.hpp"
+#include "Components/SupplyReplenishComponent.hpp"
 #include "StrategyDrivers/WandererStrategyDriver.hpp"
 #include "StrategyDrivers/TerritorialStrategyDriver.hpp"
 #include "StrategyDrivers/LurkerStrategyDriver.hpp"
@@ -47,12 +49,12 @@
 
 namespace Desolate::Factory
 {
-    inline Entity* createSquadEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID, float timeToAppear)
+    inline Entity* createSquadEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID, float timeToAppear, float enemyFaction, float supplyMax, float supplyDrainRate, float supplyHpDrainRate)
     {
         Entity *Squad = new Entity();
 
         std::set<int> enemies;
-        enemies.insert(MONSTER_FACTION);
+        enemies.insert(enemyFaction);
 
         Squad->position = position;
         Squad->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
@@ -60,6 +62,11 @@ namespace Desolate::Factory
         auto* squadRing = Squad->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
         squadRing->valuePtr = &squadHealth->HealthValue;
         squadRing->maxValue = squadHealth->HealthMax;
+        auto* squadSupply = Squad->addComponent<SupplyComponent>(supplyMax, supplyMax, supplyDrainRate, supplyHpDrainRate);
+        auto* supplyRing = Squad->addComponent<RingIndicatorComponent>(radius + 12.f, 3.f);
+        supplyRing->valuePtr = &squadSupply->supplyValue;
+        supplyRing->maxValue = squadSupply->supplyMax;
+        supplyRing->colorScheme = RingIndicatorComponent::Supply;
         Squad->addComponent<AreaScanComponent>();
         Squad->addComponent<MouseHitboxComponent>(radius);
         Squad->addComponent<PathFollowerComponent>(moveSpeed, colour, true);
@@ -107,14 +114,15 @@ namespace Desolate::Factory
         return Wanderer;
     }
 
-    inline Entity* createOutpostEntity(sf::Vector2f position, sf::Color colour, float radius, float healRange, float healValue, float healCooldown, float ID, float triggerRadius)
+    inline Entity* createOutpostEntity(sf::Vector2f position, sf::Color colour, float radius, float healRange, float healValue, float supplyRange, float supplyvalue, float ID, float triggerRadius)
     {
         Entity* Outpost = new Entity();
 
         Outpost->position = position;
         Outpost->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
         Outpost->addComponent<AreaScanComponent>();
-        Outpost->addComponent<HealComponent>(healRange, healValue, healCooldown);
+        Outpost->addComponent<HealComponent>(healRange, healValue);
+        Outpost->addComponent<SupplyReplenishComponent>(supplyRange, supplyvalue);
         Outpost->addComponent<FactionComponent>(ID);
 
         auto* trigger = Outpost->addComponent<TriggerRadiusComponent>(triggerRadius);

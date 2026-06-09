@@ -8,11 +8,9 @@ class HealComponent : public Component
 
     float healRange;
     float healValue;
-    float healTimer;
-    float healCooldown;
 
-    HealComponent(float healRng, float healVal, float healCD)
-    : healRange(healRng), healValue(healVal), healCooldown(healCD) {}
+    HealComponent(float healRng, float healVal)
+    : healRange(healRng), healValue(healVal) {}
 
-    virtual void update(Context& context) override;
+    void update(Context& context) override;
 };

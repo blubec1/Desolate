@@ -12,6 +12,9 @@ class RingIndicatorComponent : public Component
     sf::Color backgroundColor;
 
     public:
+    enum ColorScheme { Health, Supply };
+    ColorScheme colorScheme = Health;
+
     float* valuePtr = nullptr;
     float maxValue = 1.f;
 
@@ -22,5 +25,6 @@ class RingIndicatorComponent : public Component
 
     void buildRing(sf::VertexArray& va, float startAngle, float endAngle, sf::Color color, int factionID) const;
     static sf::Color healthColor(float ratio);
+    static sf::Color supplyColor(float ratio);
 
 };

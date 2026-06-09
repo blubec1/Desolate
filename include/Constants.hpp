@@ -51,15 +51,21 @@ const float TERRITORIAL_TIME_TO_APPEAR = 1.f;
 
 const float OUTPOST_RADIUS = 100.f;
 const float OUTPOST_HEAL_RANGE = 250.f;
-const float OUTPOST_HEAL_VALUE = 50.f;
-const float OUTPOST_HEAL_COOLDOWN = 1.f;
+const float OUTPOST_HEAL_VALUE = 20.f;
 const float OUTPOST_TRIGGER_RADIUS = 250.f;
+
+const float OUTPOST_SUPPLY_REPLENISH_RANGE = 250.f;
+const float OUTPOST_SUPPLY_REPLENISH_RATE = 10.f;
 
 const float AIRDROP_RADIUS = 20.f;
 const float AIRDROP_TRIGGER_RADIUS = 50.f;
 const float AIRDROP_VIEW_RANGE = 500.f;
 const float AIRDROP_TIME_TO_APPEAR = 1.f;
 const sf::Color AIRDROP_COLOUR = sf::Color(255, 215, 0);
+
+const float SQUAD_SUPPLY_MAX = 100.f;
+const float SQUAD_SUPPLY_DRAIN_RATE = 5.f;
+const float SQUAD_SUPPLY_HP_DRAIN_RATE = 10.f;
 
 const float SQUAD_DAMAGE = 100.f;
 const float SQUAD_SHOOT_RANGE = 500.f;
