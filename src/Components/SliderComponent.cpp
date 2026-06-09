@@ -7,6 +7,7 @@
 void SliderComponent::update(Context& context)
 {
     sf::Vector2f mousePos = sf::Vector2f(context.input->mousePos);
+    //the shape's position is NOT global, meaning we need to convert the mousePos to the owner's local space
     sf::Vector2f localMouse = mousePos - owner->position;
 
     isHovered = notchShape->getGlobalBounds().contains(localMouse);

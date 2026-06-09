@@ -29,6 +29,7 @@
 #include "Components/NumberComponent.hpp"
 #include "Components/ButtonComponent.hpp"
 #include "Components/SliderComponent.hpp"
+#include "Components/KnobComponent.hpp"
 #include "Components/TriggerRadiusComponent.hpp"
 #include "Components/ResourceManager.hpp"
 #include "Components/SupplyReplenishComponent.hpp"
@@ -306,24 +307,63 @@ namespace Desolate::Factory
         auto* peopleDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(600.f, 80.f), fontNumbers);
         peopleDisplay->valuePtr = &resManager->people;
 
-        auto* metalRect = UIEntity->addComponent<RectRenderComponent>(sf::Vector2f(400.f, 140.f), sf::Vector2f(80.f, 50.f), sf::Color::Yellow);
-        UIEntity->addComponent<ButtonComponent>(metalRect->shape, "Metal", fontLetters, [resManager]() { resManager->addMetal(10); });
+        
+        auto* metalBtnShape = new sf::RectangleShape(sf::Vector2f(80.f, 50.f));
+        metalBtnShape->setPosition(sf::Vector2f(400.f, 140.f));
+        metalBtnShape->setFillColor(sf::Color::Yellow);
+        metalBtnShape->setOrigin(sf::Vector2f(40.f, 25.f));
+        UIEntity->addComponent<ButtonComponent>(metalBtnShape, "Metal", fontLetters, [resManager]() { resManager->addMetal(10); });
+    
 
-        auto* foodRect = UIEntity->addComponent<RectRenderComponent>(sf::Vector2f(500.f, 140.f), sf::Vector2f(80.f, 50.f), sf::Color(100, 200, 100));
-        UIEntity->addComponent<ButtonComponent>(foodRect->shape, "Food", fontLetters, [resManager]() { resManager->addFood(10); });
+    
+        auto* foodBtnShape = new sf::RectangleShape(sf::Vector2f(80.f, 50.f));
+        foodBtnShape->setPosition(sf::Vector2f(500.f, 140.f));
+        foodBtnShape->setFillColor(sf::Color(100, 200, 100));
+        foodBtnShape->setOrigin(sf::Vector2f(40.f, 25.f));
+        UIEntity->addComponent<ButtonComponent>(foodBtnShape, "Food", fontLetters, [resManager]() { resManager->addFood(10); });
+    
 
         auto* workingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(570.f, 115.f), fontNumbers);
         workingDisplay->valuePtr = &resManager->workingPeople;
+
         auto* nonWorkingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(630.f, 115.f), fontNumbers);
         nonWorkingDisplay->valuePtr = &resManager->nonWorkingPeople;
 
-        auto* ratioTrack = UIEntity->addComponent<RectRenderComponent>(sf::Vector2f(600.f, 115.f), sf::Vector2f(60.f, 10.f), sf::Color(100, 100, 100));
-        auto* ratioNotch = UIEntity->addComponent<CircleRenderComponent>(sf::Vector2f(600.f, 115.f), 8.f, sf::Color::White);
-        UIEntity->addComponent<SliderComponent>(ratioTrack->shape, ratioNotch->shape, &resManager->workRatio, 0.f, 1.f);
+    
+        auto* ratioTrackShape = new sf::RectangleShape(sf::Vector2f(60.f, 10.f));
+        ratioTrackShape->setPosition(sf::Vector2f(600.f, 115.f));
+        ratioTrackShape->setFillColor(sf::Color(100, 100, 100));
+        ratioTrackShape->setOrigin(sf::Vector2f(30.f, 5.f));
 
-        auto* peopleRect = UIEntity->addComponent<RectRenderComponent>(sf::Vector2f(600.f, 170.f), sf::Vector2f(80.f, 50.f), sf::Color::Cyan);
-        UIEntity->addComponent<ButtonComponent>(peopleRect->shape, "KICK OUT", fontLetters, [resManager]() { resManager->addPeople(-1); });
+        auto* ratioNotchShape = new sf::CircleShape(8.f);
+        ratioNotchShape->setPosition(sf::Vector2f(600.f, 115.f));
+        ratioNotchShape->setFillColor(sf::Color::White);
+        ratioNotchShape->setOrigin(sf::Vector2f(8.f, 8.f));
+        UIEntity->addComponent<SliderComponent>(ratioTrackShape, ratioNotchShape, &resManager->workRatio, 0.f, 1.f);
+    
 
+    
+        auto* peopleBtnShape = new sf::RectangleShape(sf::Vector2f(80.f, 50.f));
+        peopleBtnShape->setPosition(sf::Vector2f(600.f, 170.f));
+        peopleBtnShape->setFillColor(sf::Color::Cyan);
+        peopleBtnShape->setOrigin(sf::Vector2f(40.f, 25.f));
+        UIEntity->addComponent<ButtonComponent>(peopleBtnShape, "KICK OUT", fontLetters, [resManager]() { resManager->addPeople(-1); });
+    
+
+        
+        int* knobTestValue = new int(0);
+
+        auto* knobDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(700.f, 80.f), fontNumbers);
+        knobDisplay->valuePtr = knobTestValue;
+
+        auto* testKnobShape = new sf::CircleShape(15.f);
+        testKnobShape->setPosition(sf::Vector2f(700.f, 115.f));
+        testKnobShape->setFillColor(sf::Color::White);
+        testKnobShape->setOrigin(sf::Vector2f(15.f, 15.f));
+        
+        auto* knob = UIEntity->addComponent<KnobComponent>(knobTestValue, 0, 100, 100.f);
+        knob->hitboxShape = testKnobShape;
+    
         return UIEntity;
     }
 }

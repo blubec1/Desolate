@@ -50,7 +50,8 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
     src/Components/ResourceManager.cpp
     src/Components/ResourceComponent.cpp
     src/Components/SupplyComponent.cpp
-    src/Components/SupplyReplenishComponent.cpp)
+    src/Components/SupplyReplenishComponent.cpp
+    src/Components/KnobComponent.cpp)
 target_compile_definitions(main PRIVATE RESOURCE_DIR="${CMAKE_SOURCE_DIR}/resources")
 target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(main PRIVATE cxx_std_20)

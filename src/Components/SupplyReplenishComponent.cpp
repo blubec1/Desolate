@@ -20,7 +20,7 @@ void SupplyReplenishComponent::update(Context& context)
 
         if(delta.length() <= replenishRange && supplyComponent != nullptr && factionComponent != nullptr && factionComponent->FactionID == ownerFactionComponent->FactionID)
         {
-            supplyComponent->replenish(replenishRate * context.deltaTime);
+            supplyComponent->replenish(replenishRate * context.deltaTime + supplyComponent->drainRate * context.deltaTime);
         }
     }
 }

@@ -17,6 +17,8 @@ public:
     sf::Color hoverBorderColor = sf::Color::Yellow;
     sf::Color pressedBorderColor = sf::Color::Red;
 
+    ~ButtonComponent() override { delete hitboxShape; }
+
     ButtonComponent(sf::Shape* shape, const std::string& text, const sf::Font& font, std::function<void()> callback)
     : hitboxShape(shape), label(font, text, 24), onClick(callback)
     {

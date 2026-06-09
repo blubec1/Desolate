@@ -16,6 +16,8 @@ public:
 
     sf::Color notchColor;
 
+    ~SliderComponent() override { delete trackShape; delete notchShape; }
+
     SliderComponent(sf::Shape* track, sf::Shape* notch, float* value, float min, float max)
         : trackShape(track), notchShape(notch), valuePtr(value), minValue(min), maxValue(max)
     {
