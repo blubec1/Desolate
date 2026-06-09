@@ -15,6 +15,7 @@ public:
     sf::Vector2f prevPosition = {0,0};
     bool disabled = 0;
     bool hidden = 0;
+    int updatePriority = 0;
 
     virtual ~Entity() = default;
     

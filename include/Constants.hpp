@@ -53,6 +53,13 @@ const float OUTPOST_RADIUS = 100.f;
 const float OUTPOST_HEAL_RANGE = 250.f;
 const float OUTPOST_HEAL_VALUE = 50.f;
 const float OUTPOST_HEAL_COOLDOWN = 1.f;
+const float OUTPOST_TRIGGER_RADIUS = 250.f;
+
+const float AIRDROP_RADIUS = 20.f;
+const float AIRDROP_TRIGGER_RADIUS = 50.f;
+const float AIRDROP_VIEW_RANGE = 500.f;
+const float AIRDROP_TIME_TO_APPEAR = 1.f;
+const sf::Color AIRDROP_COLOUR = sf::Color(255, 215, 0);
 
 const float SQUAD_DAMAGE = 100.f;
 const float SQUAD_SHOOT_RANGE = 500.f;
@@ -64,6 +71,10 @@ const float SQUAD_VISIBILITY_RANGE = 500.f;
 const float RESOURCE_RADIUS = 30.f;
 const float RESOURCE_VIEW_RANGE = 2000.f;
 const float RESOURCE_TIME_TO_APPEAR = 1.f;
+const float RESOURCE_TICK_COOLDOWN = 5.f;
+const float RESOURCE_FOOD_CONSUMPTION_RATE = 1.f;
+const float RESOURCE_INCREASED_CONSUMPTION_RATE = 1.5f;
+const float RESOURCE_METAL_PRODUCTION_RATE = 1.f;
 
 const float LURKER_RADIUS = 40.f;
 const float LURKER_PATROL_SPEED = 80.f;

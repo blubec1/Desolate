@@ -42,10 +42,13 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
     src/StrategyDrivers/HunterStrategyDriver.cpp
     src/Components/DeathSystemComponent.cpp
     src/Components/RespawnComponent.cpp
-    src/Components/HealthIndicatorComponent.cpp
+    src/Components/RingIndicatorComponent.cpp
     src/Components/NumberComponent.cpp
     src/Components/ButtonComponent.cpp
-    src/Components/ResourceManagerComponent.cpp)
+    src/Components/SliderComponent.cpp
+    src/Components/TriggerRadiusComponent.cpp
+    src/Components/ResourceManager.cpp
+    src/Components/ResourceComponent.cpp)
 target_compile_definitions(main PRIVATE RESOURCE_DIR="${CMAKE_SOURCE_DIR}/resources")
 target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(main PRIVATE cxx_std_20)

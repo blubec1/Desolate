@@ -7,7 +7,7 @@ void RenderComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
 
     auto visibilityComponent = owner->getComponent<VisibilityComponent>();
 
-    if(visibilityComponent != nullptr)
+    if(visibilityComponent != nullptr)  
     {
         shapeColour = sf::Color(shapeColour.r, shapeColour.g, shapeColour.b, shapeColour.a * visibilityComponent->visionRatio);
     }

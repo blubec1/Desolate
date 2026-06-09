@@ -24,16 +24,26 @@
 #include "Components/ProtectionSystemComponent.hpp"
 #include "Components/DeathSystemComponent.hpp"
 #include "Components/ShockwaveComponent.hpp"
-#include "Components/HealthIndicatorComponent.hpp"
+#include "Components/RingIndicatorComponent.hpp"
 #include "Components/NumberComponent.hpp"
 #include "Components/ButtonComponent.hpp"
-#include "Components/ResourceManagerComponent.hpp"
+#include "Components/SliderComponent.hpp"
+#include "Components/TriggerRadiusComponent.hpp"
+#include "Components/ResourceManager.hpp"
 #include "StrategyDrivers/WandererStrategyDriver.hpp"
 #include "StrategyDrivers/TerritorialStrategyDriver.hpp"
 #include "StrategyDrivers/LurkerStrategyDriver.hpp"
 #include "StrategyDrivers/HunterStrategyDriver.hpp"
 
 //Завод!
+
+/*
+
+    COMPONENT ADDING RULES:
+
+        -NEVER add a component that uses another before it (StrategyDrivers/AttackComponents BEFORE ScanComponents)
+
+*/
 
 namespace Desolate::Factory
 {
@@ -46,8 +56,10 @@ namespace Desolate::Factory
 
         Squad->position = position;
         Squad->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
-        Squad->addComponent<HealthIndicatorComponent>(radius + 5.f, 5.f);
-        Squad->addComponent<HealthComponent>(MaxHP, MaxHP);
+        auto* squadHealth = Squad->addComponent<HealthComponent>(MaxHP, MaxHP);
+        auto* squadRing = Squad->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
+        squadRing->valuePtr = &squadHealth->HealthValue;
+        squadRing->maxValue = squadHealth->HealthMax;
         Squad->addComponent<AreaScanComponent>();
         Squad->addComponent<MouseHitboxComponent>(radius);
         Squad->addComponent<PathFollowerComponent>(moveSpeed, colour, true);
@@ -80,20 +92,22 @@ namespace Desolate::Factory
 
         Wanderer->position = position;
         Wanderer->addComponent<StandardRespawnComponent>(2.f, position);
-        Wanderer->addComponent<WandererStrategyDriver>(path, moveSpeed, chaseSpeed, aggroRng, deAggroRng, deAggroCD, enemies, shootRange);
         Wanderer->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
-        Wanderer->addComponent<HealthIndicatorComponent>(radius + 5.f, 5.f);
-        Wanderer->addComponent<HealthComponent>(MaxHP, MaxHP);
+        auto* wandererHealth = Wanderer->addComponent<HealthComponent>(MaxHP, MaxHP);
+        auto* wandererRing = Wanderer->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
+        wandererRing->valuePtr = &wandererHealth->HealthValue;
+        wandererRing->maxValue = wandererHealth->HealthMax;
         Wanderer->addComponent<AreaScanComponent>();
         Wanderer->addComponent<TimedAttackComponent>(damage, shootRange, attackCD, enemies);
         Wanderer->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
+        Wanderer->addComponent<WandererStrategyDriver>(path, moveSpeed, chaseSpeed, aggroRng, deAggroRng, deAggroCD, enemies, shootRange);
         Wanderer->addComponent<HPColorShadingComponent>();
         Wanderer->addComponent<FactionComponent>(ID);
 
         return Wanderer;
     }
 
-    inline Entity* createOutpostEntity(sf::Vector2f position, sf::Color colour, float radius, float healRange, float healValue, float healCooldown, float ID)
+    inline Entity* createOutpostEntity(sf::Vector2f position, sf::Color colour, float radius, float healRange, float healValue, float healCooldown, float ID, float triggerRadius)
     {
         Entity* Outpost = new Entity();
 
@@ -102,6 +116,15 @@ namespace Desolate::Factory
         Outpost->addComponent<AreaScanComponent>();
         Outpost->addComponent<HealComponent>(healRange, healValue, healCooldown);
         Outpost->addComponent<FactionComponent>(ID);
+
+        auto* trigger = Outpost->addComponent<TriggerRadiusComponent>(triggerRadius);
+        trigger->triggerFunc = [outpost = Outpost](Entity* entity)
+        {
+            if (entity == outpost) return;
+            auto faction = entity->getComponent<FactionComponent>();
+            if (faction && faction->FactionID == PLAYER_FACTION)
+                outpost->getComponent<FactionComponent>()->FactionID = PLAYER_FACTION;
+        };
 
         return Outpost;
     }
@@ -127,13 +150,15 @@ namespace Desolate::Factory
 
         Territorial->position = position;
         Territorial->addComponent<StandardRespawnComponent>(2.f, position);
-        Territorial->addComponent<TerritorialStrategyDriver>(patrolSpeed, patrolRadius, position, chaseSpeed, aggroRng, deAggroRng, deAggroCD, enemies, shootRange);
         Territorial->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
-        Territorial->addComponent<HealthIndicatorComponent>(radius + 5.f, 5.f);
-        Territorial->addComponent<HealthComponent>(MaxHP, MaxHP);
+        auto* territorialHealth = Territorial->addComponent<HealthComponent>(MaxHP, MaxHP);
+        auto* territorialRing = Territorial->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
+        territorialRing->valuePtr = &territorialHealth->HealthValue;
+        territorialRing->maxValue = territorialHealth->HealthMax;
         Territorial->addComponent<AreaScanComponent>();
         Territorial->addComponent<TimedAttackComponent>(damage, shootRange, attackCD, enemies);
         Territorial->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
+        Territorial->addComponent<TerritorialStrategyDriver>(patrolSpeed, patrolRadius, position, chaseSpeed, aggroRng, deAggroRng, deAggroCD, enemies, shootRange);
         Territorial->addComponent<HPColorShadingComponent>();
         Territorial->addComponent<FactionComponent>(ID);
 
@@ -160,13 +185,15 @@ namespace Desolate::Factory
         enemies.insert(PLAYER_FACTION);
 
         Lurker->position = position;
-        Lurker->addComponent<LurkerStrategyDriver>(patrolSpeed, patrolRadius, chaseSpeed, aggroRng, deAggroRng, shootRange, deAggroCD, arrivalDist, enemies);
         Lurker->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
-        Lurker->addComponent<HealthIndicatorComponent>(radius + 5.f, 5.f);
-        Lurker->addComponent<HealthComponent>(MaxHP, MaxHP);
+        auto* lurkerHealth = Lurker->addComponent<HealthComponent>(MaxHP, MaxHP);
+        auto* lurkerRing = Lurker->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
+        lurkerRing->valuePtr = &lurkerHealth->HealthValue;
+        lurkerRing->maxValue = lurkerHealth->HealthMax;
         Lurker->addComponent<AreaScanComponent>();
         Lurker->addComponent<TimedAttackComponent>(damage, shootRange, attackCD, enemies);
         Lurker->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
+        Lurker->addComponent<LurkerStrategyDriver>(patrolSpeed, patrolRadius, chaseSpeed, aggroRng, deAggroRng, shootRange, deAggroCD, arrivalDist, enemies);
         Lurker->addComponent<HPColorShadingComponent>();
         Lurker->addComponent<FactionComponent>(ID);
 
@@ -181,10 +208,10 @@ namespace Desolate::Factory
         enemies.insert(PLAYER_FACTION);
 
         Hunter->position = position;
-        Hunter->addComponent<HunterStrategyDriver>(baseSpeed, maxSpeed, rampTime, killRange, arrivalDist, enemies);
         Hunter->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
         Hunter->addComponent<AreaScanComponent>();
         Hunter->addComponent<VisibilityComponent>(viewRng, timeToAppear);
+        Hunter->addComponent<HunterStrategyDriver>(baseSpeed, maxSpeed, rampTime, killRange, arrivalDist, enemies);
         Hunter->addComponent<FactionComponent>(ID);
         Hunter->addComponent<ShockwaveComponent>();
 
@@ -225,28 +252,69 @@ namespace Desolate::Factory
         return DeathSystemEntity;
     }
 
-    inline Entity* createUIEntity(const sf::Font& fontNumbers, const sf::Font& fontLetters)
+    inline Entity* createResourceManagerEntity(float tickCooldown, float foodConsumptionRate, float increasedConsumptionRate, float metalProductionRate)
+    {
+        Entity* resourceEntity = new Entity();
+
+        resourceEntity->addComponent<ResourceManager>(tickCooldown, foodConsumptionRate, increasedConsumptionRate, metalProductionRate);
+
+        return resourceEntity;
+    }
+
+    inline Entity* createAirdropEntity(sf::Vector2f position, sf::Color colour, float radius, float triggerRadius, float viewRng, float timeToAppear, ResourceManager* resManager)
+    {
+        Entity* Airdrop = new Entity();
+
+        Airdrop->position = position;
+        Airdrop->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
+        Airdrop->addComponent<ResourceComponent>();
+        Airdrop->addComponent<VisibilityComponent>(viewRng, timeToAppear);
+
+        auto* trigger = Airdrop->addComponent<TriggerRadiusComponent>(triggerRadius);
+        trigger->triggerFunc = [Airdrop, resManager](Entity* entity)
+        {
+            if (entity == Airdrop || Airdrop->isMarkedForDeletion()) return;
+            auto faction = entity->getComponent<FactionComponent>();
+            if (faction && faction->FactionID == PLAYER_FACTION)
+            {
+                resManager->addFood(50);
+                Airdrop->destroy();
+            }
+        };
+
+        return Airdrop;
+    }
+
+    inline Entity* createUIEntity(const sf::Font& fontNumbers, const sf::Font& fontLetters, ResourceManager* resManager)
     {
         Entity* UIEntity = new Entity();
 
         UIEntity->position = sf::Vector2f(0,800);
-        auto text = UIEntity->addComponent<NumberComponent>(sf::Vector2f(100.f, 100.f), fontNumbers);
-        text->changeNumber(1234567890);
-        auto* circle = UIEntity->addComponent<CircleRenderComponent>(sf::Vector2f(200.f, 100.f), 30.f, sf::Color::Blue);
-        UIEntity->addComponent<ButtonComponent>(circle->shape, "Click", fontLetters, [](){});
-        auto* rect = UIEntity->addComponent<RectRenderComponent>(sf::Vector2f(300.f, 100.f), sf::Vector2f(80.f, 50.f), sf::Color::Green);
-        UIEntity->addComponent<ButtonComponent>(rect->shape, "Push", fontLetters, [](){});
 
-        auto* resMgr = UIEntity->addComponent<ResourceManagerComponent>();
+        auto* metalDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(400.f, 80.f), fontNumbers);
+        metalDisplay->valuePtr = &resManager->metal;
+        auto* foodDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(500.f, 80.f), fontNumbers);
+        foodDisplay->valuePtr = &resManager->food;
+        auto* peopleDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(600.f, 80.f), fontNumbers);
+        peopleDisplay->valuePtr = &resManager->people;
 
-        auto* metalRect = UIEntity->addComponent<RectRenderComponent>(sf::Vector2f(400.f, 100.f), sf::Vector2f(80.f, 50.f), sf::Color::Yellow);
-        UIEntity->addComponent<ButtonComponent>(metalRect->shape, "Metal", fontLetters, resMgr->onAddMetal);
+        auto* metalRect = UIEntity->addComponent<RectRenderComponent>(sf::Vector2f(400.f, 140.f), sf::Vector2f(80.f, 50.f), sf::Color::Yellow);
+        UIEntity->addComponent<ButtonComponent>(metalRect->shape, "Metal", fontLetters, [resManager]() { resManager->addMetal(10); });
 
-        auto* foodRect = UIEntity->addComponent<RectRenderComponent>(sf::Vector2f(500.f, 100.f), sf::Vector2f(80.f, 50.f), sf::Color(100, 200, 100));
-        UIEntity->addComponent<ButtonComponent>(foodRect->shape, "Food", fontLetters, resMgr->onAddFood);
+        auto* foodRect = UIEntity->addComponent<RectRenderComponent>(sf::Vector2f(500.f, 140.f), sf::Vector2f(80.f, 50.f), sf::Color(100, 200, 100));
+        UIEntity->addComponent<ButtonComponent>(foodRect->shape, "Food", fontLetters, [resManager]() { resManager->addFood(10); });
 
-        auto* peopleRect = UIEntity->addComponent<RectRenderComponent>(sf::Vector2f(600.f, 100.f), sf::Vector2f(80.f, 50.f), sf::Color::Cyan);
-        UIEntity->addComponent<ButtonComponent>(peopleRect->shape, "People", fontLetters, resMgr->onAddPeople);
+        auto* workingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(570.f, 115.f), fontNumbers);
+        workingDisplay->valuePtr = &resManager->workingPeople;
+        auto* nonWorkingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(630.f, 115.f), fontNumbers);
+        nonWorkingDisplay->valuePtr = &resManager->nonWorkingPeople;
+
+        auto* ratioTrack = UIEntity->addComponent<RectRenderComponent>(sf::Vector2f(600.f, 115.f), sf::Vector2f(60.f, 10.f), sf::Color(100, 100, 100));
+        auto* ratioNotch = UIEntity->addComponent<CircleRenderComponent>(sf::Vector2f(600.f, 115.f), 8.f, sf::Color::White);
+        UIEntity->addComponent<SliderComponent>(ratioTrack->shape, ratioNotch->shape, &resManager->workRatio, 0.f, 1.f);
+
+        auto* peopleRect = UIEntity->addComponent<RectRenderComponent>(sf::Vector2f(600.f, 170.f), sf::Vector2f(80.f, 50.f), sf::Color::Cyan);
+        UIEntity->addComponent<ButtonComponent>(peopleRect->shape, "KICK OUT", fontLetters, [resManager]() { resManager->addPeople(-1); });
 
         return UIEntity;
     }

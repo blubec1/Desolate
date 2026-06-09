@@ -9,15 +9,17 @@ class NumberComponent : public RenderComponent
     int fontSize = 24;
     sf::Text text;
     sf::Color colour;
-    
+    int* valuePtr = nullptr;
     
     NumberComponent(sf::Vector2f position, const sf::Font& font)
     : font(font), text(this->font, "", fontSize)
     {
         this->position = position;
+        text.setPosition(position);
     }
 
     void changeNumber(int number);
-    void updateVisual() override {}
+    virtual void update(Context& context) override;
+    virtual void updateVisual() override;
     void drawVisual(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

@@ -80,9 +80,8 @@ bool Context::isEntityValid(Entity *entity)
 {
     if(entity == nullptr)  
         return false;
-    if(!entityCheck.contains(entity))
-        return false;
-    return entity->disabled == false;
+
+    return entityCheck.contains(entity) && entity->disabled == false;
 }
 
 const std::vector<Entity *> &Context::getEntities()
@@ -92,7 +91,10 @@ const std::vector<Entity *> &Context::getEntities()
 
 void Context::addEntity(Entity *entity)
 {
-    entities.push_back(entity);
+    auto it = entities.begin();
+    while (it != entities.end() && (*it)->updatePriority <= entity->updatePriority)
+        ++it;
+    entities.insert(it, entity);
     entityCheck.insert(entity);
 }
 

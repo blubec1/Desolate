@@ -7,6 +7,7 @@
 class Input;
 class AttackAnimation;
 class Entity;
+class ResourceManager;
 
 class Context : public sf::Drawable
 {
@@ -20,6 +21,7 @@ class Context : public sf::Drawable
     float deltaTime;
 
     std::vector<AttackAnimation*> activeEffects;
+    ResourceManager* resourceManager = nullptr;
 
     Context(sf::RenderWindow *window, Input *input);
 

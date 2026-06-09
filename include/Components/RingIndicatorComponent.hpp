@@ -2,7 +2,7 @@
 #include "Component.hpp"
 #include <SFML/Graphics.hpp>
 
-class HealthIndicatorComponent : public Component
+class RingIndicatorComponent : public Component
 {
     private:
     
@@ -12,7 +12,10 @@ class HealthIndicatorComponent : public Component
     sf::Color backgroundColor;
 
     public:
-    HealthIndicatorComponent(float radius, float thickness, sf::Color backgroundColor = sf::Color(60, 60, 60, 180), int segments = 32)
+    float* valuePtr = nullptr;
+    float maxValue = 1.f;
+
+    RingIndicatorComponent(float radius, float thickness, sf::Color backgroundColor = sf::Color(60, 60, 60, 180), int segments = 32)
         : radius(radius), thickness(thickness), segments(segments), backgroundColor(backgroundColor) {}
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) override;

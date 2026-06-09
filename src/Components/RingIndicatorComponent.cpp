@@ -1,5 +1,4 @@
-#include "Components/HealthIndicatorComponent.hpp"
-#include "Components/HealthComponent.hpp"
+#include "Components/RingIndicatorComponent.hpp"
 #include "Components/FactionComponent.hpp"
 #include "Components/VisibilityComponent.hpp"
 #include "Entity.hpp"
@@ -8,7 +7,7 @@
 #include <cmath>
 #include <numbers>
 
-void HealthIndicatorComponent::buildRing(sf::VertexArray& vertexArray, float startAngle, float endAngle, sf::Color color, int factionID) const
+void RingIndicatorComponent::buildRing(sf::VertexArray& vertexArray, float startAngle, float endAngle, sf::Color color, int factionID) const
 {
     auto visibilityComponent = owner->getComponent<VisibilityComponent>();
     sf::Color playerColour = PLAYER_HP_COLOUR;
@@ -50,7 +49,7 @@ void HealthIndicatorComponent::buildRing(sf::VertexArray& vertexArray, float sta
     }
 }
 
-sf::Color HealthIndicatorComponent::healthColor(float ratio)
+sf::Color RingIndicatorComponent::healthColor(float ratio)
 {
     if (ratio > 0.6f)
     {
@@ -78,14 +77,11 @@ sf::Color HealthIndicatorComponent::healthColor(float ratio)
     }
 }
 
-void HealthIndicatorComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
+void RingIndicatorComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
 {
     if (owner == nullptr) return;
 
-    auto healthComponent = owner->getComponent<HealthComponent>();
-    if (healthComponent == nullptr) return;
-
-    float ratio = healthComponent->HealthMax > 0.f ? healthComponent->HealthValue / healthComponent->HealthMax : 0.f;
+    float ratio = (valuePtr && maxValue > 0.f) ? *valuePtr / maxValue : 0.f;
     ratio = std::max(0.f, std::min(1.f, ratio));
 
     states.transform.translate(owner->position);
