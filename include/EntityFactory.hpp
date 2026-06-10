@@ -30,6 +30,8 @@
 #include "Components/ButtonComponent.hpp"
 #include "Components/SliderComponent.hpp"
 #include "Components/KnobComponent.hpp"
+#include "Components/TextComponent.hpp"
+#include "Components/RadioEventHandler.hpp"
 #include "Components/TriggerRadiusComponent.hpp"
 #include "Components/ResourceManager.hpp"
 #include "Components/SupplyReplenishComponent.hpp"
@@ -356,14 +358,22 @@ namespace Desolate::Factory
         auto* knobDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(700.f, 80.f), fontNumbers);
         knobDisplay->valuePtr = knobTestValue;
 
+        auto* fmLabel = UIEntity->addComponent<TextComponent>(sf::Vector2f(730.f, 80.f), "FM", fontLetters, 20);
+
         auto* testKnobShape = new sf::CircleShape(15.f);
         testKnobShape->setPosition(sf::Vector2f(700.f, 115.f));
         testKnobShape->setFillColor(sf::Color::White);
         testKnobShape->setOrigin(sf::Vector2f(15.f, 15.f));
         
-        auto* knob = UIEntity->addComponent<KnobComponent>(knobTestValue, 0, 100, 100.f);
+        auto* knob = UIEntity->addComponent<KnobComponent>(knobTestValue, 30, 88, 100.f);
         knob->hitboxShape = testKnobShape;
-    
+
+        auto* radioHandler = UIEntity->addComponent<RadioEventHandler>(knobTestValue);
+
+        radioHandler->addEvent(50, 2, [resManager](int playerFreq, int secretFreq) {
+            resManager->addFood(10);
+        });
+
         return UIEntity;
     }
 }
