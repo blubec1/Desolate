@@ -150,3 +150,10 @@ void HunterStrategyDriver::update(Context& context)
         currentStrategy->update(context);
     }
 }
+
+void HunterStrategyDriver::reset()
+{
+    setStrategy(&stillStrategy);
+    currentLair = nullptr;
+    state = IDLE;
+}

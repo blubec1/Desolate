@@ -11,5 +11,5 @@ void StandardRespawnComponent::respawn()
 {
     isRespawning = false;
     owner->position = spawnPosition;
-    
+    owner->reset();
 }

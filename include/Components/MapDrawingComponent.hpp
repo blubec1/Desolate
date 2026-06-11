@@ -4,6 +4,10 @@
 #include "Entity.hpp"
 #include "Components/PathFollowerComponent.hpp"
 #include "Components/MouseHitboxComponent.hpp"
+#include "Components/ShockwaveComponent.hpp"
+#include "Components/SupplyComponent.hpp"
+#include "Constants.hpp"
+#include <SFML/Graphics/VertexArray.hpp>
 
 enum ENT_PAINT_STATE {
     ENT_PAINTING,
@@ -24,9 +28,13 @@ class MapDrawingComponent : public Component
     sf::RectangleShape interpRect;
     ENT_PAINT_STATE state;
     float tracedPathNodeDistance;
+    float canvasWidth, canvasHeight;
+    float gridCellSize;
+    sf::Color gridColour;
 
     MapDrawingComponent(float canvasX, float canvasY, float brushRadius, sf::Color drawClr, sf::Color eraseClr, float tracedPathNodeDist)
-    : drawColour(drawClr), eraseColour(eraseClr), tracedPathNodeDistance(tracedPathNodeDist), canvas(sf::Vector2u(canvasX, canvasY)), canvasSprite(canvas.getTexture())
+    : drawColour(drawClr), eraseColour(eraseClr), tracedPathNodeDistance(tracedPathNodeDist), canvas(sf::Vector2u(canvasX, canvasY)), canvasSprite(canvas.getTexture()),
+      canvasWidth(canvasX), canvasHeight(canvasY), gridCellSize(GRID_CELL_SIZE), gridColour(GRID_COLOUR)
     {
         brush.setRadius(brushRadius);
         brush.setOrigin(sf::Vector2f(brushRadius, brushRadius));
@@ -123,8 +131,37 @@ class MapDrawingComponent : public Component
                     break;
 
                 case ENT_IDLING:
-                    state = ENT_ERASING;
+                {
+                    bool clickedEntity = false;
+                    for(auto entity : context.getEntities())
+                    {
+                        auto shockwaveComponent = entity->getComponent<ShockwaveComponent>();
+                        auto mouseHitboxComponent = entity->getComponent<MouseHitboxComponent>();
+
+                        if(shockwaveComponent != nullptr && mouseHitboxComponent != nullptr)
+                        {
+                            if(mouseHitboxComponent->isClicked(context))
+                            {
+                                shockwaveComponent->isShockwaved = true;
+
+                                auto supplyComponent = entity->getComponent<SupplyComponent>();
+                                if(supplyComponent != nullptr)
+                                {
+                                    supplyComponent->supplyValue -= SHOCKWAVE_SUPPLY_COST;
+                                    if(supplyComponent->supplyValue < 0.f)
+                                        supplyComponent->supplyValue = 0.f;
+                                }
+
+                                clickedEntity = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if(!clickedEntity)
+                        state = ENT_ERASING;
                     break;
+                }
             }
         }
         else
@@ -137,5 +174,21 @@ class MapDrawingComponent : public Component
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) override
     {
         target.draw(canvasSprite, states);
+
+        sf::VertexArray gridLines(sf::PrimitiveType::Lines);
+
+        for (float x = 0.f; x <= canvasWidth; x += gridCellSize)
+        {
+            gridLines.append(sf::Vertex(sf::Vector2f(x, 0.f), gridColour));
+            gridLines.append(sf::Vertex(sf::Vector2f(x, canvasHeight), gridColour));
+        }
+
+        for (float y = 0.f; y <= canvasHeight; y += gridCellSize)
+        {
+            gridLines.append(sf::Vertex(sf::Vector2f(0.f, y), gridColour));
+            gridLines.append(sf::Vertex(sf::Vector2f(canvasWidth, y), gridColour));
+        }
+
+        target.draw(gridLines, states);
     }
 };

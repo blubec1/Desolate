@@ -46,7 +46,7 @@ public:
     bool isMarkedForDeletion() {return markedForDeletion;}
     void destroy() {markedForDeletion = true;}
     
+    void reset();
     void update(Context& context);
-
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

@@ -31,4 +31,5 @@ class HunterStrategyDriver : public StrategyDriver
     Entity* findNearestUnprotectedEnemy(Context& context);
 
     virtual void update(Context& context) override;
+    virtual void reset() override;
 };

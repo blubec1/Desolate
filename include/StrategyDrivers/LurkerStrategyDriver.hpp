@@ -28,4 +28,5 @@ class LurkerStrategyDriver : public StrategyDriver
     Entity* findNearestResource(Context& context);
 
     virtual void update(Context& context) override;
+    virtual void reset() override;
 };

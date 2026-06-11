@@ -47,3 +47,10 @@ void TerritorialStrategyDriver::update(Context& context)
         currentStrategy->update(context);
     }
 }
+
+void TerritorialStrategyDriver::reset()
+{
+    setStrategy(&patrolStrategy);
+    chaseStrategy.deAggroTimer = chaseStrategy.deAggroCooldown;
+    state = PATROL;
+}

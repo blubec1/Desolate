@@ -19,7 +19,7 @@ class Component
     void disable() {isDisabledVal = 1;}
     void enable() {isDisabledVal = 0;}
 
+    virtual void reset() {};
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) {};
     virtual void update(Context& context) {};
-    virtual void scrub() {};
 };

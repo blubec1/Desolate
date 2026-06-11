@@ -121,3 +121,11 @@ void LurkerStrategyDriver::update(Context& context)
         currentStrategy->update(context);
     }
 }
+
+void LurkerStrategyDriver::reset()
+{
+    setStrategy(&stillStrategy);
+    chaseStrategy.deAggroTimer = chaseStrategy.deAggroCooldown;
+    currentResource = nullptr;
+    state = IDLE;
+}

@@ -47,3 +47,10 @@ void WandererStrategyDriver::update(Context &context)
        currentStrategy->update(context);
     }
 }
+
+void WandererStrategyDriver::reset()
+{
+    setStrategy(&pathFollowerStrategy);
+    chaseStrategy.deAggroTimer = chaseStrategy.deAggroCooldown;
+    state = PATH_FOLLOW;
+}

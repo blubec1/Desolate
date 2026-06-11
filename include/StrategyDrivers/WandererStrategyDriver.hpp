@@ -25,4 +25,5 @@ class WandererStrategyDriver : public StrategyDriver
     }
 
     virtual void update(Context& context) override;
+    virtual void reset() override;
 };

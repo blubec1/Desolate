@@ -20,3 +20,11 @@ void Entity::draw(sf::RenderTarget& target, sf::RenderStates states) const
         component->draw(target, states);
     }
 }
+
+void Entity::reset()
+{
+    for(auto& component : components)
+    {
+        component->reset();
+    }
+}

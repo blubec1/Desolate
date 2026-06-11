@@ -24,9 +24,8 @@ void PathFollowerComponent::draw(sf::RenderTarget& target, sf::RenderStates stat
     if (currentPath == nullptr || (!currentPath->isLooping && currentPath->isAtTheEnd())) return;
 
     // 1. Create local shapes for rendering the path nodes
-    // Using a 12px radius brush to match your original configuration
-    sf::CircleShape drawBrush(12.f); 
-    drawBrush.setOrigin({12.f, 12.f}); 
+    sf::CircleShape drawBrush(6.f); 
+    drawBrush.setOrigin({6.f, 6.f}); 
 
     // Default path color to white, or a specific accent color if desired
     sf::Color pathClr = pathColour; 
@@ -45,7 +44,7 @@ void PathFollowerComponent::draw(sf::RenderTarget& target, sf::RenderStates stat
         if (node->next != nullptr)
         {
             // Utilizing your global custom utility function to gap the distance
-            drawRectBetween2Pts(target, node->coords, node->next->coords, pathClr, 12.f);
+            drawRectBetween2Pts(target, node->coords, node->next->coords, pathClr, 6.f);
         }
         
         // Draw the circular joint node itself
