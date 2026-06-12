@@ -1,36 +1,50 @@
 #pragma once
 #include "Component.hpp"
-#include <functional>
 #include <unordered_map>
+#include <vector>
+
+class Entity;
+class Context;
+
+class RadioEventHandler;
 
 class RadioEvent
 {
 public:
+    RadioEventHandler* owner = nullptr;
+
     int secretFrequency;
     int tolerance;
-    std::function<void(int playerFreq, int secretFreq)> callback;
-    std::function<void()> onInit;
     bool wasInRange = false;
+    bool continuousTrigger = false;
 
     RadioEvent() = default;
+    virtual ~RadioEvent() = default;
 
-    RadioEvent(int secretFrequency, int tolerance,
-               std::function<void(int, int)> callback,
-               std::function<void()> onInit = nullptr)
-    : secretFrequency(secretFrequency), tolerance(tolerance),
-      callback(std::move(callback)), onInit(std::move(onInit)) {}
+    RadioEvent(int secretFrequency, int tolerance)
+        : secretFrequency(secretFrequency), tolerance(tolerance) {}
+
+    virtual void onTrigger(int playerFreq, Context& context) {}
+    virtual void onUpdate(Context& context) {}
+    virtual void onInit() {}
 };
 
 class RadioEventHandler : public Component
 {
 public:
     int* playerFrequencyPtr;
-    std::unordered_map<int, RadioEvent> events;
+    std::unordered_map<int, RadioEvent*> events;
+    std::vector<RadioEvent*> pendingAdditions;
+    std::vector<int> pendingRemovals;
 
     RadioEventHandler(int* freqPtr) : playerFrequencyPtr(freqPtr) {}
+    ~RadioEventHandler();
 
-    void addEvent(int secretFrequency, int tolerance, std::function<void(int, int)> callback, std::function<void()> onInit = nullptr);
+    void addEvent(RadioEvent* event);
     void removeEvent(int secretFrequency);
 
     void update(Context& context) override;
+
+private:
+    void flushPending();
 };

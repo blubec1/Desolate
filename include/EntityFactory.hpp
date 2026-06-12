@@ -39,6 +39,7 @@
 #include "StrategyDrivers/TerritorialStrategyDriver.hpp"
 #include "StrategyDrivers/LurkerStrategyDriver.hpp"
 #include "StrategyDrivers/HunterStrategyDriver.hpp"
+#include "RadioEvents/AirdropRadioEvent.hpp"
 
 //Завод!
 
@@ -370,9 +371,13 @@ namespace Desolate::Factory
 
         auto* radioHandler = UIEntity->addComponent<RadioEventHandler>(knobTestValue);
 
-        radioHandler->addEvent(50, 2, [resManager](int playerFreq, int secretFreq) {
-            resManager->addFood(10);
-        });
+        radioHandler->addEvent(new AirdropRadioEvent(
+            50, 2, 10.f,
+            sf::Vector2f(300.f, 300.f),
+            AIRDROP_COLOUR, AIRDROP_RADIUS, AIRDROP_TRIGGER_RADIUS,
+            AIRDROP_VIEW_RANGE, AIRDROP_TIME_TO_APPEAR,
+            resManager, 30, 88
+        ));
 
         return UIEntity;
     }

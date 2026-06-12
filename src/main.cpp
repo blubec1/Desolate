@@ -55,7 +55,6 @@ int main()
 	Entity* ENT_HunterLair1 = Desolate::Factory::createHunterLairEntity(sf::Vector2f(700.f, 100.f), HUNTER_LAIR_COLOUR, HUNTER_LAIR_RADIUS, HUNTER_LAIR_VIEW_RANGE, HUNTER_LAIR_TIME_TO_APPEAR);
 	Entity* ENT_HunterLair2 = Desolate::Factory::createHunterLairEntity(sf::Vector2f(700.f, 700.f), HUNTER_LAIR_COLOUR, HUNTER_LAIR_RADIUS, HUNTER_LAIR_VIEW_RANGE, HUNTER_LAIR_TIME_TO_APPEAR);
 	Entity* ENT_Hunter = Desolate::Factory::createHunterEntity(sf::Vector2f(700.f, 100.f), HUNTER_COLOUR, HUNTER_RADIUS, HUNTER_BASE_SPEED, HUNTER_MAX_SPEED, HUNTER_RAMP_UP_TIME, HUNTER_KILL_RANGE, HUNTER_VIEW_RANGE, HUNTER_TIME_TO_APPEAR, PLAYER_FACTION, HUNTER_MIN_RESPAWN_TIME, HUNTER_MAX_RESPAWN_TIME, 50.f);
-	Entity* ENT_Airdrop = Desolate::Factory::createAirdropEntity(sf::Vector2f(300.f, 300.f), AIRDROP_COLOUR, AIRDROP_RADIUS, AIRDROP_TRIGGER_RADIUS, AIRDROP_VIEW_RANGE, AIRDROP_TIME_TO_APPEAR, resManager);
 
 	ENT_ResourceMgr->updatePriority = -10;
 	ENT_Map->updatePriority = -10;
@@ -88,7 +87,6 @@ int main()
 	context.addEntity(ENT_Hunter);
 	context.addEntity(ENT_FogofWarSystem);
 	context.addEntity(ENT_DeathSystem);
-	context.addEntity(ENT_Airdrop);
 	context.addEntity(ENT_UI);
 
 	while(window.isOpen())

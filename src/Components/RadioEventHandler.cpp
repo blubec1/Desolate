@@ -1,24 +1,55 @@
 #include "Components/RadioEventHandler.hpp"
 #include "context.hpp"
+#include "Entity.hpp"
+#include <cmath>
 
-void RadioEventHandler::addEvent(int secretFrequency, int tolerance,
-                                 std::function<void(int, int)> callback,
-                                 std::function<void()> onInit)
+RadioEventHandler::~RadioEventHandler()
 {
-    events.emplace(secretFrequency, RadioEvent(secretFrequency, tolerance, std::move(callback), std::move(onInit)));
+    flushPending();
 
-    auto it = events.find(secretFrequency);
-    if (it != events.end() && it->second.onInit)
-        it->second.onInit();
+    for (auto& [freq, event] : events)
+        delete event;
+}
+
+void RadioEventHandler::addEvent(RadioEvent* event)
+{
+    event->owner = this;
+    pendingAdditions.push_back(event);
 }
 
 void RadioEventHandler::removeEvent(int secretFrequency)
 {
-    events.erase(secretFrequency);
+    pendingRemovals.push_back(secretFrequency);
+}
+
+void RadioEventHandler::flushPending()
+{
+    for (auto freq : pendingRemovals)
+    {
+        auto it = events.find(freq);
+        if (it != events.end())
+        {
+            delete it->second;
+            events.erase(it);
+        }
+    }
+    pendingRemovals.clear();
+
+    for (auto* event : pendingAdditions)
+    {
+        auto [it, inserted] = events.emplace(event->secretFrequency, event);
+        if (inserted)
+            event->onInit();
+        else
+            delete event;
+    }
+    pendingAdditions.clear();
 }
 
 void RadioEventHandler::update(Context& context)
 {
+    flushPending();
+
     if (!playerFrequencyPtr)
         return;
 
@@ -26,14 +57,13 @@ void RadioEventHandler::update(Context& context)
 
     for (auto& [freq, event] : events)
     {
-        bool isInRange = std::abs(currentFreq - event.secretFrequency) <= event.tolerance;
+        event->onUpdate(context);
+        
+        bool isInRange = std::abs(currentFreq - event->secretFrequency) <= event->tolerance;
 
-        if (isInRange && !event.wasInRange)
-        {
-            if (event.callback)
-                event.callback(currentFreq, event.secretFrequency);
-        }
+        if (isInRange && (event->continuousTrigger || !event->wasInRange))
+            event->onTrigger(currentFreq, context);
 
-        event.wasInRange = isInRange;
+        event->wasInRange = isInRange;
     }
 }
