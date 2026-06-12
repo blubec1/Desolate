@@ -40,8 +40,9 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
     src/Components/ProtectionSystemComponent.cpp
     src/Strategies/HuntStrategy.cpp
     src/StrategyDrivers/HunterStrategyDriver.cpp
-    src/Components/DeathSystemComponent.cpp
-    src/Components/RespawnComponent.cpp
+     src/Components/DeathSystemComponent.cpp
+     src/Components/DecayTimerComponent.cpp
+     src/Components/RespawnComponent.cpp
     src/Components/RingIndicatorComponent.cpp
     src/Components/NumberComponent.cpp
     src/Components/ButtonComponent.cpp

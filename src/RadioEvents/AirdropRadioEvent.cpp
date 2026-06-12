@@ -1,5 +1,7 @@
 #include "RadioEvents/AirdropRadioEvent.hpp"
 #include "EntityFactory.hpp"
+#include "Components/DecayTimerComponent.hpp"
+#include "Components/VisibilityComponent.hpp"
 #include "context.hpp"
 #include "Entity.hpp"
 #include <cstdlib>
@@ -7,41 +9,31 @@
 void AirdropRadioEvent::onInit()
 {
     airdropEntity = Desolate::Factory::createAirdropEntity(spawnPosition, colour, radius, triggerRadius, viewRange, timeToAppear, resManager);
+    airdropEntity->addComponent<DecayTimerComponent>(decayCooldown);
 }
 
 void AirdropRadioEvent::onTrigger(int playerFreq, Context& context)
 {
-    if (hasSpawned) return;
+    if (hasSpawned)
+    {
+        auto visibilityComponent = airdropEntity->getComponent<VisibilityComponent>();
+        visibilityComponent->visionRatio = 1.f;
+    }
 
-    hasSpawned = true;
-    decayTimer = 0.f;
 }
 
 void AirdropRadioEvent::onUpdate(Context& context)
 {
-    if (!hasSpawned) 
-
-
-    bool expired = false;
+    if (!hasSpawned)
+    {
+        context.addEntity(airdropEntity);       
+        hasSpawned = true;
+    }
 
     if (airdropEntity->isMarkedForDeletion())
     {
         airdropEntity = nullptr;
-        expired = true;
-    }
-    else
-    {
-        decayTimer += context.deltaTime;
-        if (decayTimer >= decayCooldown)
-        {
-            airdropEntity->destroy();
-            airdropEntity = nullptr;
-            expired = true;
-        }
-    }
 
-    if (expired)
-    {
         int newFreq = minFrequency + (std::rand() % (maxFrequency - minFrequency + 1));
 
         owner->addEvent(new AirdropRadioEvent(

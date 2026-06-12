@@ -12,7 +12,7 @@ class DecayTimerComponent : public Component
     float timer;
 
     DecayTimerComponent(float timerStart)
-    : timerStart(timerStart) {}
+    : timerStart(timerStart), timer(timerStart) {}
 
     void startTimer() 
     { 

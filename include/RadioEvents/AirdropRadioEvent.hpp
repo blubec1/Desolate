@@ -12,7 +12,6 @@ class AirdropRadioEvent : public RadioEvent
 public:
     Entity* airdropEntity = nullptr;
     float decayCooldown;
-    float decayTimer;
     bool hasSpawned = false;
     bool expired = true;
     int minFrequency, maxFrequency;
