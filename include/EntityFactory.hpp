@@ -372,7 +372,7 @@ namespace Desolate::Factory
         auto* radioHandler = UIEntity->addComponent<RadioEventHandler>(knobTestValue);
 
         radioHandler->addEvent(new AirdropRadioEvent(
-            50, 2, 10.f,
+            50, 2, 10.f, 2.f,
             sf::Vector2f(300.f, 300.f),
             AIRDROP_COLOUR, AIRDROP_RADIUS, AIRDROP_TRIGGER_RADIUS,
             AIRDROP_VIEW_RANGE, AIRDROP_TIME_TO_APPEAR,

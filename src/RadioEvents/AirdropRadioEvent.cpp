@@ -14,12 +14,11 @@ void AirdropRadioEvent::onInit()
 
 void AirdropRadioEvent::onTrigger(int playerFreq, Context& context)
 {
-    if (hasSpawned)
+    if (context.isEntityValid(airdropEntity))
     {
         auto visibilityComponent = airdropEntity->getComponent<VisibilityComponent>();
         visibilityComponent->visionRatio = 1.f;
     }
-
 }
 
 void AirdropRadioEvent::onUpdate(Context& context)
@@ -30,20 +29,23 @@ void AirdropRadioEvent::onUpdate(Context& context)
         hasSpawned = true;
     }
 
-    if (airdropEntity->isMarkedForDeletion())
+    if (!context.isEntityValid(airdropEntity))
     {
-        airdropEntity = nullptr;
+        respawnTimer -= context.deltaTime;
 
-        int newFreq = minFrequency + (std::rand() % (maxFrequency - minFrequency + 1));
+        if(respawnTimer <= 0.f)
+        {
+            airdropEntity = nullptr;
 
-        owner->addEvent(new AirdropRadioEvent(
-            newFreq, tolerance, decayCooldown,
-            spawnPosition, colour, radius, triggerRadius,
-            viewRange, timeToAppear, resManager,
-            minFrequency, maxFrequency
-        ));
-        owner->removeEvent(secretFrequency);
+            int newFreq = minFrequency + (std::rand() % (maxFrequency - minFrequency + 1));
 
-        hasSpawned = false;
+            owner->addEvent(new AirdropRadioEvent(
+                newFreq, tolerance, decayCooldown, respawnCooldown,
+                spawnPosition, colour, radius, triggerRadius,
+                viewRange, timeToAppear, resManager,
+                minFrequency, maxFrequency
+            ));
+            owner->removeEvent(secretFrequency);
+        }
     }
 }

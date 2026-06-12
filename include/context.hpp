@@ -14,6 +14,7 @@ class Context : public sf::Drawable
     private:
     std::set<Entity*> entityCheck;
     std::vector<Entity*> entities;
+    std::vector<Entity*> pendingAdditions;
     
     public:
     sf::RenderWindow *window;
@@ -24,6 +25,9 @@ class Context : public sf::Drawable
     ResourceManager* resourceManager = nullptr;
 
     Context(sf::RenderWindow *window, Input *input);
+    ~Context();
+
+    void flushPendingAdditions();
 
     bool isEntityValid(Entity* entity);
     

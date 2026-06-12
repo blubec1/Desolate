@@ -43,8 +43,8 @@ public:
         return nullptr;
     }
     
-    bool isMarkedForDeletion() {return markedForDeletion;}
-    void destroy() {markedForDeletion = true;}
+    bool isMarkedForDeletion() { return markedForDeletion; }
+    void destroy() { markedForDeletion = true; }
     
     void reset();
     void update(Context& context);

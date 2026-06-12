@@ -8,6 +8,11 @@ Context::Context(sf::RenderWindow *window, Input *input)
     this->input = input;
 }
 
+Context::~Context()
+{
+    flushPendingAdditions();
+}
+
 void Context::update()
 {
     std::vector<AttackAnimation*> effectsToRemove;
@@ -46,6 +51,8 @@ void Context::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
 void Context::entityUpdate()
 {
+    flushPendingAdditions();
+
     std::vector<Entity*> markedEntities;
 
     for(auto entity : entities)
@@ -91,11 +98,23 @@ const std::vector<Entity *> &Context::getEntities()
 
 void Context::addEntity(Entity *entity)
 {
-    auto it = entities.begin();
-    while (it != entities.end() && (*it)->updatePriority <= entity->updatePriority)
-        ++it;
-    entities.insert(it, entity);
-    entityCheck.insert(entity);
+    pendingAdditions.push_back(entity);
+}
+
+void Context::flushPendingAdditions()
+{
+    for (auto entity : pendingAdditions)
+    {
+        if (entity == nullptr) continue;
+        if (entityCheck.contains(entity)) continue;
+
+        auto it = entities.begin();
+        while (it != entities.end() && (*it)->updatePriority <= entity->updatePriority)
+            ++it;
+        entities.insert(it, entity);
+        entityCheck.insert(entity);
+    }
+    pendingAdditions.clear();
 }
 
 void Context::removeEntity(Entity *entity)

@@ -43,7 +43,7 @@ public:
     void addEvent(RadioEvent* event);
     void removeEvent(int secretFrequency);
 
-    void update(Context& context) override;
+    virtual void update(Context& context) override;
 
 private:
     void flushPending();

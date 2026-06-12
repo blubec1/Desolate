@@ -12,18 +12,23 @@ class AirdropRadioEvent : public RadioEvent
 public:
     Entity* airdropEntity = nullptr;
     float decayCooldown;
+    int minFrequency, maxFrequency;
+
     bool hasSpawned = false;
     bool expired = true;
-    int minFrequency, maxFrequency;
 
     sf::Vector2f spawnPosition;
     sf::Color colour;
+
+    float respawnTimer, respawnCooldown;
+
     float radius, triggerRadius, viewRange, timeToAppear;
     ResourceManager* resManager;
 
-    AirdropRadioEvent(int secretFrequency, int tolerance, float decayCooldown, sf::Vector2f spawnPos, sf::Color colour, float radius, float triggerRadius, float viewRange, float timeToAppear, ResourceManager* resManager, int minFreq = 33, int maxFreq = 80)
-    : RadioEvent(secretFrequency, tolerance),  decayCooldown(decayCooldown), spawnPosition(spawnPos), colour(colour), radius(radius), triggerRadius(triggerRadius), viewRange(viewRange), timeToAppear(timeToAppear), resManager(resManager), minFrequency(minFreq), maxFrequency(maxFreq)
+    AirdropRadioEvent(int secretFrequency, int tolerance, float decayCooldown, float respawnCooldown, sf::Vector2f spawnPos, sf::Color colour, float radius, float triggerRadius, float viewRange, float timeToAppear, ResourceManager* resManager, int minFreq = 33, int maxFreq = 80)
+    : RadioEvent(secretFrequency, tolerance),  decayCooldown(decayCooldown), respawnCooldown(respawnCooldown), spawnPosition(spawnPos), colour(colour), radius(radius), triggerRadius(triggerRadius), viewRange(viewRange), timeToAppear(timeToAppear), resManager(resManager), minFrequency(minFreq), maxFrequency(maxFreq)
     {
+        respawnTimer = respawnCooldown;
         continuousTrigger = true;
     }
 

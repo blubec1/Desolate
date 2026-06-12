@@ -11,6 +11,7 @@ class VisibilityComponent : public Component
     bool outOfVision;
     sf::Color originalColour;
     std::set<Entity*> visibleTo;
+    std::vector<Entity*> nonValidViewers;
 
     VisibilityComponent(float viewRng, float timeToAppear)
     : viewRange(viewRng), timeToAppear(timeToAppear)
@@ -23,5 +24,5 @@ class VisibilityComponent : public Component
 
     void addViewer(Entity* entity) { visibleTo.insert(entity); }
     void removeViewer(Entity* entity) { visibleTo.erase(entity); }
-    bool isSeenbyFaction(int ID);
+    bool isSeenbyFaction(Context& context, int ID);
 };

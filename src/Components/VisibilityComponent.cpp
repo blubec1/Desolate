@@ -37,10 +37,16 @@ void VisibilityComponent::update(Context &context)
     }
 }
 
-bool VisibilityComponent::isSeenbyFaction(int ID)
+bool VisibilityComponent::isSeenbyFaction(Context& context, int ID)
 {
     for(auto entity : visibleTo)
     {
+        if(!context.isEntityValid(entity))
+        {
+            nonValidViewers.push_back(entity);
+            continue;
+        }
+
         auto factionComponent = entity->getComponent<FactionComponent>();
 
         if(factionComponent != nullptr)
@@ -49,6 +55,13 @@ bool VisibilityComponent::isSeenbyFaction(int ID)
                 return true;
         }
     }
+
+    for(auto entity : nonValidViewers)
+    {
+        visibleTo.erase(entity);    
+    }
+
+    nonValidViewers.clear();
 
     return false;
 }

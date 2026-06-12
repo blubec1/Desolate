@@ -13,14 +13,13 @@ void FogofWarComponent::update(Context& context)
 
         if(factionComponent != nullptr && visibilityComponent != nullptr)
         {
-
             if(factionComponent->FactionID == factionVisionID)
             {
                 visibilityComponent->outOfVision = false;
                 continue;
             }
 
-            if(visibilityComponent->isSeenbyFaction(factionVisionID))
+            if(visibilityComponent->isSeenbyFaction(context, factionVisionID))
             {
                 visibilityComponent->outOfVision = false;
             }

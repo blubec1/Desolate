@@ -4,7 +4,6 @@
 
 void TriggerRadiusComponent::update(Context& context)
 {
-
     for(auto entity : context.getEntities())
     {
         sf::Vector2f delta = owner->position - entity->position;
