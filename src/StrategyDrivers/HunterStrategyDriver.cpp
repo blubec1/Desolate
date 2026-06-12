@@ -59,6 +59,26 @@ Entity* HunterStrategyDriver::findNearestUnprotectedEnemy(Context& context)
 
 void HunterStrategyDriver::update(Context& context)
 {
+    auto scanComponent = owner->getComponent<ScanComponent>();
+    if (scanComponent != nullptr)
+    {
+        for (auto entity : scanComponent->getCollection())
+        {
+            auto shockComp = entity->getComponent<ShockwaveComponent>();
+            if (shockComp && shockComp->isShockwaved)
+            {
+                sf::Vector2f delta = entity->position - owner->position;
+                if (delta.length() <= shockComp->shockwaveRadius)
+                {
+                    auto healthComponent = owner->getComponent<HealthComponent>();
+                    healthComponent->kill();
+                    setStrategy(&stillStrategy);
+                    return;
+                }
+            }
+        }
+    }
+
     switch (state)
     {
         case HUNT:
@@ -70,15 +90,6 @@ void HunterStrategyDriver::update(Context& context)
                 huntStrategy.target = nullptr;
                 setStrategy(&stillStrategy);
                 state = IDLE;
-                break;
-            }
-
-            auto shockComp = huntStrategy.target->getComponent<ShockwaveComponent>();
-            if (shockComp && shockComp->isShockwaved)
-            {
-                auto healthComponent = owner->getComponent<HealthComponent>();
-                healthComponent->kill();
-                setStrategy(&stillStrategy);
                 break;
             }
 

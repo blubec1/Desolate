@@ -22,6 +22,12 @@ class VisibilityComponent : public Component
 
     virtual void update(Context& context) override;
 
+    void reset() override
+    {
+        visibleTo.clear();
+        visionRatio = 0.f;
+    }
+
     void addViewer(Entity* entity) { visibleTo.insert(entity); }
     void removeViewer(Entity* entity) { visibleTo.erase(entity); }
     bool isSeenbyFaction(Context& context, int ID);

@@ -10,6 +10,7 @@
 #include "Components/PathFollowerComponent.hpp"
 #include "Components/RenderComponent.hpp"
 #include "Components/ScanComponent.hpp"
+#include "Components/GlobalScanComponent.hpp"
 #include "Components/StillAttackComponent.hpp"
 #include "Components/TimedAttackComponent.hpp"
 #include "Components/MapDrawingComponent.hpp"
@@ -77,7 +78,7 @@ namespace Desolate::Factory
         Squad->addComponent<StillAttackComponent>(damage, shootRange, attackCD, enemies);
         Squad->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
         Squad->addComponent<FactionComponent>(ID);
-        Squad->addComponent<ShockwaveComponent>();
+        Squad->addComponent<ShockwaveComponent>(SHOCKWAVE_COOLDOWN, SHOCKWAVE_RADIUS);
 
         return Squad;
     }
@@ -177,18 +178,6 @@ namespace Desolate::Factory
         return Territorial;
     }
 
-    inline Entity* createResourceLocation(sf::Vector2f position, sf::Color colour, float radius, float viewRng, float timeToAppear)
-    {
-        Entity* Resource = new Entity();
-
-        Resource->position = position;
-        Resource->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
-        Resource->addComponent<ResourceComponent>();
-        Resource->addComponent<VisibilityComponent>(viewRng, timeToAppear);
-
-        return Resource;
-    }
-
     inline Entity* createLurkerEntity(sf::Vector2f position, sf::Color colour, float radius, float patrolSpeed, float patrolRadius, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, float aggroRng, float deAggroRng, float deAggroCD, float arrivalDist, float visibilityRng, float timeToAppear, float ID)
     {
         Entity* Lurker = new Entity();
@@ -221,11 +210,12 @@ namespace Desolate::Factory
 
         Hunter->position = position;
         Hunter->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
-        Hunter->addComponent<AreaScanComponent>();
+        Hunter->addComponent<GlobalScanComponent>();
+        Hunter->addComponent<HealthComponent>(HUNTER_MAX_HEALTH, HUNTER_MAX_HEALTH);
+        Hunter->addComponent<StandardRespawnComponent>(2.f, position);
         Hunter->addComponent<VisibilityComponent>(viewRng, timeToAppear);
         Hunter->addComponent<HunterStrategyDriver>(baseSpeed, maxSpeed, rampTime, killRange, arrivalDist, enemies);
         Hunter->addComponent<FactionComponent>(ID);
-        Hunter->addComponent<ShockwaveComponent>();
 
         return Hunter;
     }
@@ -372,7 +362,7 @@ namespace Desolate::Factory
         auto* radioHandler = UIEntity->addComponent<RadioEventHandler>(knobTestValue);
 
         radioHandler->addEvent(new AirdropRadioEvent(
-            50, 2, 10.f, 2.f,
+            50, 2, 2.f, 5.f,
             sf::Vector2f(300.f, 300.f),
             AIRDROP_COLOUR, AIRDROP_RADIUS, AIRDROP_TRIGGER_RADIUS,
             AIRDROP_VIEW_RANGE, AIRDROP_TIME_TO_APPEAR,

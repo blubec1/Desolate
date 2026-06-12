@@ -1,4 +1,5 @@
 #include "StrategyDrivers/LurkerStrategyDriver.hpp"
+#include "Components/DecayTimerComponent.hpp"
 #include "Entity.hpp"
 
 Entity* LurkerStrategyDriver::findNearestResource(Context& context)
@@ -61,6 +62,13 @@ void LurkerStrategyDriver::update(Context& context)
             sf::Vector2f delta = currentResource->position - owner->position;
             if (delta.length() <= 100.f)
             {
+                auto decayTimerComponent = currentResource->getComponent<DecayTimerComponent>();
+
+                if(decayTimerComponent)
+                {
+                    decayTimerComponent->startTimer();
+                }
+
                 patrolStrategy.setCentre(currentResource->position);
                 patrolStrategy.init();
                 setStrategy(&patrolStrategy);

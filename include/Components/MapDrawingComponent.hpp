@@ -142,14 +142,15 @@ class MapDrawingComponent : public Component
                         {
                             if(mouseHitboxComponent->isClicked(context))
                             {
-                                shockwaveComponent->isShockwaved = true;
-
-                                auto supplyComponent = entity->getComponent<SupplyComponent>();
-                                if(supplyComponent != nullptr)
+                                if(shockwaveComponent->tryShockwave())
                                 {
-                                    supplyComponent->supplyValue -= SHOCKWAVE_SUPPLY_COST;
-                                    if(supplyComponent->supplyValue < 0.f)
-                                        supplyComponent->supplyValue = 0.f;
+                                    auto supplyComponent = entity->getComponent<SupplyComponent>();
+                                    if(supplyComponent != nullptr)
+                                    {
+                                        supplyComponent->supplyValue -= SHOCKWAVE_SUPPLY_COST;
+                                        if(supplyComponent->supplyValue < 0.f)
+                                            supplyComponent->supplyValue = 0.f;
+                                    }
                                 }
 
                                 clickedEntity = true;

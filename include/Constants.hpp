@@ -20,6 +20,7 @@ const sf::Color MAP_ERASE_COLOUR = sf::Color::Black;
 const float GRID_CELL_SIZE = 50.f;
 const sf::Color GRID_COLOUR = sf::Color(60, 60, 60);
 const float SHOCKWAVE_SUPPLY_COST = 25.f;
+const float SHOCKWAVE_COOLDOWN = 5.f;
 const sf::Color WANDERER_COLOUR = sf::Color::Yellow;
 const sf::Color TERRITORIAL_COLOUR = sf::Color::Magenta;
 const sf::Color OUTPOST_COLOUR = sf::Color::Cyan;
@@ -66,6 +67,8 @@ const float AIRDROP_VIEW_RANGE = 500.f;
 const float AIRDROP_TIME_TO_APPEAR = 1.f;
 const sf::Color AIRDROP_COLOUR = sf::Color(255, 215, 0);
 
+const float SHOCKWAVE_RADIUS = 100.f;
+
 const float SQUAD_SUPPLY_MAX = 100.f;
 const float SQUAD_SUPPLY_DRAIN_RATE = 5.f;
 const float SQUAD_SUPPLY_HP_DRAIN_RATE = 10.f;
@@ -106,6 +109,7 @@ const float HUNTER_BASE_SPEED = 20.f;
 const float HUNTER_MAX_SPEED = 150.f;
 const float HUNTER_RAMP_UP_TIME = 5.f;
 const float HUNTER_KILL_RANGE = 15.f;
+const float HUNTER_MAX_HEALTH = 1000.f;
 const float HUNTER_VIEW_RANGE = 80.f;
 const float HUNTER_TIME_TO_APPEAR = 0.5f;
 const float HUNTER_MIN_RESPAWN_TIME = 2.f;
