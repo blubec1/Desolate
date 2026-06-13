@@ -10,7 +10,7 @@ void HPColorShadingComponent::update(Context& context)
 
     if(healthComponent != nullptr && renderComponent != nullptr)
     {
-        float ratio = healthComponent->HealthValue / healthComponent->HealthMax;
+        float ratio = *healthComponent->getHealth() / *healthComponent->getMaxHP();
      
         int r = int(renderComponent->shapeColour.r * ratio);
         int g = int(renderComponent->shapeColour.g * ratio);

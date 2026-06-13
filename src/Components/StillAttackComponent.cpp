@@ -39,7 +39,7 @@ void StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> 
                 context.activeEffects.push_back(
                     new AttackAnimation(owner->position, closest->position, 0.15f)
                 );
-                closest->getComponent<HealthComponent>()->affectHealth(damage);
+                closest->getComponent<HealthComponent>()->changeHealth(-damage);
                 attackTimer = attackCooldown;
             }
         }

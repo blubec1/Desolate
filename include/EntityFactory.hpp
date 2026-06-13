@@ -26,6 +26,7 @@
 #include "Components/DeathSystemComponent.hpp"
 #include "Components/ShockwaveComponent.hpp"
 #include "Components/RingIndicatorComponent.hpp"
+#include "Components/SegmentedRingIndicatorComponent.hpp"
 #include "Components/SupplyComponent.hpp"
 #include "Components/NumberComponent.hpp"
 #include "Components/ButtonComponent.hpp"
@@ -36,6 +37,7 @@
 #include "Components/TriggerRadiusComponent.hpp"
 #include "Components/ResourceManager.hpp"
 #include "Components/SupplyReplenishComponent.hpp"
+#include "Components/ShockwaveRechargeComponent.hpp"
 #include "StrategyDrivers/WandererStrategyDriver.hpp"
 #include "StrategyDrivers/TerritorialStrategyDriver.hpp"
 #include "StrategyDrivers/LurkerStrategyDriver.hpp"
@@ -65,20 +67,23 @@ namespace Desolate::Factory
         Squad->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
         auto* squadHealth = Squad->addComponent<HealthComponent>(MaxHP, MaxHP);
         auto* squadRing = Squad->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
-        squadRing->valuePtr = &squadHealth->HealthValue;
-        squadRing->maxValue = squadHealth->HealthMax;
+        squadRing->valuePtr = squadHealth->getHealth();
+        squadRing->maxValue = squadHealth->getMaxHP();
         auto* squadSupply = Squad->addComponent<SupplyComponent>(supplyMax, supplyMax, supplyDrainRate, supplyHpDrainRate);
         auto* supplyRing = Squad->addComponent<RingIndicatorComponent>(radius + 12.f, 3.f);
-        supplyRing->valuePtr = &squadSupply->supplyValue;
-        supplyRing->maxValue = squadSupply->supplyMax;
+        supplyRing->valuePtr = squadSupply->getSupply();
+        supplyRing->maxValue = squadSupply->getMaxSupply();
         supplyRing->colorScheme = RingIndicatorComponent::Supply;
         Squad->addComponent<AreaScanComponent>();
-        Squad->addComponent<MouseHitboxComponent>(radius);
+        Squad->addComponent<MouseHitboxComponent>(radius + 20.f);
         Squad->addComponent<PathFollowerComponent>(moveSpeed, colour, true);
         Squad->addComponent<StillAttackComponent>(damage, shootRange, attackCD, enemies);
         Squad->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
         Squad->addComponent<FactionComponent>(ID);
-        Squad->addComponent<ShockwaveComponent>(SHOCKWAVE_COOLDOWN, SHOCKWAVE_RADIUS);
+        auto* squadShockwave = Squad->addComponent<ShockwaveComponent>(SHOCKWAVE_COOLDOWN, SHOCKWAVE_RADIUS, SHOCKWAVE_DEFAULT_MAX_CHARGES);
+        auto* chargesRing = Squad->addComponent<SegmentedRingIndicatorComponent>(radius + 19.f, 3.f, sf::Color::Blue);
+        chargesRing->valuePtr = &squadShockwave->charges;
+        chargesRing->maxValue = &squadShockwave->maxCharges;
 
         return Squad;
     }
@@ -107,8 +112,8 @@ namespace Desolate::Factory
         Wanderer->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
         auto* wandererHealth = Wanderer->addComponent<HealthComponent>(MaxHP, MaxHP);
         auto* wandererRing = Wanderer->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
-        wandererRing->valuePtr = &wandererHealth->HealthValue;
-        wandererRing->maxValue = wandererHealth->HealthMax;
+        wandererRing->valuePtr = wandererHealth->getHealth();
+        wandererRing->maxValue = wandererHealth->getMaxHP();
         Wanderer->addComponent<AreaScanComponent>();
         Wanderer->addComponent<TimedAttackComponent>(damage, shootRange, attackCD, enemies);
         Wanderer->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
@@ -128,6 +133,7 @@ namespace Desolate::Factory
         Outpost->addComponent<AreaScanComponent>();
         Outpost->addComponent<HealComponent>(healRange, healValue);
         Outpost->addComponent<SupplyReplenishComponent>(supplyRange, supplyvalue);
+        Outpost->addComponent<ShockwaveRechargeComponent>(SHOCKWAVE_RECHARGE_RANGE, SHOCKWAVE_RECHARGE_RATE);
         Outpost->addComponent<FactionComponent>(ID);
 
         auto* trigger = Outpost->addComponent<TriggerRadiusComponent>(triggerRadius);
@@ -166,8 +172,8 @@ namespace Desolate::Factory
         Territorial->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
         auto* territorialHealth = Territorial->addComponent<HealthComponent>(MaxHP, MaxHP);
         auto* territorialRing = Territorial->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
-        territorialRing->valuePtr = &territorialHealth->HealthValue;
-        territorialRing->maxValue = territorialHealth->HealthMax;
+        territorialRing->valuePtr = territorialHealth->getHealth();
+        territorialRing->maxValue = territorialHealth->getMaxHP();
         Territorial->addComponent<AreaScanComponent>();
         Territorial->addComponent<TimedAttackComponent>(damage, shootRange, attackCD, enemies);
         Territorial->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
@@ -189,8 +195,8 @@ namespace Desolate::Factory
         Lurker->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
         auto* lurkerHealth = Lurker->addComponent<HealthComponent>(MaxHP, MaxHP);
         auto* lurkerRing = Lurker->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
-        lurkerRing->valuePtr = &lurkerHealth->HealthValue;
-        lurkerRing->maxValue = lurkerHealth->HealthMax;
+        lurkerRing->valuePtr = lurkerHealth->getHealth();
+        lurkerRing->maxValue = lurkerHealth->getMaxHP();
         Lurker->addComponent<AreaScanComponent>();
         Lurker->addComponent<TimedAttackComponent>(damage, shootRange, attackCD, enemies);
         Lurker->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
@@ -305,7 +311,7 @@ namespace Desolate::Factory
         metalBtnShape->setPosition(sf::Vector2f(400.f, 140.f));
         metalBtnShape->setFillColor(sf::Color::Yellow);
         metalBtnShape->setOrigin(sf::Vector2f(40.f, 25.f));
-        UIEntity->addComponent<ButtonComponent>(metalBtnShape, "Metal", fontLetters, [resManager]() { resManager->addMetal(10); });
+        UIEntity->addComponent<ButtonComponent>(metalBtnShape, "Metal", fontLetters, [resManager](Context&) { resManager->addMetal(10); });
     
 
     
@@ -313,7 +319,7 @@ namespace Desolate::Factory
         foodBtnShape->setPosition(sf::Vector2f(500.f, 140.f));
         foodBtnShape->setFillColor(sf::Color(100, 200, 100));
         foodBtnShape->setOrigin(sf::Vector2f(40.f, 25.f));
-        UIEntity->addComponent<ButtonComponent>(foodBtnShape, "Food", fontLetters, [resManager]() { resManager->addFood(10); });
+        UIEntity->addComponent<ButtonComponent>(foodBtnShape, "Food", fontLetters, [resManager](Context&) { resManager->addFood(10); });
     
 
         auto* workingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(570.f, 115.f), fontNumbers);
@@ -340,8 +346,23 @@ namespace Desolate::Factory
         peopleBtnShape->setPosition(sf::Vector2f(600.f, 170.f));
         peopleBtnShape->setFillColor(sf::Color::Cyan);
         peopleBtnShape->setOrigin(sf::Vector2f(40.f, 25.f));
-        UIEntity->addComponent<ButtonComponent>(peopleBtnShape, "KICK OUT", fontLetters, [resManager]() { resManager->addPeople(-1); });
+        UIEntity->addComponent<ButtonComponent>(peopleBtnShape, "KICK OUT", fontLetters, [resManager](Context&) { resManager->addPeople(-1); });
     
+
+        auto* hpBtnShape = new sf::RectangleShape(sf::Vector2f(80.f, 50.f));
+        hpBtnShape->setPosition(sf::Vector2f(700.f, 170.f));
+        hpBtnShape->setFillColor(sf::Color::Red);
+        hpBtnShape->setOrigin(sf::Vector2f(40.f, 25.f));
+        UIEntity->addComponent<ButtonComponent>(hpBtnShape, "BOOST HP", fontLetters,
+            [](Context& ctx) {
+                for (auto* entity : ctx.getEntities()) {
+                    auto faction = entity->getComponent<FactionComponent>();
+                    if (faction && faction->FactionID == PLAYER_FACTION) {
+                        auto hp = entity->getComponent<HealthComponent>();
+                        if (hp) hp->changeMaxHP(50.f);
+                    }
+                }
+            });
 
         
         int* knobTestValue = new int(0);

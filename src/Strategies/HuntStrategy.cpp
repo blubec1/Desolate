@@ -17,7 +17,7 @@ void HuntStrategy::update(Context& context)
         auto healthComp = target->getComponent<HealthComponent>();
         if (healthComp)
         {
-            healthComp->affectHealth(healthComp->HealthMax + 1.f);
+            healthComp->changeHealth(-*healthComp->getMaxHP() + 1.f);
         }
         target = nullptr;
         return;

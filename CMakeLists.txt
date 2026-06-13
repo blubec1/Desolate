@@ -43,7 +43,8 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
      src/Components/DeathSystemComponent.cpp
      src/Components/DecayTimerComponent.cpp
      src/Components/RespawnComponent.cpp
-    src/Components/RingIndicatorComponent.cpp
+     src/Components/RingIndicatorComponent.cpp
+     src/Components/SegmentedRingIndicatorComponent.cpp
     src/Components/NumberComponent.cpp
     src/Components/ButtonComponent.cpp
     src/Components/SliderComponent.cpp
@@ -57,6 +58,7 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
      src/Components/RadioEventHandler.cpp
      src/RadioEvents/AirdropRadioEvent.cpp
      src/Components/ShockwaveComponent.cpp
+     src/Components/ShockwaveRechargeComponent.cpp
      src/Components/GlobalScanComponent.cpp)
 target_compile_definitions(main PRIVATE RESOURCE_DIR="${CMAKE_SOURCE_DIR}/resources")
 target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/include)

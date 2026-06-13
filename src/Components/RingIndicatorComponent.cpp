@@ -115,7 +115,7 @@ void RingIndicatorComponent::draw(sf::RenderTarget& target, sf::RenderStates sta
 {
     if (owner == nullptr) return;
 
-    float ratio = (valuePtr && maxValue > 0.f) ? *valuePtr / maxValue : 0.f;
+    float ratio = (valuePtr && *maxValue > 0.f) ? *valuePtr / *maxValue : 0.f;
     ratio = std::max(0.f, std::min(1.f, ratio));
 
     states.transform.translate(owner->position);
@@ -135,7 +135,7 @@ void RingIndicatorComponent::draw(sf::RenderTarget& target, sf::RenderStates sta
         sf::Color foregroundColor = (colorScheme == Supply) ? supplyColor(ratio) : healthColor(ratio);
         sf::VertexArray foregroundVertexArray;
 
-        float start = -std::numbers::pi/2; //trigonometric circle is flipped because of how matrices work
+        float start = -std::numbers::pi/2; //trigonometric circle is flipped because of how SFML works
         float end = start + ratio * 2*std::numbers::pi;
 
         buildRing(foregroundVertexArray, start, end, foregroundColor, factionID);

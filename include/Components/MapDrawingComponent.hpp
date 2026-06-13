@@ -5,8 +5,8 @@
 #include "Components/PathFollowerComponent.hpp"
 #include "Components/MouseHitboxComponent.hpp"
 #include "Components/ShockwaveComponent.hpp"
-#include "Components/SupplyComponent.hpp"
 #include "Constants.hpp"
+#include <algorithm>
 #include <SFML/Graphics/VertexArray.hpp>
 
 enum ENT_PAINT_STATE {
@@ -52,6 +52,11 @@ class MapDrawingComponent : public Component
         sf::Vector2f previousWorldPos = context.window->mapPixelToCoords(sf::Vector2i(context.input->previousMousePos));
         sf::Vector2f worldPos = context.window->mapPixelToCoords(sf::Vector2i(context.input->mousePos));
 
+        previousWorldPos.x = std::clamp(previousWorldPos.x, 0.f, canvasWidth);
+        previousWorldPos.y = std::clamp(previousWorldPos.y, 0.f, canvasHeight);
+        worldPos.x = std::clamp(worldPos.x, 0.f, canvasWidth);
+        worldPos.y = std::clamp(worldPos.y, 0.f, canvasHeight);
+
         brush.setFillColor(colour);
         interpRect.setFillColor(colour);
 
@@ -79,7 +84,13 @@ class MapDrawingComponent : public Component
                 case ENT_PATHING:
                     if(context.isEntityValid(selectedEntity) == true && activePath != nullptr)
                     {
+                        sf::Vector2f targetPos = context.window->mapPixelToCoords(sf::Vector2i(context.input->mousePos));
+                        targetPos.x = std::clamp(targetPos.x, 0.f, canvasWidth);
+                        targetPos.y = std::clamp(targetPos.y, 0.f, canvasHeight);
+                        sf::Vector2i originalMousePos = context.input->mousePos;
+                        context.input->mousePos = sf::Vector2i(context.window->mapCoordsToPixel(targetPos));
                         activePath->extendPath(*context.input, tracedPathNodeDistance);
+                        context.input->mousePos = originalMousePos;
                     }
                     break;
                 
@@ -142,16 +153,7 @@ class MapDrawingComponent : public Component
                         {
                             if(mouseHitboxComponent->isClicked(context))
                             {
-                                if(shockwaveComponent->tryShockwave())
-                                {
-                                    auto supplyComponent = entity->getComponent<SupplyComponent>();
-                                    if(supplyComponent != nullptr)
-                                    {
-                                        supplyComponent->supplyValue -= SHOCKWAVE_SUPPLY_COST;
-                                        if(supplyComponent->supplyValue < 0.f)
-                                            supplyComponent->supplyValue = 0.f;
-                                    }
-                                }
+                                shockwaveComponent->tryShockwave();
 
                                 clickedEntity = true;
                                 break;

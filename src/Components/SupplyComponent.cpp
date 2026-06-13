@@ -15,12 +15,7 @@ void SupplyComponent::update(Context& context)
 
         if(healthComponent != nullptr)
         {
-            healthComponent->affectHealth(hpDrainRate * context.deltaTime);
+            healthComponent->changeHealth(-(hpDrainRate / 100.f) * (*healthComponent->getMaxHP()) * context.deltaTime);
         }
     }
-}
-
-void SupplyComponent::replenish(float amount)
-{
-    supplyValue = std::min(supplyValue + amount, supplyMax);
 }

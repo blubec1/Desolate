@@ -25,7 +25,7 @@ void TimedAttackComponent::attackDerived(Context& context, std::vector<Entity*> 
 
                     if(delta.length() <= attackRange)
                     {
-                        hpComponent->affectHealth(damage);
+                        hpComponent->changeHealth(-damage);
                         attackTimer = attackCooldown;
                         break;
                     }

@@ -16,7 +16,7 @@ class RingIndicatorComponent : public Component
     ColorScheme colorScheme = Health;
 
     float* valuePtr = nullptr;
-    float maxValue = 1.f;
+    float* maxValue = nullptr;
 
     RingIndicatorComponent(float radius, float thickness, sf::Color backgroundColor = sf::Color(60, 60, 60, 180), int segments = 32)
         : radius(radius), thickness(thickness), segments(segments), backgroundColor(backgroundColor) {}

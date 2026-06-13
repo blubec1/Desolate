@@ -1,11 +1,10 @@
-#include "Components/HealComponent.hpp"
-#include "Components/Component.hpp"
+#include "Components/ShockwaveRechargeComponent.hpp"
 #include "Components/ScanComponent.hpp"
-#include "Components/HealthComponent.hpp"
+#include "Components/ShockwaveComponent.hpp"
 #include "Components/FactionComponent.hpp"
 #include "Entity.hpp"
 
-void HealComponent::update(Context& context)
+void ShockwaveRechargeComponent::update(Context& context)
 {
     auto scanComponent = owner->getComponent<ScanComponent>();
     auto ownerFactionComponent = owner->getComponent<FactionComponent>();
@@ -16,12 +15,12 @@ void HealComponent::update(Context& context)
     for(auto entity : scanComponent->getCollection())
     {
         sf::Vector2f delta = entity->position - owner->position;
-        auto healthComponent = entity->getComponent<HealthComponent>();
+        auto shockwaveComponent = entity->getComponent<ShockwaveComponent>();
         auto factionComponent = entity->getComponent<FactionComponent>();
 
-        if(delta.length() <= healRange && healthComponent != nullptr && factionComponent != nullptr && factionComponent->FactionID == ownerFactionComponent->FactionID)
+        if(delta.length() <= rechargeRange && shockwaveComponent != nullptr && factionComponent != nullptr && factionComponent->FactionID == ownerFactionComponent->FactionID)
         {
-            healthComponent->changeHealth((healValue / 100.f) * (*healthComponent->getMaxHP()) * context.deltaTime);
+            shockwaveComponent->recharge(rechargeRate, context.deltaTime);
         }
     }
 }

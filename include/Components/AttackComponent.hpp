@@ -6,9 +6,17 @@
 
 class AttackComponent : public Component
 {
-    public:
+    private:
     float damage;
     float attackRange;
+    
+    public:
+
+    void changeDamage(float val) { damage += val; }
+    float* getDamage() { return &damage; }
+
+    void changeAttackRange(float val) { attackRange += val; }
+    float* getAttackRange() { return &attackRange; }
 
     void update(Context& context) override;
     virtual void attackDerived(Context& context, std::vector<Entity*> entities) = 0;

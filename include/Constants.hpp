@@ -19,8 +19,11 @@ const sf::Color MAP_DRAW_COLOUR = sf::Color::Red;
 const sf::Color MAP_ERASE_COLOUR = sf::Color::Black;
 const float GRID_CELL_SIZE = 50.f;
 const sf::Color GRID_COLOUR = sf::Color(60, 60, 60);
-const float SHOCKWAVE_SUPPLY_COST = 25.f;
 const float SHOCKWAVE_COOLDOWN = 5.f;
+const int SHOCKWAVE_DEFAULT_MAX_CHARGES = 3;
+const float SHOCKWAVE_RECHARGE_RATE = 1.f;
+const float SHOCKWAVE_RECHARGE_RANGE = 250.f;
+const float SHOCKWAVE_CHARGE_THRESHOLD = 5.f;
 const sf::Color WANDERER_COLOUR = sf::Color::Yellow;
 const sf::Color TERRITORIAL_COLOUR = sf::Color::Magenta;
 const sf::Color OUTPOST_COLOUR = sf::Color::Cyan;
@@ -55,11 +58,11 @@ const float TERRITORIAL_TIME_TO_APPEAR = 1.f;
 
 const float OUTPOST_RADIUS = 50.f;
 const float OUTPOST_HEAL_RANGE = 250.f;
-const float OUTPOST_HEAL_VALUE = 20.f;
+const float OUTPOST_HEAL_PERCENTAGE = 20.f;
 const float OUTPOST_TRIGGER_RADIUS = 250.f;
 
 const float OUTPOST_SUPPLY_REPLENISH_RANGE = 250.f;
-const float OUTPOST_SUPPLY_REPLENISH_RATE = 10.f;
+const float OUTPOST_SUPPLY_REPLENISH_PERCENTAGE = 10.f;
 
 const float AIRDROP_RADIUS = 10.f;
 const float AIRDROP_TRIGGER_RADIUS = 50.f;
@@ -71,7 +74,7 @@ const float SHOCKWAVE_RADIUS = 100.f;
 
 const float SQUAD_SUPPLY_MAX = 100.f;
 const float SQUAD_SUPPLY_DRAIN_RATE = 5.f;
-const float SQUAD_SUPPLY_HP_DRAIN_RATE = 10.f;
+const float SQUAD_SUPPLY_HP_DRAIN_PERCENTAGE = 10.f;
 
 const float SQUAD_DAMAGE = 100.f;
 const float SQUAD_SHOOT_RANGE = 500.f;

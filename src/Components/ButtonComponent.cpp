@@ -15,7 +15,7 @@ void ButtonComponent::update(Context& context)
     if (isHovered && context.input->isHoldingLeftMouseButton && !context.input->previousLeftMouseButtonState)
     {
         if (onClick)
-            onClick();
+            onClick(context);
     }
 }
 

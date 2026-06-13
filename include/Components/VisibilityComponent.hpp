@@ -26,6 +26,7 @@ class VisibilityComponent : public Component
     {
         visibleTo.clear();
         visionRatio = 0.f;
+        timeAppeared = 0.f;
     }
 
     void addViewer(Entity* entity) { visibleTo.insert(entity); }
