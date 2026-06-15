@@ -3,6 +3,7 @@
 #include "Entity.hpp"
 #include "Components/FactionComponent.hpp"
 #include "Components/HealthComponent.hpp"
+#include "Components/ProtectComponent.hpp"
 
 void ChaseStrategy::init()
 {
@@ -32,6 +33,9 @@ Entity* ChaseStrategy::findNearestEnemy(Context& context)
 
         if(healthComponent != nullptr && factionComponent != nullptr)
         {
+            auto protectComponent = entity->getComponent<ProtectComponent>();
+            if(protectComponent != nullptr && protectComponent->isProtected) continue;
+
             if (delta.length() <= aggroRange && delta.length() < minDist && enemies.contains(factionComponent->FactionID))
             {
                 minDist = delta.length();

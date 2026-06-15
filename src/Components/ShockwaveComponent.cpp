@@ -12,9 +12,9 @@ bool ShockwaveComponent::tryShockwave()
     return true;
 }
 
-void ShockwaveComponent::recharge(float rate, float dt)
+void ShockwaveComponent::recharge(float rate, float deltaTime)
 {
-    shockwaveChargingProgress += rate * dt;
+    shockwaveChargingProgress += rate * deltaTime;
     while (shockwaveChargingProgress >= SHOCKWAVE_CHARGE_THRESHOLD && charges < maxCharges)
     {
         charges++;

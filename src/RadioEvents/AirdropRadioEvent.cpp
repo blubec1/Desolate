@@ -37,7 +37,55 @@ void AirdropRadioEvent::onUpdate(Context& context)
         {
             airdropEntity = nullptr;
 
-            int newFreq = minFrequency + (std::rand() % (maxFrequency - minFrequency + 1));
+            int newFreq;
+
+            {
+                std::vector<std::pair<int, int>> availableRanges = {{minFrequency, maxFrequency}};
+
+                for (auto& [freq, event] : owner->events)
+                {
+                    if (event == this) continue;
+
+                    int oLow  = freq - event->tolerance - this->tolerance;
+                    int oHigh = freq + event->tolerance + this->tolerance;
+
+                    std::vector<std::pair<int, int>> nextRanges;
+                    for (auto& [aLow, aHigh] : availableRanges)
+                    {
+                        if (oHigh < aLow || oLow > aHigh)
+                        {
+                            nextRanges.push_back({aLow, aHigh});
+                        }
+                        else
+                        {
+                            if (aLow < oLow)
+                                nextRanges.push_back({aLow, oLow - 1});
+                            if (aHigh > oHigh)
+                                nextRanges.push_back({oHigh + 1, aHigh});
+                        }
+                    }
+                    availableRanges = nextRanges;
+                }
+
+                if (availableRanges.empty())
+                {
+                    newFreq = minFrequency;
+                }
+                else
+                {
+                    int total = 0;
+                    for (auto& [lo, hi] : availableRanges)
+                        total += hi - lo + 1;
+
+                    int pick = std::rand() % total;
+                    for (auto& [lo, hi] : availableRanges)
+                    {
+                        int size = hi - lo + 1;
+                        if (pick < size) { newFreq = lo + pick; break; }
+                        pick -= size;
+                    }
+                }
+            }
 
             owner->addEvent(new AirdropRadioEvent(
                 newFreq, tolerance, decayCooldown, respawnCooldown,

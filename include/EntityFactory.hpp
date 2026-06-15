@@ -56,7 +56,7 @@
 
 namespace Desolate::Factory
 {
-    inline Entity* createSquadEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID, float timeToAppear, float enemyFaction, float supplyMax, float supplyDrainRate, float supplyHpDrainRate)
+    inline Entity* createSquadEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID, float timeToAppear, float enemyFaction, float supplyMax, float supplyDrainRate, float supplyHpDrainRate, float shockwaveCooldown, float shockwaveRadius, int shockwaveMaxCharges, bool protectOthers, bool isProtected, float protectRange)
     {
         Entity *Squad = new Entity();
 
@@ -80,10 +80,12 @@ namespace Desolate::Factory
         Squad->addComponent<StillAttackComponent>(damage, shootRange, attackCD, enemies);
         Squad->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
         Squad->addComponent<FactionComponent>(ID);
-        auto* squadShockwave = Squad->addComponent<ShockwaveComponent>(SHOCKWAVE_COOLDOWN, SHOCKWAVE_RADIUS, SHOCKWAVE_DEFAULT_MAX_CHARGES);
+        auto* squadShockwave = Squad->addComponent<ShockwaveComponent>(shockwaveCooldown, shockwaveRadius, shockwaveMaxCharges);
         auto* chargesRing = Squad->addComponent<SegmentedRingIndicatorComponent>(radius + 19.f, 3.f, sf::Color::Blue);
         chargesRing->valuePtr = &squadShockwave->charges;
         chargesRing->maxValue = &squadShockwave->maxCharges;
+
+        Squad->addComponent<ProtectComponent>(protectOthers, isProtected, protectRange);
 
         return Squad;
     }
@@ -124,7 +126,7 @@ namespace Desolate::Factory
         return Wanderer;
     }
 
-    inline Entity* createOutpostEntity(sf::Vector2f position, sf::Color colour, float radius, float healRange, float healValue, float supplyRange, float supplyvalue, float ID, float triggerRadius)
+    inline Entity* createOutpostEntity(sf::Vector2f position, sf::Color colour, float radius, float healRange, float healValue, float supplyRange, float supplyvalue, float ID, float triggerRadius, float shockwaveRechargeRange, float shockwaveRechargeRate, bool protectOthers, bool isProtected, float protectRange)
     {
         Entity* Outpost = new Entity();
 
@@ -133,7 +135,7 @@ namespace Desolate::Factory
         Outpost->addComponent<AreaScanComponent>();
         Outpost->addComponent<HealComponent>(healRange, healValue);
         Outpost->addComponent<SupplyReplenishComponent>(supplyRange, supplyvalue);
-        Outpost->addComponent<ShockwaveRechargeComponent>(SHOCKWAVE_RECHARGE_RANGE, SHOCKWAVE_RECHARGE_RATE);
+        Outpost->addComponent<ShockwaveRechargeComponent>(shockwaveRechargeRange, shockwaveRechargeRate);
         Outpost->addComponent<FactionComponent>(ID);
 
         auto* trigger = Outpost->addComponent<TriggerRadiusComponent>(triggerRadius);
@@ -144,6 +146,8 @@ namespace Desolate::Factory
             if (faction && faction->FactionID == PLAYER_FACTION)
                 outpost->getComponent<FactionComponent>()->FactionID = PLAYER_FACTION;
         };
+
+        Outpost->addComponent<ProtectComponent>(protectOthers, isProtected, protectRange);
 
         return Outpost;
     }
@@ -207,7 +211,7 @@ namespace Desolate::Factory
         return Lurker;
     }
 
-    inline Entity* createHunterEntity(sf::Vector2f position, sf::Color colour, float radius, float baseSpeed, float maxSpeed, float rampTime, float killRange, float viewRng, float timeToAppear, float ID, float minRespawnTime, float maxRespawnTime, float arrivalDist)
+    inline Entity* createHunterEntity(sf::Vector2f position, sf::Color colour, float radius, float baseSpeed, float maxSpeed, float rampTime, float killRange, float viewRng, float timeToAppear, float ID, float minRespawnTime, float maxRespawnTime, float arrivalDist, float maxHealth)
     {
         Entity* Hunter = new Entity();
 
@@ -217,7 +221,7 @@ namespace Desolate::Factory
         Hunter->position = position;
         Hunter->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
         Hunter->addComponent<GlobalScanComponent>();
-        Hunter->addComponent<HealthComponent>(HUNTER_MAX_HEALTH, HUNTER_MAX_HEALTH);
+        Hunter->addComponent<HealthComponent>(maxHealth, maxHealth);
         Hunter->addComponent<StandardRespawnComponent>(2.f, position);
         Hunter->addComponent<VisibilityComponent>(viewRng, timeToAppear);
         Hunter->addComponent<HunterStrategyDriver>(baseSpeed, maxSpeed, rampTime, killRange, arrivalDist, enemies);
