@@ -59,7 +59,12 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
      src/RadioEvents/AirdropRadioEvent.cpp
      src/Components/ShockwaveComponent.cpp
      src/Components/ShockwaveRechargeComponent.cpp
-     src/Components/GlobalScanComponent.cpp)
+     src/Components/GlobalScanComponent.cpp
+     src/Components/QuestSystemComponent.cpp
+     src/Components/QuestHudComponent.cpp
+     src/QuestSystem/Questline.cpp
+     src/QuestSystem/Nodes/ResourceThresholdQuest.cpp
+     src/QuestSystem/Nodes/KillCountQuest.cpp)
 target_compile_definitions(main PRIVATE RESOURCE_DIR="${CMAKE_SOURCE_DIR}/resources")
 target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(main PRIVATE cxx_std_20)

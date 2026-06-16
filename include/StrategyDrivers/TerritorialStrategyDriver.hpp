@@ -9,6 +9,11 @@ class TerritorialStrategyDriver : public StrategyDriver
 
     enum State { PATROL, CHASE };
 
+    sf::Vector2f chaseStartPoint;
+
+    float passiveHealRate = 2.f;
+    float prevHP = 0.f;
+    float deAggroHitDecrease = 1.5f;
     AreaPatrolStrategy patrolStrategy;
     ChaseStrategy chaseStrategy;
     State state = PATROL;

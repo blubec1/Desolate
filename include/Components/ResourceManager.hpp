@@ -25,6 +25,13 @@ class ResourceManager : public Component
         tickTimer = tickCooldown;
     }
 
+    int upgradeViewBuffLevel = 0;
+    int upgradeMaxHpLevel = 0;
+    int upgradeSupplyMaxLevel = 0;
+    int upgradeDamageLevel = 0;
+    int upgradeFoodEfficiencyLevel = 0;
+    int upgradeMetalProductionLevel = 0;
+
     void addMetal(int amount) { metal += amount; }
     void addFood(int amount) { food += amount; }
     void addPeople(int amount) { people += amount; }

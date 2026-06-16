@@ -1,5 +1,6 @@
 #include "StrategyDrivers/LurkerStrategyDriver.hpp"
 #include "Components/DecayTimerComponent.hpp"
+#include "Components/HealthComponent.hpp"
 #include "Entity.hpp"
 
 Entity* LurkerStrategyDriver::findNearestResource(Context& context)
@@ -31,6 +32,14 @@ void LurkerStrategyDriver::update(Context& context)
     if (chaseStrategy.deAggroTimer >= 0)
     {
         chaseStrategy.deAggroTimer -= context.deltaTime;
+    }
+
+    auto* health = owner->getComponent<HealthComponent>();
+    if (health) {
+        float currentHP = *health->getHealth();
+        if (currentHP < prevHP)
+            chaseStrategy.deAggroTimer -= deAggroHitDecrease;
+        prevHP = currentHP;
     }
 
     switch (state)
@@ -79,6 +88,10 @@ void LurkerStrategyDriver::update(Context& context)
 
         case PATROL:
         {
+            auto* health = owner->getComponent<HealthComponent>();
+            if (health && passiveHealRate > 0.f)
+                health->changeHealth(passiveHealRate * context.deltaTime);
+
             if (currentResource == nullptr || !context.isEntityValid(currentResource))
             {
                 setStrategy(&stillStrategy);
@@ -134,6 +147,7 @@ void LurkerStrategyDriver::reset()
 {
     setStrategy(&stillStrategy);
     chaseStrategy.deAggroTimer = chaseStrategy.deAggroCooldown;
+    prevHP = 0.f;
     currentResource = nullptr;
     state = IDLE;
 }

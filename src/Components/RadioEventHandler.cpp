@@ -14,36 +14,69 @@ RadioEventHandler::~RadioEventHandler()
 void RadioEventHandler::addEvent(RadioEvent* event)
 {
     event->owner = this;
-    pendingAdditions.push_back(event);
+    RadioEventAction action;
+    action.type = RadioActionType::Add;
+    action.event = event;
+    pendingAction.push_back(action);
 }
 
 void RadioEventHandler::removeEvent(int secretFrequency)
 {
-    pendingRemovals.push_back(secretFrequency);
+    RadioEventAction action;
+    action.type = RadioActionType::Remove;
+    action.frequency = secretFrequency;
+    pendingAction.push_back(action);
+}
+
+void RadioEventHandler::changeEventFrequency(int secretFrequency, int newFrequency)
+{
+    RadioEventAction action;
+    action.type = RadioActionType::Change;
+    action.frequency = secretFrequency;
+    action.newFrequency = newFrequency;
+    pendingAction.push_back(action);
 }
 
 void RadioEventHandler::flushPending()
 {
-    for (auto freq : pendingRemovals)
+    for (auto& action : pendingAction)
     {
-        auto it = events.find(freq);
-        if (it != events.end())
+        switch (action.type)
         {
-            delete it->second;
-            events.erase(it);
+            case RadioActionType::Add:
+            {
+                auto [it, inserted] = events.emplace(action.event->secretFrequency, action.event);
+                if (inserted)
+                    action.event->onInit();
+                else
+                    delete action.event;
+                break;
+            }
+            case RadioActionType::Remove:
+            {
+                auto it = events.find(action.frequency);
+                if (it != events.end())
+                {
+                    delete it->second;
+                    events.erase(it);
+                }
+                break;
+            }
+            case RadioActionType::Change:
+            {
+                auto it = events.find(action.frequency);
+                if (it != events.end())
+                {
+                    RadioEvent* event = it->second;
+                    events.erase(it);
+                    event->secretFrequency = action.newFrequency;
+                    events[event->secretFrequency] = event;
+                }
+                break;
+            }
         }
     }
-    pendingRemovals.clear();
-
-    for (auto* event : pendingAdditions)
-    {
-        auto [it, inserted] = events.emplace(event->secretFrequency, event);
-        if (inserted)
-            event->onInit();
-        else
-            delete event;
-    }
-    pendingAdditions.clear();
+    pendingAction.clear();
 }
 
 void RadioEventHandler::update(Context& context)

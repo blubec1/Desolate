@@ -12,6 +12,9 @@ class LurkerStrategyDriver : public StrategyDriver
 
     enum State { IDLE, MOVE_TO_RESOURCE, PATROL, CHASE };
 
+    float passiveHealRate = 15.f;
+    float prevHP = 0.f;
+    float deAggroHitDecrease = 1.5f;
     StillStrategy stillStrategy;
     MoveToEntityStrategy moveToEntityStrategy;
     AreaPatrolStrategy patrolStrategy;

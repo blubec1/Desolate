@@ -1,6 +1,33 @@
 #pragma once
 #include <SFML/Graphics/Color.hpp>
 
+enum class ResourceType
+{
+    Food,
+    Metal,
+    People
+};
+
+enum class EntityType
+{
+    None,
+    Squad,
+    Map,
+    Wanderer,
+    Outpost,
+    FogofWar,
+    Territorial,
+    Lurker,
+    Hunter,
+    HunterLair,
+    ProtectionSystem,
+    DeathSystem,
+    ResourceManager,
+    Airdrop,
+    UI,
+    QuestSystem
+};
+
 const unsigned int MAP_HEIGHT = 800;
 const unsigned int MAP_WIDTH = 800;
 const int BRUSH_STARTING_RADIUS = 10;

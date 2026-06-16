@@ -11,6 +11,9 @@ class WandererStrategyDriver : public StrategyDriver
     enum State { PATH_FOLLOW, CHASE };
 
     float chaseRange;
+    float passiveHealRate = 20.f;
+    float prevHP = 0.f;
+    float deAggroHitDecrease = 1.5f;
     ChaseStrategy chaseStrategy;
     PathFollowerStrategy pathFollowerStrategy;
     std::set<int> enemies;

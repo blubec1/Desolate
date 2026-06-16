@@ -5,6 +5,8 @@
 #include "input.hpp"
 #include "EntityFactory.hpp"
 #include "Constants.hpp"
+#include "QuestSystem/Nodes/ResourceThresholdQuest.hpp"
+#include "QuestSystem/Nodes/KillCountQuest.hpp"
 
 enum CURRENTTOOL {
 	NO_TOOL,
@@ -41,7 +43,22 @@ int main()
 
 	Entity* ENT_ResourceMgr = Desolate::Factory::createResourceManagerEntity(RESOURCE_TICK_COOLDOWN, RESOURCE_FOOD_CONSUMPTION_RATE, RESOURCE_INCREASED_CONSUMPTION_RATE, RESOURCE_METAL_PRODUCTION_RATE);
 	ResourceManager* resManager = ENT_ResourceMgr->getComponent<ResourceManager>();
-	Entity* ENT_UI = Desolate::Factory::createUIEntity(digitalFont, ledFont, resManager);
+	Entity* ENT_QuestSystem = Desolate::Factory::createQuestSystemEntity();
+	auto* questSys = ENT_QuestSystem->getComponent<QuestSystemComponent>();
+
+	Questline* questline = new Questline("Survival");
+	questline->addNode(new ResourceThresholdQuest(
+		"Gather food", "Gather 30 food",
+		ResourceType::Food, 30,
+		ResourceType::People, 5));
+	questline->addNode(new KillCountQuest(
+		"Clear enemies", "Kill 2 enemies",
+		2, static_cast<int>(MONSTER_FACTION),
+		ResourceType::Metal, 100));
+	questSys->addQuestline(questline);
+	questSys->startQuestline(0);
+
+	Entity* ENT_UI = Desolate::Factory::createUIEntity(digitalFont, ledFont, resManager, questSys);
 	Entity* ENT_DeathSystem = Desolate::Factory::createDeathSystemEntity();
 	Entity* ENT_ProtectionSystem = Desolate::Factory::createProtectionSystemEntity();
 	Entity* ENT_FogofWarSystem = Desolate::Factory::createFogofWarEntity();
@@ -60,6 +77,7 @@ int main()
 	ENT_ProtectionSystem->updatePriority = -10;
 	ENT_FogofWarSystem->updatePriority = -10;
 	ENT_DeathSystem->updatePriority = -20;
+	ENT_QuestSystem->updatePriority = -30;
 	ENT_UI->updatePriority = -30;
 
 	sf::Clock deltaClock;
@@ -81,6 +99,7 @@ int main()
 	context.addEntity(ENT_Hunter);
 	context.addEntity(ENT_FogofWarSystem);
 	context.addEntity(ENT_DeathSystem);
+	context.addEntity(ENT_QuestSystem);
 	context.addEntity(ENT_UI);
 
 	while(window.isOpen())

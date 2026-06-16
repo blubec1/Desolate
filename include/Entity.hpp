@@ -3,6 +3,7 @@
 #include <memory>
 #include <SFML/Graphics.hpp>
 #include "Components/Component.hpp"
+#include "Constants.hpp"
 
 class Entity : public sf::Drawable 
 {
@@ -13,6 +14,7 @@ private:
 public:
     sf::Vector2f position = {0,0};
     sf::Vector2f prevPosition = {0,0};
+    EntityType type = EntityType::None;
     bool disabled = 0;
     bool hidden = 0;
     int updatePriority = 0;

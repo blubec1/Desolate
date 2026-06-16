@@ -5,6 +5,8 @@
 
 void ButtonComponent::update(Context& context)
 {
+    if (isDisabledVal) return;
+
     sf::Vector2f mousePos = sf::Vector2f(context.input->mousePos);
     //the shape's position is NOT global, meaning we need to convert the mousePos to the owner's local space
     sf::Vector2f localMouse = mousePos - owner->position;
@@ -22,6 +24,19 @@ void ButtonComponent::update(Context& context)
 void ButtonComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
 {
     states.transform.translate(owner->position);
+
+    if (isDisabledVal)
+    {
+        sf::Color fc = hitboxShape->getFillColor();
+        hitboxShape->setFillColor(sf::Color(fc.r, fc.g, fc.b, 80));
+        target.draw(*hitboxShape, states);
+        hitboxShape->setFillColor(fc);
+        sf::Color lc = label.getFillColor();
+        label.setFillColor(sf::Color(lc.r, lc.g, lc.b, 80));
+        target.draw(label, states);
+        label.setFillColor(lc);
+        return;
+    }
 
     sf::FloatRect bounds = hitboxShape->getGlobalBounds();
 

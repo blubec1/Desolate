@@ -71,6 +71,15 @@ class MapDrawingComponent : public Component
 
     void update(Context& context) override
     {
+        sf::Vector2f mouseWorld = context.window->mapPixelToCoords(sf::Vector2i(context.input->mousePos));
+        if (mouseWorld.x < 0.f || mouseWorld.x > canvasWidth ||
+            mouseWorld.y < 0.f || mouseWorld.y > canvasHeight)
+        {
+            activePath = nullptr;
+            state = ENT_IDLING;
+            return;
+        }
+
         if(context.input->isHoldingLeftMouseButton)
         {
             switch (state) {

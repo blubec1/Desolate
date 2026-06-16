@@ -1,4 +1,5 @@
 #include "StrategyDrivers/TerritorialStrategyDriver.hpp"
+#include "Components/HealthComponent.hpp"
 #include "Entity.hpp"
 
 void TerritorialStrategyDriver::update(Context& context)
@@ -8,10 +9,22 @@ void TerritorialStrategyDriver::update(Context& context)
         chaseStrategy.deAggroTimer -= context.deltaTime;
     }
 
+    auto* health = owner->getComponent<HealthComponent>();
+    if (health) {
+        float currentHP = *health->getHealth();
+        if (currentHP < prevHP)
+            chaseStrategy.deAggroTimer -= deAggroHitDecrease;
+        prevHP = currentHP;
+    }
+
     switch (state)
     {
         case PATROL:
         {
+            auto* health = owner->getComponent<HealthComponent>();
+            if (health && passiveHealRate > 0.f)
+                health->changeHealth(passiveHealRate * context.deltaTime);
+
             if (chaseStrategy.deAggroTimer <= 0)
             {
                 if (chaseStrategy.findNearestEnemy(context) != nullptr)
@@ -52,5 +65,6 @@ void TerritorialStrategyDriver::reset()
 {
     setStrategy(&patrolStrategy);
     chaseStrategy.deAggroTimer = chaseStrategy.deAggroCooldown;
+    prevHP = 0.f;
     state = PATROL;
 }

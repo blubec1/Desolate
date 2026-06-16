@@ -12,7 +12,7 @@ void AreaScanComponent::update(Context& context)
             if(visComponent != nullptr && renderComponent != nullptr)
             {
                 sf::Vector2f delta = entity->position - owner->position;
-                if(delta.length() <= visComponent->viewRange)
+                if(delta.length() <= visComponent->viewRange + viewBuff)
                 {
                     this->entities.push_back(entity);
                     visComponent->addViewer(owner);

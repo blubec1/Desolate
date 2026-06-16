@@ -1,4 +1,5 @@
 #include "StrategyDrivers/WandererStrategyDriver.hpp"
+#include "Components/HealthComponent.hpp"
 #include "Entity.hpp"
 
 void WandererStrategyDriver::update(Context &context)
@@ -8,10 +9,22 @@ void WandererStrategyDriver::update(Context &context)
         chaseStrategy.deAggroTimer -= context.deltaTime;
     }
 
+    auto* health = owner->getComponent<HealthComponent>();
+    if (health) {
+        float currentHP = *health->getHealth();
+        if (currentHP < prevHP)
+            chaseStrategy.deAggroTimer -= deAggroHitDecrease;
+        prevHP = currentHP;
+    }
+
     switch (state)
     {
         case PATH_FOLLOW:
         {
+            auto* health = owner->getComponent<HealthComponent>();
+            if (health && passiveHealRate > 0.f)
+                health->changeHealth(passiveHealRate * context.deltaTime);
+
             if(chaseStrategy.deAggroTimer <= 0)
             {
                 if(context.isEntityValid(chaseStrategy.findNearestEnemy(context)))
@@ -52,5 +65,6 @@ void WandererStrategyDriver::reset()
 {
     setStrategy(&pathFollowerStrategy);
     chaseStrategy.deAggroTimer = chaseStrategy.deAggroCooldown;
+    prevHP = 0.f;
     state = PATH_FOLLOW;
 }

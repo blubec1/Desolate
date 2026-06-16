@@ -7,6 +7,25 @@ class Entity;
 class Context;
 
 class RadioEventHandler;
+class RadioEvent;
+
+enum class RadioActionType
+{
+    Add,
+    Remove,
+    Change
+};
+
+struct RadioEventAction
+{
+    RadioActionType type;
+    union
+    {
+        RadioEvent* event;
+        int frequency;
+    };
+    int newFrequency = 0;
+};
 
 class RadioEvent
 {
@@ -34,17 +53,16 @@ class RadioEventHandler : public Component
 public:
     int* playerFrequencyPtr;
     std::unordered_map<int, RadioEvent*> events;
-    std::vector<RadioEvent*> pendingAdditions;
-    std::vector<int> pendingRemovals;
+    std::vector<RadioEventAction> pendingAction;
 
     RadioEventHandler(int* freqPtr) : playerFrequencyPtr(freqPtr) {}
     ~RadioEventHandler();
 
     void addEvent(RadioEvent* event);
     void removeEvent(int secretFrequency);
+    void changeEventFrequency(int secretFrequency, int newFrequency);
 
     virtual void update(Context& context) override;
 
-private:
     void flushPending();
 };

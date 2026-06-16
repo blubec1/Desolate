@@ -34,6 +34,8 @@
 #include "Components/KnobComponent.hpp"
 #include "Components/TextComponent.hpp"
 #include "Components/RadioEventHandler.hpp"
+#include "Components/QuestSystemComponent.hpp"
+#include "Components/QuestHudComponent.hpp"
 #include "Components/TriggerRadiusComponent.hpp"
 #include "Components/ResourceManager.hpp"
 #include "Components/SupplyReplenishComponent.hpp"
@@ -59,6 +61,7 @@ namespace Desolate::Factory
     inline Entity* createSquadEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID, float timeToAppear, float enemyFaction, float supplyMax, float supplyDrainRate, float supplyHpDrainRate, float shockwaveCooldown, float shockwaveRadius, int shockwaveMaxCharges, bool protectOthers, bool isProtected, float protectRange)
     {
         Entity *Squad = new Entity();
+        Squad->type = EntityType::Squad;
 
         std::set<int> enemies;
         enemies.insert(enemyFaction);
@@ -93,6 +96,7 @@ namespace Desolate::Factory
     inline Entity* createMapEntity(float canvasX, float canvasY, float brushRadius, sf::Color drawColour, sf::Color eraseColour, float tracedPathNodeDist)
     {
         Entity* Map = new Entity();
+        Map->type = EntityType::Map;
 
         Map->position = sf::Vector2f(0,0);
 
@@ -104,6 +108,7 @@ namespace Desolate::Factory
     inline Entity* createWandererEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, TracedPath* path, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID, float timeToAppear)
     {
         Entity* Wanderer = new Entity();
+        Wanderer->type = EntityType::Wanderer;
 
         std::set<int> enemies;
 
@@ -129,6 +134,7 @@ namespace Desolate::Factory
     inline Entity* createOutpostEntity(sf::Vector2f position, sf::Color colour, float radius, float healRange, float healValue, float supplyRange, float supplyvalue, float ID, float triggerRadius, float shockwaveRechargeRange, float shockwaveRechargeRate, bool protectOthers, bool isProtected, float protectRange)
     {
         Entity* Outpost = new Entity();
+        Outpost->type = EntityType::Outpost;
 
         Outpost->position = position;
         Outpost->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
@@ -155,6 +161,7 @@ namespace Desolate::Factory
     inline Entity* createFogofWarEntity()
     {
         Entity* FogofWarEntity = new Entity();
+        FogofWarEntity->type = EntityType::FogofWar;
 
         FogofWarEntity->position = sf::Vector2f(0,0);
 
@@ -166,6 +173,7 @@ namespace Desolate::Factory
     inline Entity* createTerritorialEntity(sf::Vector2f position, sf::Color colour, float radius, float patrolSpeed, float patrolRadius, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID, float timeToAppear)
     {
         Entity* Territorial = new Entity();
+        Territorial->type = EntityType::Territorial;
 
         std::set<int> enemies;
 
@@ -191,6 +199,7 @@ namespace Desolate::Factory
     inline Entity* createLurkerEntity(sf::Vector2f position, sf::Color colour, float radius, float patrolSpeed, float patrolRadius, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, float aggroRng, float deAggroRng, float deAggroCD, float arrivalDist, float visibilityRng, float timeToAppear, float ID)
     {
         Entity* Lurker = new Entity();
+        Lurker->type = EntityType::Lurker;
 
         std::set<int> enemies;
         enemies.insert(PLAYER_FACTION);
@@ -214,6 +223,7 @@ namespace Desolate::Factory
     inline Entity* createHunterEntity(sf::Vector2f position, sf::Color colour, float radius, float baseSpeed, float maxSpeed, float rampTime, float killRange, float viewRng, float timeToAppear, float ID, float minRespawnTime, float maxRespawnTime, float arrivalDist, float maxHealth)
     {
         Entity* Hunter = new Entity();
+        Hunter->type = EntityType::Hunter;
 
         std::set<int> enemies;
         enemies.insert(PLAYER_FACTION);
@@ -233,6 +243,7 @@ namespace Desolate::Factory
     inline Entity* createHunterLairEntity(sf::Vector2f position, sf::Color colour, float radius, float viewRng, float timeToAppear)
     {
         Entity* Lair = new Entity();
+        Lair->type = EntityType::HunterLair;
 
         Lair->position = position;
         Lair->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
@@ -245,6 +256,7 @@ namespace Desolate::Factory
     inline Entity* createProtectionSystemEntity()
     {
         Entity* ProtectionSystem = new Entity();
+        ProtectionSystem->type = EntityType::ProtectionSystem;
 
         ProtectionSystem->position = sf::Vector2f(0,0);
 
@@ -256,6 +268,7 @@ namespace Desolate::Factory
     inline Entity* createDeathSystemEntity()
     {
         Entity* DeathSystemEntity = new Entity();
+        DeathSystemEntity->type = EntityType::DeathSystem;
 
         DeathSystemEntity->position = sf::Vector2f(0,0);
 
@@ -267,6 +280,7 @@ namespace Desolate::Factory
     inline Entity* createResourceManagerEntity(float tickCooldown, float foodConsumptionRate, float increasedConsumptionRate, float metalProductionRate)
     {
         Entity* resourceEntity = new Entity();
+        resourceEntity->type = EntityType::ResourceManager;
 
         resourceEntity->addComponent<ResourceManager>(tickCooldown, foodConsumptionRate, increasedConsumptionRate, metalProductionRate);
 
@@ -276,6 +290,7 @@ namespace Desolate::Factory
     inline Entity* createAirdropEntity(sf::Vector2f position, sf::Color colour, float radius, float triggerRadius, float viewRng, float timeToAppear, ResourceManager* resManager)
     {
         Entity* Airdrop = new Entity();
+        Airdrop->type = EntityType::Airdrop;
 
         Airdrop->position = position;
         Airdrop->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
@@ -297,9 +312,18 @@ namespace Desolate::Factory
         return Airdrop;
     }
 
-    inline Entity* createUIEntity(const sf::Font& fontNumbers, const sf::Font& fontLetters, ResourceManager* resManager)
+    inline Entity* createQuestSystemEntity()
+    {
+        Entity* QuestSystem = new Entity();
+        QuestSystem->type = EntityType::QuestSystem;
+        QuestSystem->addComponent<QuestSystemComponent>();
+        return QuestSystem;
+    }
+
+    inline Entity* createUIEntity(const sf::Font& fontNumbers, const sf::Font& fontLetters, ResourceManager* resManager, QuestSystemComponent* questSystem)
     {
         Entity* UIEntity = new Entity();
+        UIEntity->type = EntityType::UI;
 
         UIEntity->position = sf::Vector2f(0,800);
 
@@ -385,14 +409,134 @@ namespace Desolate::Factory
         knob->hitboxShape = testKnobShape;
 
         auto* radioHandler = UIEntity->addComponent<RadioEventHandler>(knobTestValue);
-
-        radioHandler->addEvent(new AirdropRadioEvent(
+        
+        auto* airdropRadioEvent = new AirdropRadioEvent(
             50, 2, 2.f, 5.f,
             sf::Vector2f(300.f, 300.f),
             AIRDROP_COLOUR, AIRDROP_RADIUS, AIRDROP_TRIGGER_RADIUS,
             AIRDROP_VIEW_RANGE, AIRDROP_TIME_TO_APPEAR,
             resManager, 30, 88
-        ));
+        );
+
+        auto* airdropFreqDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(730.f,60.f), fontNumbers);
+        airdropFreqDisplay->valuePtr = &airdropRadioEvent->secretFrequency;
+
+        radioHandler->addEvent(airdropRadioEvent);
+
+        auto* questHud = UIEntity->addComponent<QuestHudComponent>(sf::Vector2f(400.f, 30.f), fontLetters, fontNumbers, questSystem);
+
+        // --- Upgrade sub-buttons (initially disabled) ---
+
+        auto* viewRngBtn = UIEntity->addComponent<ButtonComponent>(
+            new sf::RectangleShape(sf::Vector2f(80.f, 50.f)), "VIEW", fontLetters,
+            [resManager](Context& ctx) {
+                if (resManager->metal < 50) return;
+                resManager->metal -= 50;
+                resManager->upgradeViewBuffLevel++;
+                for (auto* e : ctx.getEntities())
+                    if (auto* scan = e->getComponent<AreaScanComponent>())
+                        scan->viewBuff += 50.f;
+            });
+        viewRngBtn->hitboxShape->setPosition(sf::Vector2f(400.f, 260.f));
+        viewRngBtn->hitboxShape->setFillColor(sf::Color(100, 100, 200));
+        viewRngBtn->hitboxShape->setOrigin(sf::Vector2f(40.f, 25.f));
+        viewRngBtn->isDisabledVal = true;
+
+        auto* maxHpBtn = UIEntity->addComponent<ButtonComponent>(
+            new sf::RectangleShape(sf::Vector2f(80.f, 50.f)), "HP", fontLetters,
+            [resManager](Context& ctx) {
+                if (resManager->metal < 30) return;
+                resManager->metal -= 30;
+                resManager->upgradeMaxHpLevel++;
+                for (auto* e : ctx.getEntities()) {
+                    auto* faction = e->getComponent<FactionComponent>();
+                    if (faction && faction->FactionID == PLAYER_FACTION)
+                        if (auto* hp = e->getComponent<HealthComponent>())
+                            hp->changeMaxHP(50.f);
+                }
+            });
+        maxHpBtn->hitboxShape->setPosition(sf::Vector2f(400.f, 320.f));
+        maxHpBtn->hitboxShape->setFillColor(sf::Color(200, 80, 80));
+        maxHpBtn->hitboxShape->setOrigin(sf::Vector2f(40.f, 25.f));
+        maxHpBtn->isDisabledVal = true;
+
+        auto* supplyBtn = UIEntity->addComponent<ButtonComponent>(
+            new sf::RectangleShape(sf::Vector2f(80.f, 50.f)), "SUPPLY", fontLetters,
+            [resManager](Context& ctx) {
+                if (resManager->metal < 20) return;
+                resManager->metal -= 20;
+                resManager->upgradeSupplyMaxLevel++;
+                for (auto* e : ctx.getEntities())
+                    if (auto* supply = e->getComponent<SupplyComponent>())
+                        supply->changeMaxSupply(50.f);
+            });
+        supplyBtn->hitboxShape->setPosition(sf::Vector2f(400.f, 380.f));
+        supplyBtn->hitboxShape->setFillColor(sf::Color(80, 180, 80));
+        supplyBtn->hitboxShape->setOrigin(sf::Vector2f(40.f, 25.f));
+        supplyBtn->isDisabledVal = true;
+
+        auto* dmgBtn = UIEntity->addComponent<ButtonComponent>(
+            new sf::RectangleShape(sf::Vector2f(80.f, 50.f)), "DMG", fontLetters,
+            [resManager](Context& ctx) {
+                if (resManager->metal < 40) return;
+                resManager->metal -= 40;
+                resManager->upgradeDamageLevel++;
+                for (auto* e : ctx.getEntities()) {
+                    if (auto* still = e->getComponent<StillAttackComponent>())
+                        still->damage += 25.f;
+                    if (auto* timed = e->getComponent<TimedAttackComponent>())
+                        timed->damage += 25.f;
+                }
+            });
+        dmgBtn->hitboxShape->setPosition(sf::Vector2f(400.f, 440.f));
+        dmgBtn->hitboxShape->setFillColor(sf::Color(220, 140, 40));
+        dmgBtn->hitboxShape->setOrigin(sf::Vector2f(40.f, 25.f));
+        dmgBtn->isDisabledVal = true;
+
+        auto* foodBtn = UIEntity->addComponent<ButtonComponent>(
+            new sf::RectangleShape(sf::Vector2f(80.f, 50.f)), "FOOD", fontLetters,
+            [resManager](Context&) {
+                if (resManager->metal < 25) return;
+                resManager->metal -= 25;
+                resManager->upgradeFoodEfficiencyLevel++;
+                resManager->foodConsumptionRate -= 0.1f;
+                if (resManager->foodConsumptionRate < 0.f) resManager->foodConsumptionRate = 0.f;
+                resManager->increasedConsumptionRate -= 0.15f;
+                if (resManager->increasedConsumptionRate < 0.f) resManager->increasedConsumptionRate = 0.f;
+            });
+        foodBtn->hitboxShape->setPosition(sf::Vector2f(400.f, 500.f));
+        foodBtn->hitboxShape->setFillColor(sf::Color(150, 200, 60));
+        foodBtn->hitboxShape->setOrigin(sf::Vector2f(40.f, 25.f));
+        foodBtn->isDisabledVal = true;
+
+        auto* metalBtn = UIEntity->addComponent<ButtonComponent>(
+            new sf::RectangleShape(sf::Vector2f(80.f, 50.f)), "METAL", fontLetters,
+            [resManager](Context&) {
+                if (resManager->metal < 35) return;
+                resManager->metal -= 35;
+                resManager->upgradeMetalProductionLevel++;
+                resManager->metalProductionRate += 0.5f;
+            });
+        metalBtn->hitboxShape->setPosition(sf::Vector2f(400.f, 560.f));
+        metalBtn->hitboxShape->setFillColor(sf::Color(200, 170, 30));
+        metalBtn->hitboxShape->setOrigin(sf::Vector2f(40.f, 25.f));
+        metalBtn->isDisabledVal = true;
+
+        // --- Upgrade toggle ---
+
+        auto* upgradeShape = new sf::RectangleShape(sf::Vector2f(80.f, 50.f));
+        upgradeShape->setPosition(sf::Vector2f(400.f, 200.f));
+        upgradeShape->setFillColor(sf::Color(150, 150, 150));
+        upgradeShape->setOrigin(sf::Vector2f(40.f, 25.f));
+        UIEntity->addComponent<ButtonComponent>(upgradeShape, "UPGRADE", fontLetters,
+            [viewRngBtn, maxHpBtn, supplyBtn, dmgBtn, foodBtn, metalBtn](Context&) {
+                viewRngBtn->isDisabledVal = !viewRngBtn->isDisabledVal;
+                maxHpBtn->isDisabledVal = !maxHpBtn->isDisabledVal;
+                supplyBtn->isDisabledVal = !supplyBtn->isDisabledVal;
+                dmgBtn->isDisabledVal = !dmgBtn->isDisabledVal;
+                foodBtn->isDisabledVal = !foodBtn->isDisabledVal;
+                metalBtn->isDisabledVal = !metalBtn->isDisabledVal;
+            });
 
         return UIEntity;
     }
