@@ -45,6 +45,7 @@
 #include "StrategyDrivers/LurkerStrategyDriver.hpp"
 #include "StrategyDrivers/HunterStrategyDriver.hpp"
 #include "RadioEvents/AirdropRadioEvent.hpp"
+#include "Components/AudioSystemComponent.hpp"
 
 //Завод!
 
@@ -539,5 +540,17 @@ namespace Desolate::Factory
             });
 
         return UIEntity;
+    }
+
+    inline Entity* createAudioSystemEntity(const std::string& resourcePath)
+    {
+        Entity* audioEntity = new Entity();
+        audioEntity->type = EntityType::AudioSystem;
+
+        audioEntity->position = sf::Vector2f(0, 0);
+
+        auto* audio = audioEntity->addComponent<AudioSystemComponent>(resourcePath);
+
+        return audioEntity;
     }
 }

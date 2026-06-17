@@ -1,6 +1,7 @@
 #include "Components/DeathSystemComponent.hpp"
 #include "context.hpp"
 #include "Entity.hpp"
+#include "Components/AudioSystemComponent.hpp"
 #include "Components/HealthComponent.hpp"
 #include "Components/RespawnComponent.hpp"
 
@@ -36,6 +37,7 @@ void DeathSystemComponent::update(Context& context)
         {
             if(healthComponent->isDead())
             {
+                context.audioManager->playSound("death");
                 if(respawnComponent != nullptr)
                 {
                     respawnComponent->startRespawn();

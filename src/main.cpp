@@ -5,6 +5,7 @@
 #include "input.hpp"
 #include "EntityFactory.hpp"
 #include "Constants.hpp"
+#include "Components/AudioSystemComponent.hpp"
 #include "QuestSystem/Nodes/ResourceThresholdQuest.hpp"
 #include "QuestSystem/Nodes/KillCountQuest.hpp"
 
@@ -20,7 +21,7 @@ std::vector<sf::Color> SQUAD_COLOURS = {TERRITORIAL_COLOUR, OUTPOST_COLOUR};
 
 int main()
 {
-	sf::RenderWindow window( sf::VideoMode( { 1000, 1000 } ), "Desolate" );
+	sf::RenderWindow window( sf::VideoMode( { 1000, 1000 } ), "Desolate" , sf::Style::Titlebar | sf::Style::Close);
 	sf::CircleShape shape( 100.f );
 	shape.setFillColor( sf::Color::Green );
 	window.setFramerateLimit(60);
@@ -71,6 +72,7 @@ int main()
 	Entity* ENT_HunterLair1 = Desolate::Factory::createHunterLairEntity(sf::Vector2f(700.f, 100.f), HUNTER_LAIR_COLOUR, HUNTER_LAIR_RADIUS, HUNTER_LAIR_VIEW_RANGE, HUNTER_LAIR_TIME_TO_APPEAR);
 	Entity* ENT_HunterLair2 = Desolate::Factory::createHunterLairEntity(sf::Vector2f(700.f, 700.f), HUNTER_LAIR_COLOUR, HUNTER_LAIR_RADIUS, HUNTER_LAIR_VIEW_RANGE, HUNTER_LAIR_TIME_TO_APPEAR);
 	Entity* ENT_Hunter = Desolate::Factory::createHunterEntity(sf::Vector2f(700.f, 100.f), HUNTER_COLOUR, HUNTER_RADIUS, HUNTER_BASE_SPEED, HUNTER_MAX_SPEED, HUNTER_RAMP_UP_TIME, HUNTER_KILL_RANGE, HUNTER_VIEW_RANGE, HUNTER_TIME_TO_APPEAR, PLAYER_FACTION, HUNTER_MIN_RESPAWN_TIME, HUNTER_MAX_RESPAWN_TIME, 50.f, HUNTER_MAX_HEALTH);
+	Entity* ENT_AudioSystem = Desolate::Factory::createAudioSystemEntity(RESOURCE_DIR "/audio");
 
 	ENT_ResourceMgr->updatePriority = -10;
 	ENT_Map->updatePriority = -10;
@@ -78,12 +80,14 @@ int main()
 	ENT_FogofWarSystem->updatePriority = -10;
 	ENT_DeathSystem->updatePriority = -20;
 	ENT_QuestSystem->updatePriority = -30;
+	ENT_AudioSystem->updatePriority = -10;
 	ENT_UI->updatePriority = -30;
 
 	sf::Clock deltaClock;
 	Input input;
 	Context context(&window, &input);
 	context.resourceManager = resManager;
+	context.audioManager = ENT_AudioSystem->getComponent<AudioSystemComponent>();
 	CURRENTTOOL currTool = MAP;
 
 	context.addEntity(ENT_ResourceMgr);
@@ -100,7 +104,10 @@ int main()
 	context.addEntity(ENT_FogofWarSystem);
 	context.addEntity(ENT_DeathSystem);
 	context.addEntity(ENT_QuestSystem);
+	context.addEntity(ENT_AudioSystem);
 	context.addEntity(ENT_UI);
+
+	context.audioManager->playMusic("ambient");
 
 	while(window.isOpen())
 	{

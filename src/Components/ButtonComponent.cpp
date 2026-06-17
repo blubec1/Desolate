@@ -2,6 +2,7 @@
 #include "Entity.hpp"
 #include "context.hpp"
 #include "input.hpp"
+#include "Components/AudioSystemComponent.hpp"
 
 void ButtonComponent::update(Context& context)
 {
@@ -17,7 +18,10 @@ void ButtonComponent::update(Context& context)
     if (isHovered && context.input->isHoldingLeftMouseButton && !context.input->previousLeftMouseButtonState)
     {
         if (onClick)
+        {
+            context.audioManager->playSound("click");
             onClick(context);
+        }
     }
 }
 

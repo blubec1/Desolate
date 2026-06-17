@@ -5,6 +5,7 @@
 #include <set>
 
 class Input;
+class AudioSystemComponent;
 class AttackAnimation;
 class Entity;
 class ResourceManager;
@@ -23,6 +24,7 @@ class Context : public sf::Drawable
 
     std::vector<AttackAnimation*> activeEffects;
     ResourceManager* resourceManager = nullptr;
+    AudioSystemComponent* audioManager = nullptr;
 
     Context(sf::RenderWindow *window, Input *input);
     ~Context();

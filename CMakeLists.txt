@@ -64,10 +64,11 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
      src/Components/QuestHudComponent.cpp
      src/QuestSystem/Questline.cpp
      src/QuestSystem/Nodes/ResourceThresholdQuest.cpp
-     src/QuestSystem/Nodes/KillCountQuest.cpp)
+     src/QuestSystem/Nodes/KillCountQuest.cpp
+    src/Components/AudioSystemComponent.cpp)
 target_compile_definitions(main PRIVATE RESOURCE_DIR="${CMAKE_SOURCE_DIR}/resources")
 target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(main PRIVATE cxx_std_20)
-target_link_libraries(main PRIVATE SFML::Graphics)
+target_link_libraries(main PRIVATE SFML::Graphics SFML::Audio)
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT main map input)

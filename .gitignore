@@ -4,5 +4,6 @@ out
 .idea
 .vs
 .vscode
+*.wav
 
 ROADMAP.cpp

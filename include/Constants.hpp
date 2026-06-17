@@ -25,7 +25,8 @@ enum class EntityType
     ResourceManager,
     Airdrop,
     UI,
-    QuestSystem
+    QuestSystem,
+    AudioSystem
 };
 
 const unsigned int MAP_HEIGHT = 800;
