@@ -19,7 +19,8 @@ void ButtonComponent::update(Context& context)
     {
         if (onClick)
         {
-            context.audioManager->playSound("click");
+            if (context.audioManager)
+                context.audioManager->playSound("click");
             onClick(context);
         }
     }

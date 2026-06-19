@@ -12,7 +12,10 @@ Context::Context(sf::RenderWindow *window, Input *input)
 Context::~Context()
 {
     flushPendingAdditions();
-    delete audioManager;
+    for (auto* entity : entities)
+        delete entity;
+    entities.clear();
+    entityCheck.clear();
 }
 
 void Context::update()

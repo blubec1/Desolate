@@ -548,6 +548,30 @@ namespace Desolate::Factory
         return UIEntity;
     }
 
+    inline Entity* createMenuUIEntity(const sf::Font& font,
+        std::function<void(Context&)> onPlay,
+        std::function<void(Context&)> onExit)
+    {
+        Entity* MenuUI = new Entity();
+        MenuUI->type = EntityType::UI;
+
+        MenuUI->position = sf::Vector2f(0, 0);
+
+        auto* playShape = new sf::RectangleShape(sf::Vector2f(200.f, 60.f));
+        playShape->setPosition(sf::Vector2f(500.f, 400.f));
+        playShape->setFillColor(sf::Color(80, 200, 80));
+        playShape->setOrigin(sf::Vector2f(100.f, 30.f));
+        MenuUI->addComponent<ButtonComponent>(playShape, "PLAY", font, onPlay);
+
+        auto* exitShape = new sf::RectangleShape(sf::Vector2f(200.f, 60.f));
+        exitShape->setPosition(sf::Vector2f(500.f, 500.f));
+        exitShape->setFillColor(sf::Color(200, 80, 80));
+        exitShape->setOrigin(sf::Vector2f(100.f, 30.f));
+        MenuUI->addComponent<ButtonComponent>(exitShape, "EXIT", font, onExit);
+
+        return MenuUI;
+    }
+
     inline Entity* createAudioSystemEntity(const std::string& resourcePath)
     {
         Entity* audioEntity = new Entity();
