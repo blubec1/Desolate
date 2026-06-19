@@ -4,9 +4,8 @@
 #include "Components/FactionComponent.hpp"
 #include "Components/Component.hpp"
 #include "Entity.hpp"
-#include "Components/AudioSystemComponent.hpp"
 
-void TimedAttackComponent::attackDerived(Context& context, std::vector<Entity*> entities)
+bool TimedAttackComponent::attackDerived(Context& context, std::vector<Entity*> entities)
 {
     
     if(attackTimer <= 0)
@@ -26,10 +25,9 @@ void TimedAttackComponent::attackDerived(Context& context, std::vector<Entity*> 
 
                     if(delta.length() <= attackRange)
                     {
-                        context.audioManager->playSound("attack");
                         hpComponent->changeHealth(-damage);
                         attackTimer = attackCooldown;
-                        break;
+                        return true;
                     }
                 }
             }
@@ -40,4 +38,5 @@ void TimedAttackComponent::attackDerived(Context& context, std::vector<Entity*> 
         attackTimer -= context.deltaTime;
     }
     
+    return false;
 }

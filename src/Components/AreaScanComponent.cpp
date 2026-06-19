@@ -24,4 +24,6 @@ void AreaScanComponent::update(Context& context)
             }
         }
     }
+
+    detectSpotted(context);
 }

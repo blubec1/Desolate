@@ -5,7 +5,7 @@ void GlobalScanComponent::update(Context& context)
     this->entities.clear();
     for (auto entity : context.getEntities())
     {
-        if (entity != owner && context.isEntityValid(entity))
+        if(entity != owner && context.isEntityValid(entity))
         {
             auto visComponent = entity->getComponent<VisibilityComponent>();
             auto renderComponent = entity->getComponent<RenderComponent>();
@@ -16,4 +16,6 @@ void GlobalScanComponent::update(Context& context)
             }
         }
     }
+
+    detectSpotted(context);
 }

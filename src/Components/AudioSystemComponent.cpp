@@ -1,5 +1,7 @@
 #include "Components/AudioSystemComponent.hpp"
+#include <algorithm>
 #include <filesystem>
+#include <cstdlib>
 
 bool AudioSystemComponent::loadSoundBuffer(const std::string& name, const std::string& filepath)
 {
@@ -37,9 +39,13 @@ void AudioSystemComponent::playMusic(const std::string& name, bool loop)
     currentMusic = new sf::Music();
     if (!currentMusic->openFromFile(musicPath))
     {
-        delete currentMusic;
-        currentMusic = nullptr;
-        return;
+        std::string oggPath = resPath + "/music/" + name + ".ogg";
+        if (!currentMusic->openFromFile(oggPath))
+        {
+            delete currentMusic;
+            currentMusic = nullptr;
+            return;
+        }
     }
 
     currentMusic->setLooping(loop);
@@ -55,6 +61,25 @@ void AudioSystemComponent::stopMusic()
 void AudioSystemComponent::update(Context& context)
 {
     cleanupStoppedSounds();
+}
+
+sf::Sound* AudioSystemComponent::playEvent(EntityType entityType, SoundEvent event, float volume)
+{
+    cleanupStoppedSounds();
+
+    auto eit = eventSounds.find(entityType);
+    if (eit == eventSounds.end()) return nullptr;
+
+    auto fit = eit->second.find(event);
+    if (fit == eit->second.end() || fit->second.empty()) return nullptr;
+
+    int idx = std::rand() % fit->second.size();
+    return playSound(fit->second[idx], volume);
+}
+
+bool AudioSystemComponent::isSoundValid(sf::Sound* sound)
+{
+    return std::find(activeSounds.begin(), activeSounds.end(), sound) != activeSounds.end();
 }
 
 void AudioSystemComponent::cleanupStoppedSounds()

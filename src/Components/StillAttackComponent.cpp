@@ -1,13 +1,12 @@
 #include "Components/StillAttackComponent.hpp"
 #include "Components/FactionComponent.hpp"
-#include "Components/AudioSystemComponent.hpp"
 
-void StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> entities)
+bool StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> entities)
 {
     auto moveComponent = owner->getComponent<MovementComponent>();
 
     if(moveComponent == nullptr)
-        return;
+        return false;
 
     if(attackTimer <= 0 && !moveComponent->isMoving())
     {
@@ -37,12 +36,12 @@ void StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> 
 
             if(closest != nullptr)
             {
-                context.audioManager->playSound("attack");
             context.activeEffects.push_back(
                     new AttackAnimation(owner->position, closest->position, 0.15f)
                 );
                 closest->getComponent<HealthComponent>()->changeHealth(-damage);
                 attackTimer = attackCooldown;
+                return true;
             }
         }
     }
@@ -51,4 +50,5 @@ void StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> 
         attackTimer -= context.deltaTime;
     }
 
+    return false;
 }

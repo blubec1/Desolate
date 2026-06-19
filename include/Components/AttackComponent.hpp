@@ -12,6 +12,10 @@ class AttackComponent : public Component
     
     public:
 
+    bool wasAttacking = false;
+    float gunshotVolume;
+    float attackVoiceVolume;
+
     void changeDamage(float val) { damage += val; }
     float* getDamage() { return &damage; }
 
@@ -19,5 +23,5 @@ class AttackComponent : public Component
     float* getAttackRange() { return &attackRange; }
 
     void update(Context& context) override;
-    virtual void attackDerived(Context& context, std::vector<Entity*> entities) = 0;
+    virtual bool attackDerived(Context& context, std::vector<Entity*> entities) = 0;
 };

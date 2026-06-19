@@ -29,6 +29,18 @@ enum class EntityType
     AudioSystem
 };
 
+enum class SoundEvent
+{
+    Attack,
+    AttackSound,
+    Moving,
+    Heard,
+    Spotted,
+    Stalked,
+    Damaged,
+    Death
+};
+
 const unsigned int MAP_HEIGHT = 800;
 const unsigned int MAP_WIDTH = 800;
 const int BRUSH_STARTING_RADIUS = 10;
@@ -105,9 +117,9 @@ const float SQUAD_SUPPLY_MAX = 100.f;
 const float SQUAD_SUPPLY_DRAIN_RATE = 5.f;
 const float SQUAD_SUPPLY_HP_DRAIN_PERCENTAGE = 10.f;
 
-const float SQUAD_DAMAGE = 100.f;
+const float SQUAD_DAMAGE = 10.f;
 const float SQUAD_SHOOT_RANGE = 500.f;
-const float SQUAD_ATTACK_COOLDOWN = 0.5f;
+const float SQUAD_ATTACK_COOLDOWN = 0.2f;
 const float SQUAD_MAX_HEALTH = 100.f;
 const float SQUAD_TIME_TO_APPEAR = 1.f;
 const float SQUAD_VISIBILITY_RANGE = 500.f;
@@ -152,5 +164,66 @@ const float HUNTER_LAIR_RADIUS = 20.f;
 const float HUNTER_LAIR_VIEW_RANGE = 500.f;
 const float HUNTER_LAIR_TIME_TO_APPEAR = 1.f;
 
+const float STANDARD_AUDIO_COOLDOWN = 5.f;
+const float STANDARD_AUDIO_QUEUE_DELAY = 0.8f;
+const float STANDARD_AUDIO_COMBAT_WINDOW = 3.f;
+const int STANDARD_AUDIO_COMBAT_PRIORITY = 4;
+const int STANDARD_AUDIO_PREEMPT_THRESHOLD = 3;
+
+const float STANDARD_GUNSHOT_VOLUME = 50.f;
+const float STANDARD_ATTACK_VOICE_VOLUME = 75.f;
+
 const sf::Color PLAYER_HP_COLOUR = sf::Color::Blue;
 const sf::Color MONSTER_HP_COLOUR = sf::Color::Red;
+
+inline const char* entityTypeToString(EntityType t)
+{
+    switch (t)
+    {
+        case EntityType::Squad:       return "Squad";
+        case EntityType::Wanderer:    return "Wanderer";
+        case EntityType::Territorial: return "Territorial";
+        case EntityType::Lurker:      return "Lurker";
+        case EntityType::Hunter:      return "Hunter";
+        default:                      return "";
+    }
+}
+
+inline const char* soundEventToString(SoundEvent e)
+{
+    switch (e)
+    {
+        case SoundEvent::Attack:  return "Attack";
+        case SoundEvent::AttackSound:  return "AttackSound";
+        case SoundEvent::Moving:  return "Moving";
+        case SoundEvent::Damaged: return "Damaged";
+        case SoundEvent::Death:   return "Death";
+        case SoundEvent::Spotted: return "Spotted";
+        case SoundEvent::Stalked: return "Stalked";
+        case SoundEvent::Heard:   return "Heard";
+        default:                  return "";
+    }
+}
+
+inline EntityType stringToEntityType(const std::string& s)
+{
+    if (s == "Squad")       return EntityType::Squad;
+    if (s == "Wanderer")    return EntityType::Wanderer;
+    if (s == "Territorial") return EntityType::Territorial;
+    if (s == "Lurker")      return EntityType::Lurker;
+    if (s == "Hunter")      return EntityType::Hunter;
+    return EntityType::None;
+}
+
+inline SoundEvent stringToSoundEvent(const std::string& s)
+{
+    if (s == "Attack")  return SoundEvent::Attack;
+    if (s == "AttackSound")  return SoundEvent::AttackSound;
+    if (s == "Moving")  return SoundEvent::Moving;
+    if (s == "Damaged") return SoundEvent::Damaged;
+    if (s == "Death")   return SoundEvent::Death;
+    if (s == "Spotted") return SoundEvent::Spotted;
+    if (s == "Stalked") return SoundEvent::Stalked;
+    if (s == "Heard")   return SoundEvent::Heard;
+    return static_cast<SoundEvent>(-1);
+}
