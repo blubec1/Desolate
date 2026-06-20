@@ -9,16 +9,15 @@
 class StillAttackComponent : public AttackComponent
 {
     public:
-    float damage;
-    float attackRange;
     float attackTimer;
     float attackCooldown;
     std::set<int> enemies;
 
     StillAttackComponent(float dmg, float attackRng, float atkCD, std::set<int>& enemies, float gunVol, float voiceVol)
-    :  damage(dmg), attackCooldown(atkCD), enemies(enemies)
+    :  attackCooldown(atkCD), enemies(enemies)
     {
-        attackRange = attackRng;
+        this->damage = dmg;
+        this->attackRange = attackRng;
         gunshotVolume = gunVol;
         attackVoiceVolume = voiceVol;
     };

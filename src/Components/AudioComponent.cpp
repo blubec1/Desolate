@@ -20,21 +20,21 @@ int AudioComponent::priorityOf(SoundEvent e)
 float AudioComponent::expirationOf(int priority)
 {
     switch(priority) {
-        case 1: return 1.f;
-        case 2: return 1.f;
-        case 3: return 1.f;
-        case 4: return 1.f;
-        case 5: return 1.f;
+        case 1: return 0.7f;
+        case 2: return 0.7f;
+        case 3: return 0.7f;
+        case 4: return 0.7f;
+        case 5: return 0.7f;
         default: return 2.0f;
     }
 }
 
 void AudioComponent::stopCurrentSound(Context& context)
 {
-    if(currentSound) {
-        if(context.audioManager && context.audioManager->isSoundValid(currentSound))
-            currentSound->stop();
-        currentSound = nullptr;
+    if(currentVoiceline) {
+        if(context.audioManager && context.audioManager->isSoundValid(currentVoiceline))
+            currentVoiceline->stop();
+        currentVoiceline = nullptr;
     }
 }
 
@@ -42,7 +42,7 @@ void AudioComponent::playQueuedSound(Context& context, const QueuedSound& queued
 {
     stopCurrentSound(context);
     if(context.audioManager)
-        currentSound = context.audioManager->playEvent(owner->type, queuedSound.event, queuedSound.volume);
+        currentVoiceline = context.audioManager->playEvent(owner->type, queuedSound.event, queuedSound.volume);
     if(queuedSound.priority >= combatPriority)
         combatTimer = combatWindow;
 }
@@ -58,8 +58,8 @@ void AudioComponent::update(Context& context)
     if(combatTimer > 0.f)
         combatTimer -= context.deltaTime;
 
-    if(currentSound && context.audioManager && !context.audioManager->isSoundValid(currentSound))
-        currentSound = nullptr;
+    if(currentVoiceline && context.audioManager && !context.audioManager->isSoundValid(currentVoiceline))
+        currentVoiceline = nullptr;
 
     if(playTimer > 0.f)
     {
@@ -67,22 +67,25 @@ void AudioComponent::update(Context& context)
 
         if(!pendingEvents.empty())
         {
-            int diff = pendingEvents.top().priority - currentPriority;
-            if (diff >= hardPreemptThreshold)
+            if(context.audioManager->isSoundValid(currentVoiceline))
             {
-                stopCurrentSound(context);
-                playTimer = 0.f;
-            }
-            else if (diff > 0)
-            {
-                playTimer = 0.f;
+                int diff = pendingEvents.top().priority - currentPriority;
+                if (diff >= hardPreemptThreshold)
+                {
+                    stopCurrentSound(context);
+                    playTimer = 0.f;
+                }
+                else if (diff > 0)
+                {
+                    playTimer = 0.f;
+                }
             }
         }
     }
 
     if(playTimer <= 0.f)
     {
-        while(!pendingEvents.empty() && gameTime >= pendingEvents.top().expiresAt)
+        while(!pendingEvents.empty() && (gameTime >= pendingEvents.top().expiresAt))
             pendingEvents.pop();
 
         if(!pendingEvents.empty())

@@ -22,7 +22,7 @@ class AudioComponent : public Component
 
     std::unordered_map<SoundEvent, float> cooldownTimers;
     std::priority_queue<QueuedSound> pendingEvents;
-    sf::Sound* currentSound = nullptr;
+    sf::Sound* currentVoiceline = nullptr;
     int currentPriority = -1;
     float playTimer = 0.f;
     float gameTime = 0.f;

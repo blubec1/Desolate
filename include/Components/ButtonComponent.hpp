@@ -10,7 +10,6 @@ public:
     sf::Text label;
     std::function<void(Context&)> onClick;
 
-    bool isDisabledVal = false;
     bool isHovered = false;
     bool isPressed = false;
 

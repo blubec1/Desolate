@@ -26,6 +26,11 @@ class Context : public sf::Drawable
     ResourceManager* resourceManager = nullptr;
     AudioSystemComponent* audioManager = nullptr;
 
+    float squadMaxHp = 100.f;
+    float squadDamage = 10.f;
+    float squadViewBuff = 0.f;
+    float squadSupplyMax = 100.f;
+
     Context(sf::RenderWindow *window, Input *input);
     ~Context();
 

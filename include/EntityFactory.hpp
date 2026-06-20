@@ -438,23 +438,32 @@ namespace Desolate::Factory
             new sf::RectangleShape(sf::Vector2f(80.f, 50.f)), "VIEW", fontLetters,
             [resManager](Context& ctx) {
                 if (resManager->metal < 50) return;
+
                 resManager->metal -= 50;
                 resManager->upgradeViewBuffLevel++;
-                for (auto* e : ctx.getEntities())
+                ctx.squadViewBuff += 50.f;
+                for (auto* e : ctx.getEntities()) {
+                    auto* faction = e->getComponent<FactionComponent>();
+                    if (!faction || faction->FactionID != PLAYER_FACTION)
+                        continue;
                     if (auto* scan = e->getComponent<AreaScanComponent>())
                         scan->viewBuff += 50.f;
+                }
             });
-        viewRngBtn->hitboxShape->setPosition(sf::Vector2f(400.f, 260.f));
+
+        viewRngBtn->hitboxShape->setPosition(sf::Vector2f(80.f, 80.f));
         viewRngBtn->hitboxShape->setFillColor(sf::Color(100, 100, 200));
         viewRngBtn->hitboxShape->setOrigin(sf::Vector2f(40.f, 25.f));
-        viewRngBtn->isDisabledVal = true;
+        viewRngBtn->disable();
 
         auto* maxHpBtn = UIEntity->addComponent<ButtonComponent>(
             new sf::RectangleShape(sf::Vector2f(80.f, 50.f)), "HP", fontLetters,
             [resManager](Context& ctx) {
                 if (resManager->metal < 30) return;
+
                 resManager->metal -= 30;
                 resManager->upgradeMaxHpLevel++;
+                ctx.squadMaxHp += 50.f;
                 for (auto* e : ctx.getEntities()) {
                     auto* faction = e->getComponent<FactionComponent>();
                     if (faction && faction->FactionID == PLAYER_FACTION)
@@ -462,95 +471,110 @@ namespace Desolate::Factory
                             hp->changeMaxHP(50.f);
                 }
             });
-        maxHpBtn->hitboxShape->setPosition(sf::Vector2f(400.f, 320.f));
+
+        maxHpBtn->hitboxShape->setPosition(sf::Vector2f(200.f, 80.f));
         maxHpBtn->hitboxShape->setFillColor(sf::Color(200, 80, 80));
         maxHpBtn->hitboxShape->setOrigin(sf::Vector2f(40.f, 25.f));
-        maxHpBtn->isDisabledVal = true;
+        maxHpBtn->disable();
 
         auto* supplyBtn = UIEntity->addComponent<ButtonComponent>(
             new sf::RectangleShape(sf::Vector2f(80.f, 50.f)), "SUPPLY", fontLetters,
             [resManager](Context& ctx) {
                 if (resManager->metal < 20) return;
+
                 resManager->metal -= 20;
                 resManager->upgradeSupplyMaxLevel++;
-                for (auto* e : ctx.getEntities())
+                ctx.squadSupplyMax += 50.f;
+                for (auto* e : ctx.getEntities()) {
+                    auto* faction = e->getComponent<FactionComponent>();
+                    if (!faction || faction->FactionID != PLAYER_FACTION)
+                        continue;
                     if (auto* supply = e->getComponent<SupplyComponent>())
                         supply->changeMaxSupply(50.f);
+                }
             });
-        supplyBtn->hitboxShape->setPosition(sf::Vector2f(400.f, 380.f));
+
+        supplyBtn->hitboxShape->setPosition(sf::Vector2f(320.f, 80.f));
         supplyBtn->hitboxShape->setFillColor(sf::Color(80, 180, 80));
         supplyBtn->hitboxShape->setOrigin(sf::Vector2f(40.f, 25.f));
-        supplyBtn->isDisabledVal = true;
+        supplyBtn->disable();
 
         auto* dmgBtn = UIEntity->addComponent<ButtonComponent>(
             new sf::RectangleShape(sf::Vector2f(80.f, 50.f)), "DMG", fontLetters,
             [resManager](Context& ctx) {
-                if (resManager->metal < 40) return;
+                if(resManager->metal < 40) return;
+                
                 resManager->metal -= 40;
                 resManager->upgradeDamageLevel++;
-                for (auto* e : ctx.getEntities()) {
-                    if (auto* still = e->getComponent<StillAttackComponent>())
-                        still->damage += 25.f;
-                    if (auto* timed = e->getComponent<TimedAttackComponent>())
-                        timed->damage += 25.f;
+                ctx.squadDamage += 25.f;
+                for(auto* e : ctx.getEntities()) 
+                {
+                    auto* faction = e->getComponent<FactionComponent>();
+                    if(!faction || faction->FactionID != PLAYER_FACTION)
+                        continue;
+                    if(auto* attack = e->getComponent<AttackComponent>())
+                        attack->changeDamage(25.f);
                 }
             });
-        dmgBtn->hitboxShape->setPosition(sf::Vector2f(400.f, 440.f));
+
+        dmgBtn->hitboxShape->setPosition(sf::Vector2f(80.f, 150.f));
         dmgBtn->hitboxShape->setFillColor(sf::Color(220, 140, 40));
         dmgBtn->hitboxShape->setOrigin(sf::Vector2f(40.f, 25.f));
-        dmgBtn->isDisabledVal = true;
+        dmgBtn->disable();
 
         auto* foodBtn = UIEntity->addComponent<ButtonComponent>(
             new sf::RectangleShape(sf::Vector2f(80.f, 50.f)), "FOOD", fontLetters,
             [resManager](Context&) {
-                if (resManager->metal < 25) return;
+                if(resManager->metal < 25) return;
+
                 resManager->metal -= 25;
                 resManager->upgradeFoodEfficiencyLevel++;
                 resManager->foodConsumptionRate -= 0.1f;
-                if (resManager->foodConsumptionRate < 0.f) resManager->foodConsumptionRate = 0.f;
+                if(resManager->foodConsumptionRate < 0.f) resManager->foodConsumptionRate = 0.f;
                 resManager->increasedConsumptionRate -= 0.15f;
-                if (resManager->increasedConsumptionRate < 0.f) resManager->increasedConsumptionRate = 0.f;
+                if(resManager->increasedConsumptionRate < 0.f) resManager->increasedConsumptionRate = 0.f;
             });
-        foodBtn->hitboxShape->setPosition(sf::Vector2f(400.f, 500.f));
+
+        foodBtn->hitboxShape->setPosition(sf::Vector2f(200.f, 150.f));
         foodBtn->hitboxShape->setFillColor(sf::Color(150, 200, 60));
         foodBtn->hitboxShape->setOrigin(sf::Vector2f(40.f, 25.f));
-        foodBtn->isDisabledVal = true;
+        foodBtn->disable();
 
         auto* metalBtn = UIEntity->addComponent<ButtonComponent>(
             new sf::RectangleShape(sf::Vector2f(80.f, 50.f)), "METAL", fontLetters,
             [resManager](Context&) {
-                if (resManager->metal < 35) return;
+                if(resManager->metal < 35) return;
+
                 resManager->metal -= 35;
                 resManager->upgradeMetalProductionLevel++;
                 resManager->metalProductionRate += 0.5f;
             });
-        metalBtn->hitboxShape->setPosition(sf::Vector2f(400.f, 560.f));
+            
+        metalBtn->hitboxShape->setPosition(sf::Vector2f(320.f, 150.f));
         metalBtn->hitboxShape->setFillColor(sf::Color(200, 170, 30));
         metalBtn->hitboxShape->setOrigin(sf::Vector2f(40.f, 25.f));
-        metalBtn->isDisabledVal = true;
+        metalBtn->disable();
 
         // --- Upgrade toggle ---
 
         auto* upgradeShape = new sf::RectangleShape(sf::Vector2f(80.f, 50.f));
-        upgradeShape->setPosition(sf::Vector2f(400.f, 200.f));
+        upgradeShape->setPosition(sf::Vector2f(200.f, 200.f));
         upgradeShape->setFillColor(sf::Color(150, 150, 150));
         upgradeShape->setOrigin(sf::Vector2f(40.f, 25.f));
         UIEntity->addComponent<ButtonComponent>(upgradeShape, "UPGRADE", fontLetters,
             [viewRngBtn, maxHpBtn, supplyBtn, dmgBtn, foodBtn, metalBtn](Context&) {
-                viewRngBtn->isDisabledVal = !viewRngBtn->isDisabledVal;
-                maxHpBtn->isDisabledVal = !maxHpBtn->isDisabledVal;
-                supplyBtn->isDisabledVal = !supplyBtn->isDisabledVal;
-                dmgBtn->isDisabledVal = !dmgBtn->isDisabledVal;
-                foodBtn->isDisabledVal = !foodBtn->isDisabledVal;
-                metalBtn->isDisabledVal = !metalBtn->isDisabledVal;
+                viewRngBtn->toggle();
+                maxHpBtn->toggle();
+                supplyBtn->toggle();
+                dmgBtn->toggle();
+                foodBtn->toggle();
+                metalBtn->toggle();
             });
 
         return UIEntity;
     }
 
-    inline Entity* createMenuUIEntity(const sf::Font& font,
-        std::function<void(Context&)> onPlay,
-        std::function<void(Context&)> onExit)
+    inline Entity* createMenuUIEntity(const sf::Font& font, std::function<void(Context&)> onPlay, std::function<void(Context&)> onExit)
     {
         Entity* MenuUI = new Entity();
         MenuUI->type = EntityType::UI;

@@ -6,7 +6,7 @@
 
 class AttackComponent : public Component
 {
-    private:
+    protected:
     float damage;
     float attackRange;
     

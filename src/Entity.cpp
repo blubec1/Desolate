@@ -17,7 +17,8 @@ void Entity::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     for (auto& component : components) 
     {
-        component->draw(target, states);
+        if (!component->isDisabled())
+            component->draw(target, states);
     }
 }
 

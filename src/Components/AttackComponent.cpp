@@ -16,7 +16,7 @@ void AttackComponent::update(Context& context)
                 audio->playSound(context, SoundEvent::AttackSound, gunshotVolume);
                 if(!wasAttacking)
                     audio->playVoiceline(SoundEvent::Attack, attackVoiceVolume);
-            }
+        }
         }
         wasAttacking = isAttacking;
     }

@@ -18,6 +18,7 @@ class Component
     bool isDisabled() {return isDisabledVal;}
     void disable() {isDisabledVal = 1;}
     void enable() {isDisabledVal = 0;}
+    void toggle() {isDisabledVal = !isDisabledVal;}
 
     virtual void reset() {};
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) {};
