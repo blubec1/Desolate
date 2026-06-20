@@ -55,6 +55,9 @@ const float TRACED_PATH_NODE_DIST = 8.f;
 
 const float STANDARD_VISIBILITY_RANGE = 400.f;
 
+const float FOG_OVERLAY_ALPHA = 150.f;
+const float FOG_GRADIENT_SIZE = 256.f;
+
 const sf::Color MAP_DRAW_COLOUR = sf::Color::Red;
 const sf::Color MAP_ERASE_COLOUR = sf::Color::Transparent;
 const float GRID_CELL_SIZE = 40.f;
