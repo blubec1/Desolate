@@ -1,6 +1,15 @@
 #include "Components/RenderComponent.hpp"
 #include "Components/VisibilityComponent.hpp"
 
+void RenderComponent::setTexture(const std::string& filePath)
+{
+    if (texture.loadFromFile(filePath))
+    {
+        sprite = std::make_unique<sf::Sprite>(texture);
+        hasSprite = true;
+    }
+}
+
 void RenderComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
 {
     if (owner == nullptr || shouldBeDrawn == false) return;
@@ -12,6 +21,9 @@ void RenderComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
         shapeColour = sf::Color(shapeColour.r, shapeColour.g, shapeColour.b, shapeColour.a * visibilityComponent->visionRatio);
     }
 
+    if (hasSprite)
+        sprite->setColor(sf::Color(255, 255, 255, shapeColour.a));
+
     //Parents the renderComponent to the owner's position
     states.transform.translate(owner->position);
 
@@ -19,4 +31,6 @@ void RenderComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
     drawVisual(target, states);
     
     shapeColour = originalColour;
+    if (hasSprite)
+        sprite->setColor(sf::Color::White);
 }

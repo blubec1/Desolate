@@ -7,7 +7,7 @@ class RectRenderComponent : public RenderComponent
 
     sf::RectangleShape shapeRect;
 
-    RectRenderComponent(sf::Vector2f relativePosition, sf::Vector2f size, sf::Color clr)
+    RectRenderComponent(sf::Vector2f relativePosition, sf::Vector2f size, sf::Color clr, const std::string& texturePath = "")
     {
         originalColour = shapeColour = clr;
         shapeRect.setPosition(relativePosition);
@@ -15,6 +15,8 @@ class RectRenderComponent : public RenderComponent
         shapeRect.setFillColor(shapeColour);
         shapeRect.setOrigin(size / 2.f);
         shape = &shapeRect;
+        if (!texturePath.empty())
+            setTexture(texturePath);
     };
 
     virtual void updateVisual() override;

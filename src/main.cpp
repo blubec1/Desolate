@@ -6,8 +6,12 @@
 
 int main()
 {
-	sf::RenderWindow window(sf::VideoMode({1000, 1000}), "Desolate", sf::Style::Titlebar | sf::Style::Close);
+	sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode();
+	sf::RenderWindow window(desktopMode, "Desolate", sf::State::Fullscreen);
 	window.setFramerateLimit(60);
+
+	sf::View gameView(sf::FloatRect({0.f, 0.f}, {1920.f, 1080.f}));
+	window.setView(gameView);
 
 	sf::Font digitalFont;
 	sf::Font ledFont;
@@ -31,7 +35,7 @@ int main()
 		Context& ctx = sceneStack.top();
 		ctx.deltaTime = deltaTime;
 
-		input.getMouseInput(sf::Mouse::getPosition(window));
+		input.getMouseInput(sf::Vector2i(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
 
 		while (const std::optional event = window.pollEvent())
 		{

@@ -49,8 +49,8 @@ class MapDrawingComponent : public Component
 
     void drawLine(Context &context, sf::Color colour)
     {        
-        sf::Vector2f previousWorldPos = context.window->mapPixelToCoords(sf::Vector2i(context.input->previousMousePos));
-        sf::Vector2f worldPos = context.window->mapPixelToCoords(sf::Vector2i(context.input->mousePos));
+        sf::Vector2f previousWorldPos = sf::Vector2f(context.input->previousMousePos);
+        sf::Vector2f worldPos = sf::Vector2f(context.input->mousePos);
 
         previousWorldPos.x = std::clamp(previousWorldPos.x, 0.f, canvasWidth);
         previousWorldPos.y = std::clamp(previousWorldPos.y, 0.f, canvasHeight);
@@ -60,18 +60,21 @@ class MapDrawingComponent : public Component
         brush.setFillColor(colour);
         interpRect.setFillColor(colour);
 
+        sf::RenderStates rs;
+        rs.blendMode = (colour.a == 0) ? sf::BlendNone : sf::BlendAlpha;
+
         brush.setPosition(previousWorldPos);
-        canvas.draw(brush);      
+        canvas.draw(brush, rs);      
         brush.setPosition(worldPos);
-        canvas.draw(brush); 
+        canvas.draw(brush, rs); 
         
-        drawRectBetween2Pts(canvas, previousWorldPos, worldPos, colour, brush.getRadius());
+        drawRectBetween2Pts(canvas, previousWorldPos, worldPos, colour, brush.getRadius(), rs);
         canvas.display();
     }
 
     void update(Context& context) override
     {
-        sf::Vector2f mouseWorld = context.window->mapPixelToCoords(sf::Vector2i(context.input->mousePos));
+        sf::Vector2f mouseWorld = sf::Vector2f(context.input->mousePos);
         if (mouseWorld.x < 0.f || mouseWorld.x > canvasWidth ||
             mouseWorld.y < 0.f || mouseWorld.y > canvasHeight)
         {
@@ -93,11 +96,11 @@ class MapDrawingComponent : public Component
                 case ENT_PATHING:
                     if(context.isEntityValid(selectedEntity) == true && activePath != nullptr)
                     {
-                        sf::Vector2f targetPos = context.window->mapPixelToCoords(sf::Vector2i(context.input->mousePos));
+                        sf::Vector2f targetPos = sf::Vector2f(context.input->mousePos);
                         targetPos.x = std::clamp(targetPos.x, 0.f, canvasWidth);
                         targetPos.y = std::clamp(targetPos.y, 0.f, canvasHeight);
                         sf::Vector2i originalMousePos = context.input->mousePos;
-                        context.input->mousePos = sf::Vector2i(context.window->mapCoordsToPixel(targetPos));
+                        context.input->mousePos = sf::Vector2i(targetPos);
                         activePath->extendPath(*context.input, tracedPathNodeDistance);
                         context.input->mousePos = originalMousePos;
                     }
