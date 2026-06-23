@@ -3,6 +3,7 @@
 #include "Scene.hpp"
 #include "SceneStack.hpp"
 #include "SceneFactory.hpp"
+#include "SettingsState.hpp"
 
 int main()
 {
@@ -10,8 +11,11 @@ int main()
 	sf::RenderWindow window(desktopMode, "Desolate", sf::State::Fullscreen);
 	window.setFramerateLimit(60);
 
-	sf::View gameView(sf::FloatRect({0.f, 0.f}, {1920.f, 1080.f}));
+	sf::Vector2u windowSize = window.getSize();
+	sf::View gameView(sf::FloatRect({0.f, 0.f}, {(float)windowSize.x, (float)windowSize.y}));
 	window.setView(gameView);
+
+	SettingsState settingsState{desktopMode};
 
 	sf::Font digitalFont;
 	sf::Font ledFont;
@@ -24,18 +28,13 @@ int main()
 	SceneStack sceneStack;
 
 	sceneStack.push(Desolate::SceneFactory::createMenuScene(
-		&window, &input, ledFont, digitalFont, ledFont, &sceneStack));
+		&window, &input, ledFont, digitalFont, ledFont, &sceneStack, &settingsState));
 
 	sf::Clock deltaClock;
 
 	while (window.isOpen())
 	{
 		float deltaTime = deltaClock.restart().asSeconds();
-
-		Context& ctx = sceneStack.top();
-		ctx.deltaTime = deltaTime;
-
-		input.getMouseInput(sf::Vector2i(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
 
 		while (const std::optional event = window.pollEvent())
 		{
@@ -67,16 +66,60 @@ int main()
 					input.isHoldingRightMouseButton = false;
 				}
 			}
+			else if (event->is<sf::Event::KeyPressed>())
+			{
+				if (event->getIf<sf::Event::KeyPressed>()->code == sf::Keyboard::Key::Escape)
+				{
+					if (!sceneStack.empty() && sceneStack.topScene()->isEscapable)
+						sceneStack.topScene()->pendingPop = true;
+				}
+			}
 		}
 
-		ctx.update();
-		ctx.entityUpdate();
+		if(!sceneStack.empty())
+		{
+			Scene* top = sceneStack.topScene();
+			Context& context = top->context;
 
-		window.clear();
-		ctx.entityDraw(window, sf::RenderStates::Default);
-		window.draw(ctx);
-		window.display();
+			context.deltaTime = deltaTime;
 
-		input.lateUpdate();
+			input.getMouseInput(sf::Vector2i(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
+
+			context.update();
+			context.entityUpdate();
+
+			window.clear();
+			context.entityDraw(window, sf::RenderStates::Default);
+			window.draw(context);
+			window.display();
+
+			input.lateUpdate();
+
+			while (top->pendingPop)
+			{
+				sceneStack.pop();
+				if (sceneStack.empty()) break;
+				top = sceneStack.topScene();
+			}
+
+			if (settingsState.pendingResolutionChange)
+			{
+				settingsState.pendingResolutionChange = false;
+
+				window.create(settingsState.videoMode, "Desolate", sf::State::Fullscreen);
+				window.setFramerateLimit(60);
+
+				sf::Vector2u newWindowSize = window.getSize();
+				window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {(float)newWindowSize.x, (float)newWindowSize.y})));
+
+				sceneStack.clear();
+
+				sceneStack.push(Desolate::SceneFactory::createMenuScene(
+					&window, &input, ledFont, digitalFont, ledFont, &sceneStack, &settingsState));
+
+				sceneStack.push(Desolate::SceneFactory::createSettingsScene(
+					&window, &input, digitalFont, &settingsState, &sceneStack));
+			}
+		}
 	}
 }

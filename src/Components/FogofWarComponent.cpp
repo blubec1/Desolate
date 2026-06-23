@@ -5,6 +5,7 @@
 #include "Components/FactionComponent.hpp"
 #include "Components/AreaScanComponent.hpp"
 #include <cmath>
+#include <numbers>
 
 FogofWarComponent::FogofWarComponent()
 : fogTexture(sf::Vector2u(MAP_WIDTH, MAP_HEIGHT))
@@ -34,7 +35,7 @@ void FogofWarComponent::initGradient()
             if (dist <= center)
             {
                 float t = dist / center;
-                auto a = (std::uint8_t)(255.f * std::cos(t * 3.14159265f * 0.5f));
+                auto a = (std::uint8_t)(255.f * std::cos(t * std::numbers::pi * 0.5f));
                 img.setPixel(sf::Vector2u(x, y), sf::Color(255, 255, 255, a));
             }
         }
@@ -102,6 +103,7 @@ void FogofWarComponent::update(Context& context)
         float diameter = range * 2.f;
 
         gradientSprite->setScale(sf::Vector2f(diameter / FOG_GRADIENT_SIZE, diameter / FOG_GRADIENT_SIZE));
+        gradientSprite->setOrigin(sf::Vector2f(FOG_GRADIENT_SIZE / 2.f, FOG_GRADIENT_SIZE / 2.f));
         gradientSprite->setPosition(entity->position);
 
         sf::RenderStates rs;

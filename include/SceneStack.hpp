@@ -14,6 +14,7 @@ public:
 
     void push(Scene* scene);
     void pop();
-    Context& top();
+    void clear();
+    Scene* topScene();
     bool empty() const;
 };

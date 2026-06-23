@@ -69,7 +69,7 @@ namespace Desolate::Factory
         enemies.insert(enemyFaction);
 
         Squad->position = position;
-        Squad->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
+        Squad->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour, RESOURCE_DIR "/textures/squad.png");
         auto* squadHealth = Squad->addComponent<HealthComponent>(MaxHP, MaxHP);
         auto* squadRing = Squad->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
         squadRing->valuePtr = squadHealth->getHealth();
@@ -328,67 +328,75 @@ namespace Desolate::Factory
         return QuestSystem;
     }
 
-    inline Entity* createUIEntity(const sf::Font& fontNumbers, const sf::Font& fontLetters, ResourceManager* resManager, QuestSystemComponent* questSystem)
+    inline Entity* createUIEntity(const sf::Font& fontNumbers, const sf::Font& fontLetters, ResourceManager* resManager, QuestSystemComponent* questSystem, float windowWidth, float windowHeight)
     {
         Entity* UIEntity = new Entity();
         UIEntity->type = EntityType::UI;
 
-        UIEntity->position = sf::Vector2f(0,900);
+        UIEntity->position = sf::Vector2f(0, 0);
 
-        auto* metalDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(100.f, 15.f), fontNumbers);
+        float buttonWidth = float(int(windowWidth * 0.042f + 0.5f));
+        float buttonHeight = float(int(windowHeight * 0.046f + 0.5f));
+        float subButtonWidth = float(int(windowWidth * 0.034f + 0.5f));
+        float subButtonHeight = float(int(windowHeight * 0.028f + 0.5f));
+
+        auto* metalDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(100.f, windowHeight - 165.f), fontNumbers);
         metalDisplay->valuePtr = &resManager->metal;
-        auto* foodDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(350.f, 15.f), fontNumbers);
+        auto* foodDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(350.f, windowHeight - 165.f), fontNumbers);
         foodDisplay->valuePtr = &resManager->food;
-        auto* peopleDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(600.f, 15.f), fontNumbers);
+        auto* peopleDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(600.f, windowHeight - 165.f), fontNumbers);
         peopleDisplay->valuePtr = &resManager->people;
 
         
-        auto* metalBtnShape = new sf::RectangleShape(sf::Vector2f(80.f, 50.f));
-        metalBtnShape->setPosition(sf::Vector2f(100.f, 70.f));
+        auto* metalBtnShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
+        metalBtnShape->setPosition(sf::Vector2f(100.f, windowHeight - 110.f));
         metalBtnShape->setFillColor(sf::Color::Yellow);
-        metalBtnShape->setOrigin(sf::Vector2f(40.f, 25.f));
+        metalBtnShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
         UIEntity->addComponent<ButtonComponent>(metalBtnShape, "Metal", fontLetters, [resManager](Context&) { resManager->addMetal(10); });
     
 
     
-        auto* foodBtnShape = new sf::RectangleShape(sf::Vector2f(80.f, 50.f));
-        foodBtnShape->setPosition(sf::Vector2f(350.f, 70.f));
+        auto* foodBtnShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
+        foodBtnShape->setPosition(sf::Vector2f(350.f, windowHeight - 110.f));
         foodBtnShape->setFillColor(sf::Color(100, 200, 100));
-        foodBtnShape->setOrigin(sf::Vector2f(40.f, 25.f));
+        foodBtnShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
         UIEntity->addComponent<ButtonComponent>(foodBtnShape, "Food", fontLetters, [resManager](Context&) { resManager->addFood(10); });
     
 
-        auto* workingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(750.f, 15.f), fontNumbers);
+        auto* workingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(750.f, windowHeight - 165.f), fontNumbers);
         workingDisplay->valuePtr = &resManager->workingPeople;
 
-        auto* nonWorkingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(950.f, 15.f), fontNumbers);
+        auto* nonWorkingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(950.f, windowHeight - 165.f), fontNumbers);
         nonWorkingDisplay->valuePtr = &resManager->nonWorkingPeople;
 
     
-        auto* ratioTrackShape = new sf::RectangleShape(sf::Vector2f(60.f, 10.f));
-        ratioTrackShape->setPosition(sf::Vector2f(850.f, 15.f));
+        float ratioTrackWidth = float(int(windowWidth * 0.031f + 0.5f));
+        float ratioTrackHeight = float(int(windowHeight * 0.009f + 0.5f));
+        auto* ratioTrackShape = new sf::RectangleShape(sf::Vector2f(ratioTrackWidth, ratioTrackHeight));
+        ratioTrackShape->setPosition(sf::Vector2f(850.f, windowHeight - 165.f));
         ratioTrackShape->setFillColor(sf::Color(100, 100, 100));
-        ratioTrackShape->setOrigin(sf::Vector2f(30.f, 5.f));
+        ratioTrackShape->setOrigin(sf::Vector2f(ratioTrackWidth / 2.f, ratioTrackHeight / 2.f));
 
-        auto* ratioNotchShape = new sf::CircleShape(8.f);
-        ratioNotchShape->setPosition(sf::Vector2f(850.f, 15.f));
+        float notchRadius = float(int(windowHeight * 0.007f + 0.5f));
+        auto* ratioNotchShape = new sf::CircleShape(notchRadius);
+        ratioNotchShape->setPosition(sf::Vector2f(850.f, windowHeight - 165.f));
         ratioNotchShape->setFillColor(sf::Color::White);
-        ratioNotchShape->setOrigin(sf::Vector2f(8.f, 8.f));
+        ratioNotchShape->setOrigin(sf::Vector2f(notchRadius, notchRadius));
         UIEntity->addComponent<SliderComponent>(ratioTrackShape, ratioNotchShape, &resManager->workRatio, 0.f, 1.f);
     
 
     
-        auto* peopleBtnShape = new sf::RectangleShape(sf::Vector2f(80.f, 50.f));
-        peopleBtnShape->setPosition(sf::Vector2f(600.f, 70.f));
+        auto* peopleBtnShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
+        peopleBtnShape->setPosition(sf::Vector2f(600.f, windowHeight - 110.f));
         peopleBtnShape->setFillColor(sf::Color::Cyan);
-        peopleBtnShape->setOrigin(sf::Vector2f(40.f, 25.f));
+        peopleBtnShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
         UIEntity->addComponent<ButtonComponent>(peopleBtnShape, "KICK OUT", fontLetters, [resManager](Context&) { resManager->addPeople(-1); });
     
 
-        auto* hpBtnShape = new sf::RectangleShape(sf::Vector2f(80.f, 50.f));
-        hpBtnShape->setPosition(sf::Vector2f(1050.f, 70.f));
+        auto* hpBtnShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
+        hpBtnShape->setPosition(sf::Vector2f(1050.f, windowHeight - 110.f));
         hpBtnShape->setFillColor(sf::Color::Red);
-        hpBtnShape->setOrigin(sf::Vector2f(40.f, 25.f));
+        hpBtnShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
         UIEntity->addComponent<ButtonComponent>(hpBtnShape, "BOOST HP", fontLetters,
             [](Context& ctx) {
                 for (auto* entity : ctx.getEntities()) {
@@ -403,15 +411,16 @@ namespace Desolate::Factory
         
         int* knobTestValue = new int(0);
 
-        auto* knobDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(1830.f, -850.f), fontNumbers);
+        auto* knobDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(windowWidth - 90.f, 50.f), fontNumbers);
         knobDisplay->valuePtr = knobTestValue;
 
-        auto* fmLabel = UIEntity->addComponent<TextComponent>(sf::Vector2f(1830.f, -810.f), "FM", fontLetters, 20);
+        auto* fmLabel = UIEntity->addComponent<TextComponent>(sf::Vector2f(windowWidth - 90.f, 90.f), "FM", fontLetters, 20);
 
-        auto* testKnobShape = new sf::CircleShape(15.f);
-        testKnobShape->setPosition(sf::Vector2f(1860.f, -770.f));
+        float knobRadius = float(int(windowHeight * 0.014f + 0.5f));
+        auto* testKnobShape = new sf::CircleShape(knobRadius);
+        testKnobShape->setPosition(sf::Vector2f(windowWidth - 60.f, 130.f));
         testKnobShape->setFillColor(sf::Color::White);
-        testKnobShape->setOrigin(sf::Vector2f(15.f, 15.f));
+        testKnobShape->setOrigin(sf::Vector2f(knobRadius, knobRadius));
         
         auto* knob = UIEntity->addComponent<KnobComponent>(knobTestValue, 30, 88, 100.f);
         knob->hitboxShape = testKnobShape;
@@ -426,17 +435,17 @@ namespace Desolate::Factory
             resManager, 30, 88
         );
 
-        auto* airdropFreqDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(1830.f,-730.f), fontNumbers);
+        auto* airdropFreqDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(windowWidth - 90.f, 170.f), fontNumbers);
         airdropFreqDisplay->valuePtr = &airdropRadioEvent->secretFrequency;
 
         radioHandler->addEvent(airdropRadioEvent);
 
-        auto* questHud = UIEntity->addComponent<QuestHudComponent>(sf::Vector2f(1810.f, -600.f), fontLetters, fontNumbers, questSystem);
+        auto* questHud = UIEntity->addComponent<QuestHudComponent>(sf::Vector2f(windowWidth - 110.f, 300.f), fontLetters, fontNumbers, questSystem);
 
         // --- Upgrade sub-buttons (initially disabled) ---
 
         auto* viewRngBtn = UIEntity->addComponent<ButtonComponent>(
-            new sf::RectangleShape(sf::Vector2f(65.f, 30.f)), "VIEW", fontLetters,
+            new sf::RectangleShape(sf::Vector2f(subButtonWidth, subButtonHeight)), "VIEW", fontLetters,
             [resManager](Context& ctx) {
                 if (resManager->metal < 50) return;
 
@@ -452,13 +461,13 @@ namespace Desolate::Factory
                 }
             });
 
-        viewRngBtn->hitboxShape->setPosition(sf::Vector2f(370.f, 120.f));
+        viewRngBtn->hitboxShape->setPosition(sf::Vector2f(370.f, windowHeight - 60.f));
         viewRngBtn->hitboxShape->setFillColor(sf::Color(100, 100, 200));
-        viewRngBtn->hitboxShape->setOrigin(sf::Vector2f(32.5f, 15.f));
+        viewRngBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         viewRngBtn->disable();
 
         auto* maxHpBtn = UIEntity->addComponent<ButtonComponent>(
-            new sf::RectangleShape(sf::Vector2f(65.f, 30.f)), "HP", fontLetters,
+            new sf::RectangleShape(sf::Vector2f(subButtonWidth, subButtonHeight)), "HP", fontLetters,
             [resManager](Context& ctx) {
                 if (resManager->metal < 30) return;
 
@@ -473,13 +482,13 @@ namespace Desolate::Factory
                 }
             });
 
-        maxHpBtn->hitboxShape->setPosition(sf::Vector2f(470.f, 120.f));
+        maxHpBtn->hitboxShape->setPosition(sf::Vector2f(470.f, windowHeight - 60.f));
         maxHpBtn->hitboxShape->setFillColor(sf::Color(200, 80, 80));
-        maxHpBtn->hitboxShape->setOrigin(sf::Vector2f(32.5f, 15.f));
+        maxHpBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         maxHpBtn->disable();
 
         auto* supplyBtn = UIEntity->addComponent<ButtonComponent>(
-            new sf::RectangleShape(sf::Vector2f(65.f, 30.f)), "SUPPLY", fontLetters,
+            new sf::RectangleShape(sf::Vector2f(subButtonWidth, subButtonHeight)), "SUPPLY", fontLetters,
             [resManager](Context& ctx) {
                 if (resManager->metal < 20) return;
 
@@ -495,13 +504,13 @@ namespace Desolate::Factory
                 }
             });
 
-        supplyBtn->hitboxShape->setPosition(sf::Vector2f(570.f, 120.f));
+        supplyBtn->hitboxShape->setPosition(sf::Vector2f(570.f, windowHeight - 60.f));
         supplyBtn->hitboxShape->setFillColor(sf::Color(80, 180, 80));
-        supplyBtn->hitboxShape->setOrigin(sf::Vector2f(32.5f, 15.f));
+        supplyBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         supplyBtn->disable();
 
         auto* dmgBtn = UIEntity->addComponent<ButtonComponent>(
-            new sf::RectangleShape(sf::Vector2f(65.f, 30.f)), "DMG", fontLetters,
+            new sf::RectangleShape(sf::Vector2f(subButtonWidth, subButtonHeight)), "DMG", fontLetters,
             [resManager](Context& ctx) {
                 if(resManager->metal < 40) return;
                 
@@ -518,13 +527,13 @@ namespace Desolate::Factory
                 }
             });
 
-        dmgBtn->hitboxShape->setPosition(sf::Vector2f(370.f, 155.f));
+        dmgBtn->hitboxShape->setPosition(sf::Vector2f(370.f, windowHeight - 25.f));
         dmgBtn->hitboxShape->setFillColor(sf::Color(220, 140, 40));
-        dmgBtn->hitboxShape->setOrigin(sf::Vector2f(32.5f, 15.f));
+        dmgBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         dmgBtn->disable();
 
         auto* foodBtn = UIEntity->addComponent<ButtonComponent>(
-            new sf::RectangleShape(sf::Vector2f(65.f, 30.f)), "FOOD", fontLetters,
+            new sf::RectangleShape(sf::Vector2f(subButtonWidth, subButtonHeight)), "FOOD", fontLetters,
             [resManager](Context&) {
                 if(resManager->metal < 25) return;
 
@@ -536,13 +545,13 @@ namespace Desolate::Factory
                 if(resManager->increasedConsumptionRate < 0.f) resManager->increasedConsumptionRate = 0.f;
             });
 
-        foodBtn->hitboxShape->setPosition(sf::Vector2f(470.f, 155.f));
+        foodBtn->hitboxShape->setPosition(sf::Vector2f(470.f, windowHeight - 25.f));
         foodBtn->hitboxShape->setFillColor(sf::Color(150, 200, 60));
-        foodBtn->hitboxShape->setOrigin(sf::Vector2f(32.5f, 15.f));
+        foodBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         foodBtn->disable();
 
         auto* metalBtn = UIEntity->addComponent<ButtonComponent>(
-            new sf::RectangleShape(sf::Vector2f(65.f, 30.f)), "METAL", fontLetters,
+            new sf::RectangleShape(sf::Vector2f(subButtonWidth, subButtonHeight)), "METAL", fontLetters,
             [resManager](Context&) {
                 if(resManager->metal < 35) return;
 
@@ -551,17 +560,17 @@ namespace Desolate::Factory
                 resManager->metalProductionRate += 0.5f;
             });
             
-        metalBtn->hitboxShape->setPosition(sf::Vector2f(570.f, 155.f));
+        metalBtn->hitboxShape->setPosition(sf::Vector2f(570.f, windowHeight - 25.f));
         metalBtn->hitboxShape->setFillColor(sf::Color(200, 170, 30));
-        metalBtn->hitboxShape->setOrigin(sf::Vector2f(32.5f, 15.f));
+        metalBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         metalBtn->disable();
 
         // --- Upgrade toggle ---
 
-        auto* upgradeShape = new sf::RectangleShape(sf::Vector2f(80.f, 50.f));
-        upgradeShape->setPosition(sf::Vector2f(200.f, 135.f));
+        auto* upgradeShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
+        upgradeShape->setPosition(sf::Vector2f(200.f, windowHeight - 45.f));
         upgradeShape->setFillColor(sf::Color(150, 150, 150));
-        upgradeShape->setOrigin(sf::Vector2f(40.f, 25.f));
+        upgradeShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
         UIEntity->addComponent<ButtonComponent>(upgradeShape, "UPGRADE", fontLetters,
             [viewRngBtn, maxHpBtn, supplyBtn, dmgBtn, foodBtn, metalBtn](Context&) {
                 viewRngBtn->toggle();
@@ -575,23 +584,32 @@ namespace Desolate::Factory
         return UIEntity;
     }
 
-    inline Entity* createMenuUIEntity(const sf::Font& font, std::function<void(Context&)> onPlay, std::function<void(Context&)> onExit)
+    inline Entity* createMenuUIEntity(const sf::Font& font, float windowWidth, float windowHeight, std::function<void(Context&)> onPlay, std::function<void(Context&)> onSettings, std::function<void(Context&)> onExit)
     {
         Entity* MenuUI = new Entity();
         MenuUI->type = EntityType::UI;
 
         MenuUI->position = sf::Vector2f(0, 0);
 
-        auto* playShape = new sf::RectangleShape(sf::Vector2f(200.f, 60.f));
-        playShape->setPosition(sf::Vector2f(960.f, 440.f));
+        float menuButtonWidth = float(int(windowWidth * 0.1f + 0.5f));
+        float menuButtonHeight = float(int(windowHeight * 0.055f + 0.5f));
+
+        auto* playShape = new sf::RectangleShape(sf::Vector2f(menuButtonWidth, menuButtonHeight));
+        playShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.41f));
         playShape->setFillColor(sf::Color(80, 200, 80));
-        playShape->setOrigin(sf::Vector2f(100.f, 30.f));
+        playShape->setOrigin(sf::Vector2f(menuButtonWidth / 2.f, menuButtonHeight / 2.f));
         MenuUI->addComponent<ButtonComponent>(playShape, "PLAY", font, onPlay);
 
-        auto* exitShape = new sf::RectangleShape(sf::Vector2f(200.f, 60.f));
-        exitShape->setPosition(sf::Vector2f(960.f, 540.f));
+        auto* settingsShape = new sf::RectangleShape(sf::Vector2f(menuButtonWidth, menuButtonHeight));
+        settingsShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.455f));
+        settingsShape->setFillColor(sf::Color(100, 100, 200));
+        settingsShape->setOrigin(sf::Vector2f(menuButtonWidth / 2.f, menuButtonHeight / 2.f));
+        MenuUI->addComponent<ButtonComponent>(settingsShape, "SETTINGS", font, onSettings);
+
+        auto* exitShape = new sf::RectangleShape(sf::Vector2f(menuButtonWidth, menuButtonHeight));
+        exitShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.5f));
         exitShape->setFillColor(sf::Color(200, 80, 80));
-        exitShape->setOrigin(sf::Vector2f(100.f, 30.f));
+        exitShape->setOrigin(sf::Vector2f(menuButtonWidth / 2.f, menuButtonHeight / 2.f));
         MenuUI->addComponent<ButtonComponent>(exitShape, "EXIT", font, onExit);
 
         return MenuUI;

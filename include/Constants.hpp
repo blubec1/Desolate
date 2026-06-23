@@ -45,7 +45,7 @@ const unsigned int MAP_HEIGHT = 900;
 const unsigned int MAP_WIDTH = 1800;
 const int BRUSH_STARTING_RADIUS = 8;
 const int STARTING_NUMBER_OF_SQUADS = 2;
-const int SQUAD_CIRCLE_SIZE = 8;
+const int SQUAD_CIRCLE_SIZE = 20;
 const float SQUAD_SPEED = 80;
 
 const float PLAYER_FACTION = 1;

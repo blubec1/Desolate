@@ -21,6 +21,9 @@ class Context : public sf::Drawable
     sf::RenderWindow *window;
     Input *input;
     float deltaTime;
+    float windowWidth;
+    float windowHeight;
+
 
     std::vector<AttackAnimation*> activeEffects;
     ResourceManager* resourceManager = nullptr;

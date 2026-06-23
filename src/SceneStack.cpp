@@ -24,9 +24,16 @@ void SceneStack::pop()
     scenes.pop_back();
 }
 
-Context& SceneStack::top()
+void SceneStack::clear()
 {
-    return scenes.back()->context;
+    for (auto* scene : scenes)
+        delete scene;
+    scenes.clear();
+}
+
+Scene* SceneStack::topScene()
+{
+    return scenes.back();
 }
 
 bool SceneStack::empty() const
