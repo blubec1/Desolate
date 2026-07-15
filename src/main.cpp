@@ -8,7 +8,7 @@
 int main()
 {
 	sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode();
-	sf::RenderWindow window(desktopMode, "Desolate", sf::State::Fullscreen);
+	sf::RenderWindow window(desktopMode, "Desolate", sf::Style::None);
 	window.setFramerateLimit(60);
 
 	sf::Vector2u windowSize = window.getSize();
@@ -109,7 +109,7 @@ int main()
 			{
 				settingsState.pendingResolutionChange = false;
 
-				window.create(settingsState.videoMode, "Desolate", sf::State::Fullscreen);
+				window.create(settingsState.videoMode, "Desolate", sf::Style::None);
 				window.setFramerateLimit(60);
 
 				sf::Vector2u newWindowSize = window.getSize();

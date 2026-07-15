@@ -85,7 +85,7 @@ const float WANDERER_MAX_HEALTH = 500.f;
 const float WANDERER_AGGRO_RANGE = 250.f;
 const float WANDERER_DE_AGGRO_RANGE = 250.f;
 const float WANDERER_DE_AGGRO_COOLDOWN = 3.f;
-const float WANDERER_TIME_TO_APPEAR = 1.f;
+const float WANDERER_TIME_TO_APPEAR = 0.5f;
 
 const float TERRITORIAL_RADIUS = 15.f;
 const float TERRITORIAL_PATROL_SPEED = 60.f;
@@ -98,7 +98,7 @@ const float TERRITORIAL_MAX_HEALTH = 10.f;
 const float TERRITORIAL_AGGRO_RANGE = 80.f;
 const float TERRITORIAL_DE_AGGRO_RANGE = 250.f;
 const float TERRITORIAL_DE_AGGRO_COOLDOWN = 3.f;
-const float TERRITORIAL_TIME_TO_APPEAR = 1.f;
+const float TERRITORIAL_TIME_TO_APPEAR = 0.5f;
 
 const float OUTPOST_RADIUS = 20.f;
 const float OUTPOST_HEAL_RANGE = 200.f;
@@ -150,7 +150,7 @@ const float LURKER_DE_AGGRO_RANGE = 300.f;
 const float LURKER_DE_AGGRO_COOLDOWN = 3.f;
 const float LURKER_ARRIVAL_DISTANCE = 80.f;
 const float LURKER_VISIBILITY_RANGE = 200.f;
-const float LURKER_TIME_TO_APPEAR = 1.f;
+const float LURKER_TIME_TO_APPEAR = 0.5f;
 
 const sf::Color HUNTER_COLOUR = sf::Color(30, 30, 30);
 const float HUNTER_RADIUS = 6.f;
@@ -160,14 +160,14 @@ const float HUNTER_RAMP_UP_TIME = 5.f;
 const float HUNTER_KILL_RANGE = 12.f;
 const float HUNTER_MAX_HEALTH = 1000.f;
 const float HUNTER_VIEW_RANGE = 60.f;
-const float HUNTER_TIME_TO_APPEAR = 0.5f;
+const float HUNTER_TIME_TO_APPEAR = 0.3f;
 const float HUNTER_MIN_RESPAWN_TIME = 2.f;
 const float HUNTER_MAX_RESPAWN_TIME = 5.f;
 
 const sf::Color HUNTER_LAIR_COLOUR = sf::Color(50, 50, 50);
 const float HUNTER_LAIR_RADIUS = 12.f;
 const float HUNTER_LAIR_VIEW_RANGE = 250.f;
-const float HUNTER_LAIR_TIME_TO_APPEAR = 1.f;
+const float HUNTER_LAIR_TIME_TO_APPEAR = 0.5f;
 
 const float STANDARD_AUDIO_COOLDOWN = 5.f;
 const float STANDARD_AUDIO_QUEUE_DELAY = 0.8f;

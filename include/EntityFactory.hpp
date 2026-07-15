@@ -120,7 +120,7 @@ namespace Desolate::Factory
 
         Wanderer->position = position;
         Wanderer->addComponent<StandardRespawnComponent>(2.f, position);
-        Wanderer->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, sf::Color::Transparent, RESOURCE_DIR "/textures/wanderer.png", 2.3f);
+        Wanderer->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, sf::Color::Transparent, RESOURCE_DIR "/textures/wanderer.png", 3.f);
         auto* wandererHealth = Wanderer->addComponent<HealthComponent>(MaxHP, MaxHP);
         auto* wandererRing = Wanderer->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
         wandererRing->valuePtr = wandererHealth->getHealth();
@@ -351,18 +351,20 @@ namespace Desolate::Factory
         float col4X = windowWidth * 0.391f;
         float col5X = windowWidth * 0.443f;
         float col6X = windowWidth * 0.495f;
-        float col7X = windowWidth * 0.547f;
-        float upgradeX = windowWidth * 0.104f;
-        float subBtn1X = windowWidth * 0.193f;
-        float subBtn2X = windowWidth * 0.245f;
-        float subBtn3X = windowWidth * 0.297f;
+        float upgradeX = windowWidth * 0.550f;
+        float subBtn1X = windowWidth * 0.602f;
+        float subBtn2X = windowWidth * 0.654f;
+        float subBtn3X = windowWidth * 0.706f;
 
         auto* metalDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col1X, windowHeight - 220.f), fontNumbers, numFontSize);
         metalDisplay->valuePtr = &resManager->metal;
+        UIEntity->addComponent<TextComponent>(sf::Vector2f(col1X, windowHeight - 245.f), "METAL", fontLetters, smallFontSize);
         auto* foodDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col2X, windowHeight - 220.f), fontNumbers, numFontSize);
         foodDisplay->valuePtr = &resManager->food;
+        UIEntity->addComponent<TextComponent>(sf::Vector2f(col2X, windowHeight - 245.f), "FOOD", fontLetters, smallFontSize);
         auto* peopleDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col3X, windowHeight - 220.f), fontNumbers, numFontSize);
         peopleDisplay->valuePtr = &resManager->people;
+        UIEntity->addComponent<TextComponent>(sf::Vector2f(col3X, windowHeight - 245.f), "PEOPLE", fontLetters, smallFontSize);
 
         
         auto* metalBtnShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
@@ -382,9 +384,11 @@ namespace Desolate::Factory
 
         auto* workingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col4X, windowHeight - 220.f), fontNumbers, numFontSize);
         workingDisplay->valuePtr = &resManager->workingPeople;
+        UIEntity->addComponent<TextComponent>(sf::Vector2f(col4X, windowHeight - 245.f), "WORK", fontLetters, smallFontSize);
 
         auto* nonWorkingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col6X, windowHeight - 220.f), fontNumbers, numFontSize);
         nonWorkingDisplay->valuePtr = &resManager->nonWorkingPeople;
+        UIEntity->addComponent<TextComponent>(sf::Vector2f(col6X, windowHeight - 245.f), "IDLE", fontLetters, smallFontSize);
 
     
         float ratioTrackWidth = float(int(windowWidth * 0.031f + 0.5f));
@@ -409,21 +413,6 @@ namespace Desolate::Factory
         peopleBtnShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
         UIEntity->addComponent<ButtonComponent>(peopleBtnShape, "KICK OUT", fontLetters, [resManager](Context&) { resManager->addPeople(-1); }, btnFontSize);
     
-
-        auto* hpBtnShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
-        hpBtnShape->setPosition(sf::Vector2f(col7X, windowHeight - 110.f));
-        hpBtnShape->setFillColor(sf::Color::Red);
-        hpBtnShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
-        UIEntity->addComponent<ButtonComponent>(hpBtnShape, "BOOST HP", fontLetters,
-            [](Context& ctx) {
-                for (auto* entity : ctx.getEntities()) {
-                    auto faction = entity->getComponent<FactionComponent>();
-                    if (faction && faction->FactionID == PLAYER_FACTION) {
-                        auto hp = entity->getComponent<HealthComponent>();
-                        if (hp) hp->changeMaxHP(50.f);
-                    }
-                }
-            }, btnFontSize);
 
         auto* questHud = UIEntity->addComponent<QuestHudComponent>(sf::Vector2f(windowWidth - windowWidth * 0.057f, windowHeight * 0.278f), fontLetters, fontNumbers, questSystem, smallFontSize, windowHeight * 0.022f);
 
