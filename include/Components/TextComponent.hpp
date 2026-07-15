@@ -14,6 +14,8 @@ class TextComponent : public Component
     : font(font), text(this->font, content, fontSize), position(position), fontSize(fontSize)
     {
         this->text.setPosition(position);
+        sf::FloatRect bounds = this->text.getLocalBounds();
+        this->text.setOrigin(sf::Vector2f(bounds.position.x + bounds.size.x / 2.f, bounds.position.y + bounds.size.y / 2.f));
     }
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) override;

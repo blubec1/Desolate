@@ -12,9 +12,11 @@ public:
     std::vector<sf::Text> texts;
     sf::Vector2f position;
     QuestSystemComponent* qsc = nullptr;
+    int fontSize;
+    float lineSpacing;
 
-    QuestHudComponent(sf::Vector2f position, const sf::Font& fontLetters, const sf::Font& fontNumbers, QuestSystemComponent* qsc)
-    : fontLetters(fontLetters), fontNumbers(fontNumbers), position(position), qsc(qsc) {}
+    QuestHudComponent(sf::Vector2f position, const sf::Font& fontLetters, const sf::Font& fontNumbers, QuestSystemComponent* qsc, int fontSize = 20, float lineSpacing = 24.f)
+    : fontLetters(fontLetters), fontNumbers(fontNumbers), position(position), qsc(qsc), fontSize(fontSize), lineSpacing(lineSpacing) {}
 
     void update(Context& context) override;
     void draw(sf::RenderTarget& target, sf::RenderStates states) override;

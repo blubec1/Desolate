@@ -47,6 +47,9 @@ void FogofWarComponent::initGradient()
 
 void FogofWarComponent::update(Context& context)
 {
+    windowWidth = context.windowWidth;
+    windowHeight = context.windowHeight;
+
     for(auto entity : context.getEntities())
     {
         auto factionComponent = entity->getComponent<FactionComponent>();
@@ -104,7 +107,9 @@ void FogofWarComponent::update(Context& context)
 
         gradientSprite->setScale(sf::Vector2f(diameter / FOG_GRADIENT_SIZE, diameter / FOG_GRADIENT_SIZE));
         gradientSprite->setOrigin(sf::Vector2f(FOG_GRADIENT_SIZE / 2.f, FOG_GRADIENT_SIZE / 2.f));
-        gradientSprite->setPosition(entity->position);
+        float fogX = entity->position.x * ((float)MAP_WIDTH / windowWidth);
+        float fogY = entity->position.y * ((float)MAP_HEIGHT / windowHeight);
+        gradientSprite->setPosition(sf::Vector2f(fogX, fogY));
 
         sf::RenderStates rs;
         rs.blendMode = fogErase;
@@ -117,5 +122,8 @@ void FogofWarComponent::update(Context& context)
 void FogofWarComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
 {
     if (fogSprite.has_value())
+    {
+        fogSprite->setScale(sf::Vector2f(windowWidth / (float)MAP_WIDTH, windowHeight / (float)MAP_HEIGHT));
         target.draw(*fogSprite, states);
+    }
 }

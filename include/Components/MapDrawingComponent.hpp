@@ -29,12 +29,13 @@ class MapDrawingComponent : public Component
     ENT_PAINT_STATE state;
     float tracedPathNodeDistance;
     float canvasWidth, canvasHeight;
+    float windowWidth, windowHeight;
     float gridCellSize;
     sf::Color gridColour;
 
     MapDrawingComponent(float canvasX, float canvasY, float brushRadius, sf::Color drawClr, sf::Color eraseClr, float tracedPathNodeDist)
     : drawColour(drawClr), eraseColour(eraseClr), tracedPathNodeDistance(tracedPathNodeDist), canvas(sf::Vector2u(canvasX, canvasY)), canvasSprite(canvas.getTexture()),
-      canvasWidth(canvasX), canvasHeight(canvasY), gridCellSize(GRID_CELL_SIZE), gridColour(GRID_COLOUR)
+      canvasWidth(canvasX), canvasHeight(canvasY), windowWidth(canvasX), windowHeight(canvasY), gridCellSize(GRID_CELL_SIZE), gridColour(GRID_COLOUR)
     {
         brush.setRadius(brushRadius);
         brush.setOrigin(sf::Vector2f(brushRadius, brushRadius));
@@ -74,6 +75,9 @@ class MapDrawingComponent : public Component
 
     void update(Context& context) override
     {
+        windowWidth = context.windowWidth;
+        windowHeight = context.windowHeight;
+
         sf::Vector2f mouseWorld = sf::Vector2f(context.input->mousePos);
         if (mouseWorld.x < 0.f || mouseWorld.x > canvasWidth ||
             mouseWorld.y < 0.f || mouseWorld.y > canvasHeight)
@@ -188,20 +192,24 @@ class MapDrawingComponent : public Component
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) override
     {
+        float scaleX = windowWidth / canvasWidth;
+        float scaleY = windowHeight / canvasHeight;
+
+        canvasSprite.setScale(sf::Vector2f(scaleX, scaleY));
         target.draw(canvasSprite, states);
 
         sf::VertexArray gridLines(sf::PrimitiveType::Lines);
 
         for (float x = 0.f; x <= canvasWidth; x += gridCellSize)
         {
-            gridLines.append(sf::Vertex(sf::Vector2f(x, 0.f), gridColour));
-            gridLines.append(sf::Vertex(sf::Vector2f(x, canvasHeight), gridColour));
+            gridLines.append(sf::Vertex(sf::Vector2f(x * scaleX, 0.f), gridColour));
+            gridLines.append(sf::Vertex(sf::Vector2f(x * scaleX, windowHeight), gridColour));
         }
 
         for (float y = 0.f; y <= canvasHeight; y += gridCellSize)
         {
-            gridLines.append(sf::Vertex(sf::Vector2f(0.f, y), gridColour));
-            gridLines.append(sf::Vertex(sf::Vector2f(canvasWidth, y), gridColour));
+            gridLines.append(sf::Vertex(sf::Vector2f(0.f, y * scaleY), gridColour));
+            gridLines.append(sf::Vertex(sf::Vector2f(windowWidth, y * scaleY), gridColour));
         }
 
         target.draw(gridLines, states);

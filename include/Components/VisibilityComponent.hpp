@@ -18,6 +18,7 @@ class VisibilityComponent : public Component
     {
         outOfVision = false;
         timeAppeared = 0.f;
+        visionRatio = (timeToAppear == 0.f) ? 1.f : 0.f;
     };
 
     virtual void update(Context& context) override;

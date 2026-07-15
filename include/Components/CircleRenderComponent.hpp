@@ -6,9 +6,11 @@ class CircleRenderComponent : public RenderComponent
     public:
 
     sf::CircleShape shapeCircle;
+    float spriteScale = 1.f;
 
-    CircleRenderComponent(sf::Vector2f relativePosition, float radius, sf::Color clr, const std::string& texturePath = "")
+    CircleRenderComponent(sf::Vector2f relativePosition, float radius, sf::Color clr, const std::string& texturePath = "", float spriteScale = 1.f)
     {
+        this->spriteScale = spriteScale;
         originalColour = shapeColour = clr;
         shapeCircle.setPosition(relativePosition);
         shapeCircle.setFillColor(shapeColour);

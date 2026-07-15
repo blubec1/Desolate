@@ -11,8 +11,8 @@ class NumberComponent : public RenderComponent
     sf::Color colour;
     int* valuePtr = nullptr;
     
-    NumberComponent(sf::Vector2f position, const sf::Font& font)
-    : font(font), text(this->font, "", fontSize)
+    NumberComponent(sf::Vector2f position, const sf::Font& font, int fontSize = 24)
+    : font(font), fontSize(fontSize), text(this->font, "", fontSize)
     {
         this->position = position;
         text.setPosition(position);

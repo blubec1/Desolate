@@ -8,7 +8,8 @@ void RectRenderComponent::updateVisual()
 
 void RectRenderComponent::drawVisual(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    target.draw(shapeRect, states);
+    if (!hasSprite)
+        target.draw(shapeRect, states);
     if (hasSprite)
     {
         sprite->setPosition(shapeRect.getPosition());

@@ -19,8 +19,8 @@ public:
 
     ~ButtonComponent() override { delete hitboxShape; }
 
-    ButtonComponent(sf::Shape* shape, const std::string& text, const sf::Font& font, std::function<void(Context&)> callback)
-    : hitboxShape(shape), label(font, text, 24), onClick(callback)
+    ButtonComponent(sf::Shape* shape, const std::string& text, const sf::Font& font, std::function<void(Context&)> callback, int fontSize = 24)
+    : hitboxShape(shape), label(font, text, fontSize), onClick(callback)
     {
         label.setFillColor(sf::Color::White);
         sf::FloatRect textBounds = label.getLocalBounds();

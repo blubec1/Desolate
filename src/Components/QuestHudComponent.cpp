@@ -24,7 +24,7 @@ void QuestHudComponent::update(Context& context)
         }
         flushSegment(run, inDigit, x, y);
 
-        y += 24.f;
+        y += lineSpacing;
     }
 }
 
@@ -32,7 +32,7 @@ void QuestHudComponent::flushSegment(std::string& run, bool inDigit, float& x, f
 {
     if (run.empty()) return;
     sf::Font& font = inDigit ? fontNumbers : fontLetters;
-    sf::Text t(font, run, 20);
+    sf::Text t(font, run, fontSize);
     t.setPosition(sf::Vector2f(x, y));
     t.setFillColor(inDigit ? sf::Color::Yellow : sf::Color::White);
     x += t.getGlobalBounds().size.x + 2.f;

@@ -19,16 +19,19 @@ int main()
 
 	sf::Font digitalFont;
 	sf::Font ledFont;
+	sf::Font erodeFont;
 	if (!digitalFont.openFromFile(RESOURCE_DIR "/fonts/DIGITAL/DS-DIGI.TTF"))
 		return -1;
 	if (!ledFont.openFromFile(RESOURCE_DIR "/fonts/LED/LEDLIGHT.otf"))
+		return -1;
+	if (!erodeFont.openFromFile(RESOURCE_DIR "/fonts/ERODED/Finger Printed.ttf"))
 		return -1;
 
 	Input input;
 	SceneStack sceneStack;
 
 	sceneStack.push(Desolate::SceneFactory::createMenuScene(
-		&window, &input, ledFont, digitalFont, ledFont, &sceneStack, &settingsState));
+		&window, &input, ledFont, digitalFont, ledFont, erodeFont, &sceneStack, &settingsState));
 
 	sf::Clock deltaClock;
 
@@ -115,7 +118,7 @@ int main()
 				sceneStack.clear();
 
 				sceneStack.push(Desolate::SceneFactory::createMenuScene(
-					&window, &input, ledFont, digitalFont, ledFont, &sceneStack, &settingsState));
+					&window, &input, ledFont, digitalFont, ledFont, erodeFont, &sceneStack, &settingsState));
 
 				sceneStack.push(Desolate::SceneFactory::createSettingsScene(
 					&window, &input, digitalFont, &settingsState, &sceneStack));

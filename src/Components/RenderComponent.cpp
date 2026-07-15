@@ -22,7 +22,12 @@ void RenderComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
     }
 
     if (hasSprite)
-        sprite->setColor(sf::Color(255, 255, 255, shapeColour.a));
+    {
+        float spriteAlpha = 255.f;
+        if (visibilityComponent != nullptr)
+            spriteAlpha *= visibilityComponent->visionRatio;
+        sprite->setColor(sf::Color(255, 255, 255, static_cast<std::uint8_t>(spriteAlpha)));
+    }
 
     //Parents the renderComponent to the owner's position
     states.transform.translate(owner->position);

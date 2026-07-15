@@ -41,8 +41,8 @@ enum class SoundEvent
     Death
 };
 
-const unsigned int MAP_HEIGHT = 900;
-const unsigned int MAP_WIDTH = 1800;
+const unsigned int MAP_HEIGHT = 1200;
+const unsigned int MAP_WIDTH = 2133;
 const int BRUSH_STARTING_RADIUS = 8;
 const int STARTING_NUMBER_OF_SQUADS = 2;
 const int SQUAD_CIRCLE_SIZE = 20;
@@ -53,7 +53,7 @@ const float MONSTER_FACTION = 2;
 
 const float TRACED_PATH_NODE_DIST = 8.f;
 
-const float STANDARD_VISIBILITY_RANGE = 400.f;
+const float STANDARD_VISIBILITY_RANGE = 200.f;
 
 const float FOG_OVERLAY_ALPHA = 150.f;
 const float FOG_GRADIENT_SIZE = 256.f;
@@ -70,7 +70,8 @@ const float SHOCKWAVE_CHARGE_THRESHOLD = 5.f;
 const sf::Color WANDERER_COLOUR = sf::Color::Yellow;
 const sf::Color TERRITORIAL_COLOUR = sf::Color::Magenta;
 const sf::Color OUTPOST_COLOUR = sf::Color::Cyan;
-const sf::Color SQUAD_COLOUR = sf::Color::Red;
+const sf::Color SQUAD_1_COLOUR = sf::Color::Red;
+const sf::Color SQUAD_2_COLOUR = sf::Color::Cyan;
 const sf::Color RESOURCE_COLOUR = sf::Color::Green;
 const sf::Color LURKER_COLOUR = sf::Color(128, 64, 0);
 
@@ -107,6 +108,7 @@ const float OUTPOST_TRIGGER_RADIUS = 200.f;
 const float OUTPOST_SUPPLY_REPLENISH_RANGE = 200.f;
 const float OUTPOST_SUPPLY_REPLENISH_PERCENTAGE = 10.f;
 const float OUTPOST_PROTECT_RANGE = 400.f;
+const float OUTPOST_VIEW_RANGE = 200.f;
 
 const float AIRDROP_RADIUS = 6.f;
 const float AIRDROP_TRIGGER_RADIUS = 40.f;
@@ -147,7 +149,7 @@ const float LURKER_AGGRO_RANGE = 200.f;
 const float LURKER_DE_AGGRO_RANGE = 300.f;
 const float LURKER_DE_AGGRO_COOLDOWN = 3.f;
 const float LURKER_ARRIVAL_DISTANCE = 80.f;
-const float LURKER_VISIBILITY_RANGE = 400.f;
+const float LURKER_VISIBILITY_RANGE = 200.f;
 const float LURKER_TIME_TO_APPEAR = 1.f;
 
 const sf::Color HUNTER_COLOUR = sf::Color(30, 30, 30);
@@ -164,7 +166,7 @@ const float HUNTER_MAX_RESPAWN_TIME = 5.f;
 
 const sf::Color HUNTER_LAIR_COLOUR = sf::Color(50, 50, 50);
 const float HUNTER_LAIR_RADIUS = 12.f;
-const float HUNTER_LAIR_VIEW_RANGE = 400.f;
+const float HUNTER_LAIR_VIEW_RANGE = 250.f;
 const float HUNTER_LAIR_TIME_TO_APPEAR = 1.f;
 
 const float STANDARD_AUDIO_COOLDOWN = 5.f;
