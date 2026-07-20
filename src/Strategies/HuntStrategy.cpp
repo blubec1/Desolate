@@ -1,6 +1,7 @@
 #include "Strategies/HuntStrategy.hpp"
 #include "StrategyDrivers/StrategyDriver.hpp"
 #include "Components/HealthComponent.hpp"
+#include "Components/WorldPositionComponent.hpp"
 
 void HuntStrategy::update(Context& context)
 {
@@ -10,7 +11,7 @@ void HuntStrategy::update(Context& context)
         return;
     }
 
-    sf::Vector2f delta = target->position - driver->owner->position;
+    sf::Vector2f delta = getLogicPosition(target) - getLogicPosition(driver->owner);
 
     if (delta.length() <= killRange)
     {

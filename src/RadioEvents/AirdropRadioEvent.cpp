@@ -8,7 +8,7 @@
 
 void AirdropRadioEvent::onInit()
 {
-    airdropEntity = Desolate::Factory::createAirdropEntity(spawnPosition, colour, radius, triggerRadius, viewRange, timeToAppear, resManager);
+    airdropEntity = Desolate::Factory::createAirdropEntity(world, spawnPosition, colour, radius, triggerRadius, viewRange, timeToAppear, resManager);
     airdropEntity->addComponent<DecayTimerComponent>(decayCooldown);
     hasSpawned = false;
     respawnTimer = respawnCooldown;

@@ -5,6 +5,8 @@
 #include "Components/PathFollowerComponent.hpp"
 #include "Components/MouseHitboxComponent.hpp"
 #include "Components/ShockwaveComponent.hpp"
+#include "Components/WorldComponent.hpp"
+#include "Components/WorldPositionComponent.hpp"
 #include "Constants.hpp"
 #include <algorithm>
 #include <SFML/Graphics/VertexArray.hpp>
@@ -29,13 +31,13 @@ class MapDrawingComponent : public Component
     ENT_PAINT_STATE state;
     float tracedPathNodeDistance;
     float canvasWidth, canvasHeight;
-    float windowWidth, windowHeight;
+    float mapViewWidth, mapViewHeight;
     float gridCellSize;
     sf::Color gridColour;
 
     MapDrawingComponent(float canvasX, float canvasY, float brushRadius, sf::Color drawClr, sf::Color eraseClr, float tracedPathNodeDist)
     : drawColour(drawClr), eraseColour(eraseClr), tracedPathNodeDistance(tracedPathNodeDist), canvas(sf::Vector2u(canvasX, canvasY)), canvasSprite(canvas.getTexture()),
-      canvasWidth(canvasX), canvasHeight(canvasY), windowWidth(canvasX), windowHeight(canvasY), gridCellSize(GRID_CELL_SIZE), gridColour(GRID_COLOUR)
+      canvasWidth(canvasX), canvasHeight(canvasY), mapViewWidth(canvasX), mapViewHeight(canvasY), gridCellSize(GRID_CELL_SIZE), gridColour(GRID_COLOUR)
     {
         brush.setRadius(brushRadius);
         brush.setOrigin(sf::Vector2f(brushRadius, brushRadius));
@@ -75,10 +77,15 @@ class MapDrawingComponent : public Component
 
     void update(Context& context) override
     {
-        windowWidth = context.windowWidth;
-        windowHeight = context.windowHeight;
+        mapViewWidth = context.mapViewWidth;
+        mapViewHeight = context.mapViewHeight;
 
-        sf::Vector2f mouseWorld = sf::Vector2f(context.input->mousePos);
+        if (context.world)
+            context.world->setProjection(sf::FloatRect({0.f, 0.f}, {mapViewWidth, mapViewHeight}));
+
+        sf::Vector2f mouseWorld = context.world
+            ? context.world->screenToMap(sf::Vector2f(context.input->mousePos))
+            : sf::Vector2f(context.input->mousePos);
         if (mouseWorld.x < 0.f || mouseWorld.x > canvasWidth ||
             mouseWorld.y < 0.f || mouseWorld.y > canvasHeight)
         {
@@ -100,7 +107,9 @@ class MapDrawingComponent : public Component
                 case ENT_PATHING:
                     if(context.isEntityValid(selectedEntity) == true && activePath != nullptr)
                     {
-                        sf::Vector2f targetPos = sf::Vector2f(context.input->mousePos);
+                        sf::Vector2f targetPos = context.world
+                            ? context.world->screenToMap(sf::Vector2f(context.input->mousePos))
+                            : sf::Vector2f(context.input->mousePos);
                         targetPos.x = std::clamp(targetPos.x, 0.f, canvasWidth);
                         targetPos.y = std::clamp(targetPos.y, 0.f, canvasHeight);
                         sf::Vector2i originalMousePos = context.input->mousePos;
@@ -132,7 +141,11 @@ class MapDrawingComponent : public Component
 
                                 state = ENT_PATHING;
                                 pathFollowerComponent->currentPath = new TracedPath();
-                                pathFollowerComponent->currentPath->startPath(entity->position, false);
+                                {
+                                    auto* wp = entity->getComponent<WorldPositionComponent>();
+                                    sf::Vector2f pathStart = wp ? wp->position : entity->position;
+                                    pathFollowerComponent->currentPath->startPath(pathStart, false);
+                                }
                                 selectedEntity = entity;
                                 activePath = pathFollowerComponent->currentPath;
                                 break;
@@ -192,24 +205,26 @@ class MapDrawingComponent : public Component
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) override
     {
-        float scaleX = windowWidth / canvasWidth;
-        float scaleY = windowHeight / canvasHeight;
-
-        canvasSprite.setScale(sf::Vector2f(scaleX, scaleY));
-        target.draw(canvasSprite, states);
+        sf::RenderStates mapStates = states;
+        mapStates.transform.scale(
+            sf::Vector2f(mapViewWidth / canvasWidth, mapViewHeight / canvasHeight)
+        );
+        target.draw(canvasSprite, mapStates);
 
         sf::VertexArray gridLines(sf::PrimitiveType::Lines);
+        float scaleX = mapViewWidth / canvasWidth;
+        float scaleY = mapViewHeight / canvasHeight;
 
         for (float x = 0.f; x <= canvasWidth; x += gridCellSize)
         {
             gridLines.append(sf::Vertex(sf::Vector2f(x * scaleX, 0.f), gridColour));
-            gridLines.append(sf::Vertex(sf::Vector2f(x * scaleX, windowHeight), gridColour));
+            gridLines.append(sf::Vertex(sf::Vector2f(x * scaleX, mapViewHeight), gridColour));
         }
 
         for (float y = 0.f; y <= canvasHeight; y += gridCellSize)
         {
             gridLines.append(sf::Vertex(sf::Vector2f(0.f, y * scaleY), gridColour));
-            gridLines.append(sf::Vertex(sf::Vector2f(windowWidth, y * scaleY), gridColour));
+            gridLines.append(sf::Vertex(sf::Vector2f(mapViewWidth, y * scaleY), gridColour));
         }
 
         target.draw(gridLines, states);

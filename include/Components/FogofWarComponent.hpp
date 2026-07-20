@@ -14,8 +14,8 @@ class FogofWarComponent : public Component
     sf::Texture gradientTexture;
     std::optional<sf::Sprite> gradientSprite;
     bool gradientInitialized = false;
-    float windowWidth = (float)MAP_WIDTH;
-    float windowHeight = (float)MAP_HEIGHT;
+    float mapViewWidth = (float)MAP_WIDTH;
+    float mapViewHeight = (float)MAP_HEIGHT;
 
     void initGradient();
 

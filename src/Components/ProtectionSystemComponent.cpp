@@ -1,5 +1,6 @@
 #include "Components/ProtectionSystemComponent.hpp"
 #include "Components/ProtectComponent.hpp"
+#include "Components/WorldPositionComponent.hpp"
 #include "Entity.hpp"
 #include <iostream>
 
@@ -30,7 +31,7 @@ void ProtectionSystemComponent::update(Context& context)
         for (auto protector : protectors)
         {
             auto protectorComp = protector->getComponent<ProtectComponent>();
-            float dist = (entity->position - protector->position).length();
+            float dist = (getLogicPosition(entity) - getLogicPosition(protector)).length();
             if (dist <= protectorComp->protectRange)
             {
                 protectComponent->isProtected = true;

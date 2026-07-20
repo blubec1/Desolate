@@ -1,4 +1,11 @@
 #include "Components/AreaScanComponent.hpp"
+#include "Components/WorldPositionComponent.hpp"
+
+static sf::Vector2f getLogicPos(Entity* e)
+{
+    auto* wp = e->getComponent<WorldPositionComponent>();
+    return wp ? wp->position : e->position;
+}
 
 void AreaScanComponent::update(Context& context)
 {
@@ -11,7 +18,7 @@ void AreaScanComponent::update(Context& context)
             auto renderComponent = entity->getComponent<RenderComponent>();
             if(visComponent != nullptr && renderComponent != nullptr)
             {
-                sf::Vector2f delta = entity->position - owner->position;
+                sf::Vector2f delta = getLogicPos(entity) - getLogicPos(owner);
                 if(delta.length() <= visComponent->viewRange + viewBuff)
                 {
                     this->entities.push_back(entity);

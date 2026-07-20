@@ -1,5 +1,6 @@
 #include "Components/StillAttackComponent.hpp"
 #include "Components/FactionComponent.hpp"
+#include "Components/WorldPositionComponent.hpp"
 
 bool StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> entities)
 {
@@ -16,7 +17,7 @@ bool StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> 
         {
             Entity* closest = nullptr;
             float minDist = FLT_MAX;
-            sf::Vector2f ownerPos = owner->position;
+            sf::Vector2f ownerPos = getLogicPosition(owner);
 
             for(auto entity : scanComponent->getCollection())
             {
@@ -25,7 +26,7 @@ bool StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> 
 
                 if(hpComponent != nullptr && factionComponent != nullptr && enemies.contains(factionComponent->FactionID))
                 {
-                    float dist = (entity->position - ownerPos).length();
+                    float dist = (getLogicPosition(entity) - ownerPos).length();
                     if(dist <= attackRange && dist < minDist)
                     {
                         minDist = dist;

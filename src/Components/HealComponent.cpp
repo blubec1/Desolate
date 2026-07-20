@@ -3,6 +3,7 @@
 #include "Components/ScanComponent.hpp"
 #include "Components/HealthComponent.hpp"
 #include "Components/FactionComponent.hpp"
+#include "Components/WorldPositionComponent.hpp"
 #include "Entity.hpp"
 
 void HealComponent::update(Context& context)
@@ -15,7 +16,7 @@ void HealComponent::update(Context& context)
 
     for(auto entity : scanComponent->getCollection())
     {
-        sf::Vector2f delta = entity->position - owner->position;
+        sf::Vector2f delta = getLogicPosition(entity) - getLogicPosition(owner);
         auto healthComponent = entity->getComponent<HealthComponent>();
         auto factionComponent = entity->getComponent<FactionComponent>();
 

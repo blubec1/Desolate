@@ -1,4 +1,5 @@
 #include "Components/PathFollowerComponent.hpp"
+#include "Components/WorldPositionComponent.hpp"
 
 
 void PathFollowerComponent::update(Context& context)
@@ -6,52 +7,48 @@ void PathFollowerComponent::update(Context& context)
     if (currentPath == nullptr || (!currentPath->isLooping && currentPath->isAtTheEnd())) return;
 
     sf::Vector2f targetPos = currentPath->curr->next->coords;
-    sf::Vector2f delta = targetPos - owner->position;
+    auto* wp = owner->getComponent<WorldPositionComponent>();
+    sf::Vector2f currentPos = wp ? wp->position : owner->position;
+    sf::Vector2f delta = targetPos - currentPos;
     float distance = delta.length();
     float step = moveSpeed * context.deltaTime;
 
     if (step >= distance) {
-        owner->position = targetPos;
+        if (wp) wp->setPos(targetPos); else owner->position = targetPos;
         currentPath->curr = currentPath->curr->next;
     } else {
-        owner->position += (delta / distance) * step;
+        sf::Vector2f moveDelta = (delta / distance) * step;
+        if (wp) wp->move(moveDelta); else owner->position += moveDelta;
     }
 }
 
 void PathFollowerComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
 {
-    // If the squad doesn't have an active path, there's nothing to draw!
     if (currentPath == nullptr || (!currentPath->isLooping && currentPath->isAtTheEnd())) return;
 
-    // 1. Create local shapes for rendering the path nodes
-    sf::CircleShape drawBrush(6.f); 
-    drawBrush.setOrigin({6.f, 6.f}); 
+    auto* wp = owner->getComponent<WorldPositionComponent>();
+    auto toScreen = [&](sf::Vector2f mapPos) -> sf::Vector2f {
+        if (wp && wp->world) return wp->world->mapToScreen(mapPos);
+        return mapPos;
+    };
 
-    // Default path color to white, or a specific accent color if desired
-    sf::Color pathClr = pathColour; 
-    
-    // If you want the path to match the entity's own color, you can fetch it from the owner:
-    // if (owner != nullptr) { /* fetch owner color if your entity has a color field */ }
-
+    sf::CircleShape drawBrush(6.f);
+    drawBrush.setOrigin({6.f, 6.f});
+    sf::Color pathClr = pathColour;
     drawBrush.setFillColor(pathClr);
 
-    // 2. Start iterating from the beginning of the traced path linked list
     TracedPathNode* node = currentPath->curr->next;
-    
+
     while (node != nullptr)
     {
-        // If there is a next node, draw a solid rectangular line segment connecting them
         if (node->next != nullptr)
         {
-            // Utilizing your global custom utility function to gap the distance
-            drawRectBetween2Pts(target, node->coords, node->next->coords, pathClr, 6.f);
+            drawRectBetween2Pts(target, toScreen(node->coords), toScreen(node->next->coords), pathClr, 6.f);
         }
-        
-        // Draw the circular joint node itself
-        drawBrush.setPosition(node->coords);
+
+        drawBrush.setPosition(toScreen(node->coords));
         target.draw(drawBrush, states);
-        
-        // Advance to the next node in the linked list chain
+
         node = node->next;
     }
 }

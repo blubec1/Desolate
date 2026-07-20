@@ -1,13 +1,14 @@
 #include "StrategyDrivers/LurkerStrategyDriver.hpp"
 #include "Components/DecayTimerComponent.hpp"
 #include "Components/HealthComponent.hpp"
+#include "Components/WorldPositionComponent.hpp"
 #include "Entity.hpp"
 
 Entity* LurkerStrategyDriver::findNearestResource(Context& context)
 {
     Entity* nearest = nullptr;
     float minDist = FLT_MAX;
-    sf::Vector2f currentPos = owner->position;
+    sf::Vector2f currentPos = getLogicPosition(owner);
 
     for (auto entity : context.getEntities())
     {
@@ -15,7 +16,7 @@ Entity* LurkerStrategyDriver::findNearestResource(Context& context)
 
         if (resourceComponent != nullptr)
         {
-            float dist = (entity->position - currentPos).length();
+            float dist = (getLogicPosition(entity) - currentPos).length();
             if (dist < minDist)
             {
                 minDist = dist;
@@ -68,7 +69,7 @@ void LurkerStrategyDriver::update(Context& context)
                 break;
             }
 
-            sf::Vector2f delta = currentResource->position - owner->position;
+            sf::Vector2f delta = getLogicPosition(currentResource) - getLogicPosition(owner);
             if (delta.length() <= 100.f)
             {
                 auto decayTimerComponent = currentResource->getComponent<DecayTimerComponent>();
@@ -78,7 +79,7 @@ void LurkerStrategyDriver::update(Context& context)
                     decayTimerComponent->startTimer();
                 }
 
-                patrolStrategy.setCentre(currentResource->position);
+                patrolStrategy.setCentre(getLogicPosition(currentResource));
                 patrolStrategy.init();
                 setStrategy(&patrolStrategy);
                 state = PATROL;

@@ -3,6 +3,7 @@
 #include "Components/ProtectComponent.hpp"
 #include "Components/HealthComponent.hpp"
 #include "Components/ScanComponent.hpp"
+#include "Components/WorldPositionComponent.hpp"
 #include "Constants.hpp"
 #include "Entity.hpp"
 
@@ -26,7 +27,7 @@ Entity* HunterStrategyDriver::findNearestUnprotectedEnemy(Context& context)
 {
     Entity* nearest = nullptr;
     float minDist = FLT_MAX;
-    sf::Vector2f currentPos = owner->position;
+    sf::Vector2f currentPos = getLogicPosition(owner);
 
     auto scanComponent = owner->getComponent<ScanComponent>();
     if (!scanComponent) return nullptr;
@@ -46,7 +47,7 @@ Entity* HunterStrategyDriver::findNearestUnprotectedEnemy(Context& context)
         if(protectComponent == nullptr) continue;
         if(protectComponent->isProtected) continue;
 
-        float dist = (entity->position - currentPos).length();
+        float dist = (getLogicPosition(entity) - currentPos).length();
         if (dist < minDist)
         {
             minDist = dist;
@@ -67,7 +68,7 @@ void HunterStrategyDriver::update(Context& context)
             auto shockComp = entity->getComponent<ShockwaveComponent>();
             if (shockComp && shockComp->isShockwaved)
             {
-                sf::Vector2f delta = entity->position - owner->position;
+                sf::Vector2f delta = getLogicPosition(entity) - getLogicPosition(owner);
                 if (delta.length() <= shockComp->shockwaveRadius)
                 {
                     auto healthComponent = owner->getComponent<HealthComponent>();
@@ -146,7 +147,7 @@ void HunterStrategyDriver::update(Context& context)
                 break;
             }
 
-            sf::Vector2f delta = currentLair->position - owner->position;
+            sf::Vector2f delta = getLogicPosition(currentLair) - getLogicPosition(owner);
             if (delta.length() <= 50.f)
             {
                 setStrategy(&stillStrategy);

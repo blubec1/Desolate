@@ -4,6 +4,7 @@
 #include "Components/VisibilityComponent.hpp"
 #include "Components/FactionComponent.hpp"
 #include "Components/AreaScanComponent.hpp"
+#include "Components/WorldComponent.hpp"
 #include <cmath>
 #include <numbers>
 
@@ -47,8 +48,8 @@ void FogofWarComponent::initGradient()
 
 void FogofWarComponent::update(Context& context)
 {
-    windowWidth = context.windowWidth;
-    windowHeight = context.windowHeight;
+    mapViewWidth = context.mapViewWidth;
+    mapViewHeight = context.mapViewHeight;
 
     for(auto entity : context.getEntities())
     {
@@ -107,9 +108,10 @@ void FogofWarComponent::update(Context& context)
 
         gradientSprite->setScale(sf::Vector2f(diameter / FOG_GRADIENT_SIZE, diameter / FOG_GRADIENT_SIZE));
         gradientSprite->setOrigin(sf::Vector2f(FOG_GRADIENT_SIZE / 2.f, FOG_GRADIENT_SIZE / 2.f));
-        float fogX = entity->position.x * ((float)MAP_WIDTH / windowWidth);
-        float fogY = entity->position.y * ((float)MAP_HEIGHT / windowHeight);
-        gradientSprite->setPosition(sf::Vector2f(fogX, fogY));
+        sf::Vector2f fogPos = context.world
+            ? context.world->screenToMap(entity->position)
+            : entity->position;
+        gradientSprite->setPosition(fogPos);
 
         sf::RenderStates rs;
         rs.blendMode = fogErase;
@@ -123,7 +125,7 @@ void FogofWarComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
 {
     if (fogSprite.has_value())
     {
-        fogSprite->setScale(sf::Vector2f(windowWidth / (float)MAP_WIDTH, windowHeight / (float)MAP_HEIGHT));
+        fogSprite->setScale(sf::Vector2f(mapViewWidth / (float)MAP_WIDTH, mapViewHeight / (float)MAP_HEIGHT));
         target.draw(*fogSprite, states);
     }
 }

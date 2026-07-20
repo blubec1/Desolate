@@ -41,8 +41,10 @@ enum class SoundEvent
     Death
 };
 
-const unsigned int MAP_HEIGHT = 1200;
-const unsigned int MAP_WIDTH = 2133;
+const unsigned int MAP_HEIGHT = 1080;
+const unsigned int MAP_WIDTH = 1920;
+const float MAP_VIEW_WIDTH_RATIO = 0.75f;
+const float MAP_VIEW_HEIGHT_RATIO = 0.75f;
 const int BRUSH_STARTING_RADIUS = 8;
 const int STARTING_NUMBER_OF_SQUADS = 2;
 const int SQUAD_CIRCLE_SIZE = 20;

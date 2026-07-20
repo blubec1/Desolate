@@ -47,6 +47,7 @@
 #include "RadioEvents/AirdropRadioEvent.hpp"
 #include "Components/AudioSystemComponent.hpp"
 #include "Components/AudioComponent.hpp"
+#include "Components/WorldPositionComponent.hpp"
 
 //Завод!
 
@@ -60,7 +61,7 @@
 
 namespace Desolate::Factory
 {
-    inline Entity* createSquadEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID, float timeToAppear, float enemyFaction, float supplyMax, float supplyDrainRate, float supplyHpDrainRate, float shockwaveCooldown, float shockwaveRadius, int shockwaveMaxCharges, bool protectOthers, bool isProtected, float protectRange, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol)
+    inline Entity* createSquadEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID, float timeToAppear, float enemyFaction, float supplyMax, float supplyDrainRate, float supplyHpDrainRate, float shockwaveCooldown, float shockwaveRadius, int shockwaveMaxCharges, bool protectOthers, bool isProtected, float protectRange, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol)
     {
         Entity *Squad = new Entity();
         Squad->type = EntityType::Squad;
@@ -68,7 +69,7 @@ namespace Desolate::Factory
         std::set<int> enemies;
         enemies.insert(enemyFaction);
 
-        Squad->position = position;
+        Squad->addComponent<WorldPositionComponent>(position, world);
         Squad->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour, RESOURCE_DIR "/textures/squad.png");
         auto* squadHealth = Squad->addComponent<HealthComponent>(MaxHP, MaxHP);
         auto* squadRing = Squad->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
@@ -109,7 +110,7 @@ namespace Desolate::Factory
         return Map;
     }
 
-    inline Entity* createWandererEntity(sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, TracedPath* path, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID, float timeToAppear, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol)
+    inline Entity* createWandererEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, TracedPath* path, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID, float timeToAppear, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol)
     {
         Entity* Wanderer = new Entity();
         Wanderer->type = EntityType::Wanderer;
@@ -118,7 +119,7 @@ namespace Desolate::Factory
 
         enemies.insert(PLAYER_FACTION);
 
-        Wanderer->position = position;
+        Wanderer->addComponent<WorldPositionComponent>(position, world);
         Wanderer->addComponent<StandardRespawnComponent>(2.f, position);
         Wanderer->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, sf::Color::Transparent, RESOURCE_DIR "/textures/wanderer.png", 3.f);
         auto* wandererHealth = Wanderer->addComponent<HealthComponent>(MaxHP, MaxHP);
@@ -136,12 +137,12 @@ namespace Desolate::Factory
         return Wanderer;
     }
 
-    inline Entity* createOutpostEntity(sf::Vector2f position, sf::Color colour, float radius, float healRange, float healValue, float supplyRange, float supplyvalue, float ID, float triggerRadius, float shockwaveRechargeRange, float shockwaveRechargeRate, bool protectOthers, bool isProtected, float protectRange)
+    inline Entity* createOutpostEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float healRange, float healValue, float supplyRange, float supplyvalue, float ID, float triggerRadius, float shockwaveRechargeRange, float shockwaveRechargeRate, bool protectOthers, bool isProtected, float protectRange)
     {
         Entity* Outpost = new Entity();
         Outpost->type = EntityType::Outpost;
 
-        Outpost->position = position;
+        Outpost->addComponent<WorldPositionComponent>(position, world);
         Outpost->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, sf::Color::Transparent, RESOURCE_DIR "/textures/outpost.png", 2.f);
         Outpost->addComponent<AreaScanComponent>();
         Outpost->addComponent<HealComponent>(healRange, healValue);
@@ -176,7 +177,7 @@ namespace Desolate::Factory
         return FogofWarEntity;
     }
 
-    inline Entity* createTerritorialEntity(sf::Vector2f position, sf::Color colour, float radius, float patrolSpeed, float patrolRadius, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID, float timeToAppear, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol)
+    inline Entity* createTerritorialEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float patrolSpeed, float patrolRadius, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID, float timeToAppear, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol)
     {
         Entity* Territorial = new Entity();
         Territorial->type = EntityType::Territorial;
@@ -185,7 +186,7 @@ namespace Desolate::Factory
 
         enemies.insert(PLAYER_FACTION);
 
-        Territorial->position = position;
+        Territorial->addComponent<WorldPositionComponent>(position, world);
         Territorial->addComponent<StandardRespawnComponent>(2.f, position);
         Territorial->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, sf::Color::Transparent, RESOURCE_DIR "/textures/territorial.png", 2.3f);
         auto* territorialHealth = Territorial->addComponent<HealthComponent>(MaxHP, MaxHP);
@@ -203,7 +204,7 @@ namespace Desolate::Factory
         return Territorial;
     }
 
-    inline Entity* createLurkerEntity(sf::Vector2f position, sf::Color colour, float radius, float patrolSpeed, float patrolRadius, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, float aggroRng, float deAggroRng, float deAggroCD, float arrivalDist, float visibilityRng, float timeToAppear, float ID, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol)
+    inline Entity* createLurkerEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float patrolSpeed, float patrolRadius, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, float aggroRng, float deAggroRng, float deAggroCD, float arrivalDist, float visibilityRng, float timeToAppear, float ID, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol)
     {
         Entity* Lurker = new Entity();
         Lurker->type = EntityType::Lurker;
@@ -211,7 +212,7 @@ namespace Desolate::Factory
         std::set<int> enemies;
         enemies.insert(PLAYER_FACTION);
 
-        Lurker->position = position;
+        Lurker->addComponent<WorldPositionComponent>(position, world);
         Lurker->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, sf::Color::Transparent, RESOURCE_DIR "/textures/lurker.png", 2.5f);
         auto* lurkerHealth = Lurker->addComponent<HealthComponent>(MaxHP, MaxHP);
         auto* lurkerRing = Lurker->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
@@ -228,7 +229,7 @@ namespace Desolate::Factory
         return Lurker;
     }
 
-    inline Entity* createHunterEntity(sf::Vector2f position, sf::Color colour, float radius, float baseSpeed, float maxSpeed, float rampTime, float killRange, float viewRng, float timeToAppear, float ID, float minRespawnTime, float maxRespawnTime, float arrivalDist, float maxHealth, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold)
+    inline Entity* createHunterEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float baseSpeed, float maxSpeed, float rampTime, float killRange, float viewRng, float timeToAppear, float ID, float minRespawnTime, float maxRespawnTime, float arrivalDist, float maxHealth, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold)
     {
         Entity* Hunter = new Entity();
         Hunter->type = EntityType::Hunter;
@@ -236,7 +237,7 @@ namespace Desolate::Factory
         std::set<int> enemies;
         enemies.insert(PLAYER_FACTION);
 
-        Hunter->position = position;
+        Hunter->addComponent<WorldPositionComponent>(position, world);
         Hunter->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, sf::Color::Transparent, RESOURCE_DIR "/textures/hunter.png", 3.f);
         Hunter->addComponent<GlobalScanComponent>();
         Hunter->addComponent<HealthComponent>(maxHealth, maxHealth);
@@ -249,12 +250,12 @@ namespace Desolate::Factory
         return Hunter;
     }
 
-    inline Entity* createHunterLairEntity(sf::Vector2f position, sf::Color colour, float radius, float viewRng, float timeToAppear)
+    inline Entity* createHunterLairEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float viewRng, float timeToAppear)
     {
         Entity* Lair = new Entity();
         Lair->type = EntityType::HunterLair;
 
-        Lair->position = position;
+        Lair->addComponent<WorldPositionComponent>(position, world);
         Lair->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
         Lair->addComponent<HunterLairComponent>();
         Lair->addComponent<VisibilityComponent>(viewRng, timeToAppear);
@@ -296,12 +297,12 @@ namespace Desolate::Factory
         return resourceEntity;
     }
 
-    inline Entity* createAirdropEntity(sf::Vector2f position, sf::Color colour, float radius, float triggerRadius, float viewRng, float timeToAppear, ResourceManager* resManager)
+    inline Entity* createAirdropEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float triggerRadius, float viewRng, float timeToAppear, ResourceManager* resManager)
     {
         Entity* Airdrop = new Entity();
         Airdrop->type = EntityType::Airdrop;
 
-        Airdrop->position = position;
+        Airdrop->addComponent<WorldPositionComponent>(position, world);
         Airdrop->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
         Airdrop->addComponent<ResourceComponent>();
         Airdrop->addComponent<VisibilityComponent>(viewRng, timeToAppear);
@@ -329,46 +330,56 @@ namespace Desolate::Factory
         return QuestSystem;
     }
 
-    inline Entity* createUIEntity(const sf::Font& fontNumbers, const sf::Font& fontLetters, ResourceManager* resManager, QuestSystemComponent* questSystem, float windowWidth, float windowHeight)
+    inline Entity* createUIEntity(const sf::Font& fontNumbers, const sf::Font& fontLetters, ResourceManager* resManager, QuestSystemComponent* questSystem, float mapViewWidth, float mapViewHeight, float windowWidth, float windowHeight)
     {
         Entity* UIEntity = new Entity();
         UIEntity->type = EntityType::UI;
 
         UIEntity->position = sf::Vector2f(0, 0);
 
-        float buttonWidth = float(int(windowWidth * 0.042f + 0.5f));
-        float buttonHeight = float(int(windowHeight * 0.046f + 0.5f));
-        float subButtonWidth = float(int(windowWidth * 0.034f + 0.5f));
-        float subButtonHeight = float(int(windowHeight * 0.028f + 0.5f));
+        float barY = mapViewHeight;
+        float barH = windowHeight - mapViewHeight;
+        float sideX = mapViewWidth;
+        float sideW = windowWidth - mapViewWidth;
 
-        int btnFontSize = int(windowHeight * 0.022f + 0.5f);
-        int numFontSize = int(windowHeight * 0.028f + 0.5f);
-        int smallFontSize = int(windowHeight * 0.018f + 0.5f);
+        float buttonWidth = float(int(sideW * 0.15f + 0.5f));
+        float buttonHeight = float(int(barH * 0.35f + 0.5f));
+        float subButtonWidth = float(int(sideW * 0.12f + 0.5f));
+        float subButtonHeight = float(int(barH * 0.22f + 0.5f));
 
-        float col1X = windowWidth * 0.052f;
-        float col2X = windowWidth * 0.182f;
-        float col3X = windowWidth * 0.313f;
-        float col4X = windowWidth * 0.391f;
-        float col5X = windowWidth * 0.443f;
-        float col6X = windowWidth * 0.495f;
-        float upgradeX = windowWidth * 0.550f;
-        float subBtn1X = windowWidth * 0.602f;
-        float subBtn2X = windowWidth * 0.654f;
-        float subBtn3X = windowWidth * 0.706f;
+        int btnFontSize = int(barH * 0.12f + 0.5f);
+        int numFontSize = int(barH * 0.16f + 0.5f);
+        int smallFontSize = int(barH * 0.10f + 0.5f);
 
-        auto* metalDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col1X, windowHeight - 220.f), fontNumbers, numFontSize);
+        float col1X = mapViewWidth * 0.052f;
+        float col2X = mapViewWidth * 0.182f;
+        float col3X = mapViewWidth * 0.313f;
+        float col4X = mapViewWidth * 0.391f;
+        float col5X = mapViewWidth * 0.443f;
+        float col6X = mapViewWidth * 0.495f;
+        float upgradeX = mapViewWidth * 0.550f;
+        float subBtn1X = mapViewWidth * 0.602f;
+        float subBtn2X = mapViewWidth * 0.654f;
+        float subBtn3X = mapViewWidth * 0.706f;
+
+        float row1Y = barY + barH * 0.25f;
+        float row2Y = barY + barH * 0.50f;
+        float row3Y = barY + barH * 0.70f;
+        float row4Y = barY + barH * 0.90f;
+
+        auto* metalDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col1X, row1Y), fontNumbers, numFontSize);
         metalDisplay->valuePtr = &resManager->metal;
-        UIEntity->addComponent<TextComponent>(sf::Vector2f(col1X, windowHeight - 245.f), "METAL", fontLetters, smallFontSize);
-        auto* foodDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col2X, windowHeight - 220.f), fontNumbers, numFontSize);
+        UIEntity->addComponent<TextComponent>(sf::Vector2f(col1X, row1Y - 25.f), "METAL", fontLetters, smallFontSize);
+        auto* foodDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col2X, row1Y), fontNumbers, numFontSize);
         foodDisplay->valuePtr = &resManager->food;
-        UIEntity->addComponent<TextComponent>(sf::Vector2f(col2X, windowHeight - 245.f), "FOOD", fontLetters, smallFontSize);
-        auto* peopleDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col3X, windowHeight - 220.f), fontNumbers, numFontSize);
+        UIEntity->addComponent<TextComponent>(sf::Vector2f(col2X, row1Y - 25.f), "FOOD", fontLetters, smallFontSize);
+        auto* peopleDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col3X, row1Y), fontNumbers, numFontSize);
         peopleDisplay->valuePtr = &resManager->people;
-        UIEntity->addComponent<TextComponent>(sf::Vector2f(col3X, windowHeight - 245.f), "PEOPLE", fontLetters, smallFontSize);
+        UIEntity->addComponent<TextComponent>(sf::Vector2f(col3X, row1Y - 25.f), "PEOPLE", fontLetters, smallFontSize);
 
         
         auto* metalBtnShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
-        metalBtnShape->setPosition(sf::Vector2f(col1X, windowHeight - 110.f));
+        metalBtnShape->setPosition(sf::Vector2f(col1X, row2Y));
         metalBtnShape->setFillColor(sf::Color::Yellow);
         metalBtnShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
         UIEntity->addComponent<ButtonComponent>(metalBtnShape, "Metal", fontLetters, [resManager](Context&) { resManager->addMetal(10); }, btnFontSize);
@@ -376,31 +387,31 @@ namespace Desolate::Factory
 
     
         auto* foodBtnShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
-        foodBtnShape->setPosition(sf::Vector2f(col2X, windowHeight - 110.f));
+        foodBtnShape->setPosition(sf::Vector2f(col2X, row2Y));
         foodBtnShape->setFillColor(sf::Color(100, 200, 100));
         foodBtnShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
         UIEntity->addComponent<ButtonComponent>(foodBtnShape, "Food", fontLetters, [resManager](Context&) { resManager->addFood(10); }, btnFontSize);
     
 
-        auto* workingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col4X, windowHeight - 220.f), fontNumbers, numFontSize);
+        auto* workingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col4X, row1Y), fontNumbers, numFontSize);
         workingDisplay->valuePtr = &resManager->workingPeople;
-        UIEntity->addComponent<TextComponent>(sf::Vector2f(col4X, windowHeight - 245.f), "WORK", fontLetters, smallFontSize);
+        UIEntity->addComponent<TextComponent>(sf::Vector2f(col4X, row1Y - 25.f), "WORK", fontLetters, smallFontSize);
 
-        auto* nonWorkingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col6X, windowHeight - 220.f), fontNumbers, numFontSize);
+        auto* nonWorkingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col6X, row1Y), fontNumbers, numFontSize);
         nonWorkingDisplay->valuePtr = &resManager->nonWorkingPeople;
-        UIEntity->addComponent<TextComponent>(sf::Vector2f(col6X, windowHeight - 245.f), "IDLE", fontLetters, smallFontSize);
+        UIEntity->addComponent<TextComponent>(sf::Vector2f(col6X, row1Y - 25.f), "IDLE", fontLetters, smallFontSize);
 
     
-        float ratioTrackWidth = float(int(windowWidth * 0.031f + 0.5f));
-        float ratioTrackHeight = float(int(windowHeight * 0.009f + 0.5f));
+        float ratioTrackWidth = float(int(sideW * 0.11f + 0.5f));
+        float ratioTrackHeight = float(int(barH * 0.05f + 0.5f));
         auto* ratioTrackShape = new sf::RectangleShape(sf::Vector2f(ratioTrackWidth, ratioTrackHeight));
-        ratioTrackShape->setPosition(sf::Vector2f(col5X, windowHeight - 220.f));
+        ratioTrackShape->setPosition(sf::Vector2f(col5X, row1Y));
         ratioTrackShape->setFillColor(sf::Color(100, 100, 100));
         ratioTrackShape->setOrigin(sf::Vector2f(ratioTrackWidth / 2.f, ratioTrackHeight / 2.f));
 
-        float notchRadius = float(int(windowHeight * 0.007f + 0.5f));
+        float notchRadius = float(int(barH * 0.04f + 0.5f));
         auto* ratioNotchShape = new sf::CircleShape(notchRadius);
-        ratioNotchShape->setPosition(sf::Vector2f(col5X, windowHeight - 220.f));
+        ratioNotchShape->setPosition(sf::Vector2f(col5X, row1Y));
         ratioNotchShape->setFillColor(sf::Color::White);
         ratioNotchShape->setOrigin(sf::Vector2f(notchRadius, notchRadius));
         UIEntity->addComponent<SliderComponent>(ratioTrackShape, ratioNotchShape, &resManager->workRatio, 0.f, 1.f);
@@ -408,13 +419,13 @@ namespace Desolate::Factory
 
     
         auto* peopleBtnShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
-        peopleBtnShape->setPosition(sf::Vector2f(col3X, windowHeight - 110.f));
+        peopleBtnShape->setPosition(sf::Vector2f(col3X, row2Y));
         peopleBtnShape->setFillColor(sf::Color::Cyan);
         peopleBtnShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
         UIEntity->addComponent<ButtonComponent>(peopleBtnShape, "KICK OUT", fontLetters, [resManager](Context&) { resManager->addPeople(-1); }, btnFontSize);
     
 
-        auto* questHud = UIEntity->addComponent<QuestHudComponent>(sf::Vector2f(windowWidth - windowWidth * 0.057f, windowHeight * 0.278f), fontLetters, fontNumbers, questSystem, smallFontSize, windowHeight * 0.022f);
+        auto* questHud = UIEntity->addComponent<QuestHudComponent>(sf::Vector2f(sideX + sideW * 0.5f, barY + barH * 0.5f), fontLetters, fontNumbers, questSystem, smallFontSize, barH * 0.12f);
 
         // --- Upgrade sub-buttons (initially disabled) ---
 
@@ -435,7 +446,7 @@ namespace Desolate::Factory
                 }
             }, btnFontSize);
 
-        viewRngBtn->hitboxShape->setPosition(sf::Vector2f(subBtn1X, windowHeight - 60.f));
+        viewRngBtn->hitboxShape->setPosition(sf::Vector2f(subBtn1X, row3Y));
         viewRngBtn->hitboxShape->setFillColor(sf::Color(100, 100, 200));
         viewRngBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         viewRngBtn->disable();
@@ -456,7 +467,7 @@ namespace Desolate::Factory
                 }
             }, btnFontSize);
 
-        maxHpBtn->hitboxShape->setPosition(sf::Vector2f(subBtn2X, windowHeight - 60.f));
+        maxHpBtn->hitboxShape->setPosition(sf::Vector2f(subBtn2X, row3Y));
         maxHpBtn->hitboxShape->setFillColor(sf::Color(200, 80, 80));
         maxHpBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         maxHpBtn->disable();
@@ -478,7 +489,7 @@ namespace Desolate::Factory
                 }
             }, btnFontSize);
 
-        supplyBtn->hitboxShape->setPosition(sf::Vector2f(subBtn3X, windowHeight - 60.f));
+        supplyBtn->hitboxShape->setPosition(sf::Vector2f(subBtn3X, row3Y));
         supplyBtn->hitboxShape->setFillColor(sf::Color(80, 180, 80));
         supplyBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         supplyBtn->disable();
@@ -501,7 +512,7 @@ namespace Desolate::Factory
                 }
             }, btnFontSize);
 
-        dmgBtn->hitboxShape->setPosition(sf::Vector2f(subBtn1X, windowHeight - 25.f));
+        dmgBtn->hitboxShape->setPosition(sf::Vector2f(subBtn1X, row2Y + barH * 0.25f));
         dmgBtn->hitboxShape->setFillColor(sf::Color(220, 140, 40));
         dmgBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         dmgBtn->disable();
@@ -519,7 +530,7 @@ namespace Desolate::Factory
                 if(resManager->increasedConsumptionRate < 0.f) resManager->increasedConsumptionRate = 0.f;
             }, btnFontSize);
 
-        foodBtn->hitboxShape->setPosition(sf::Vector2f(subBtn2X, windowHeight - 25.f));
+        foodBtn->hitboxShape->setPosition(sf::Vector2f(subBtn2X, row4Y));
         foodBtn->hitboxShape->setFillColor(sf::Color(150, 200, 60));
         foodBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         foodBtn->disable();
@@ -534,7 +545,7 @@ namespace Desolate::Factory
                 resManager->metalProductionRate += 0.5f;
             }, btnFontSize);
             
-        metalBtn->hitboxShape->setPosition(sf::Vector2f(subBtn3X, windowHeight - 25.f));
+        metalBtn->hitboxShape->setPosition(sf::Vector2f(subBtn3X, row4Y));
         metalBtn->hitboxShape->setFillColor(sf::Color(200, 170, 30));
         metalBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         metalBtn->disable();
@@ -542,7 +553,7 @@ namespace Desolate::Factory
         // --- Upgrade toggle ---
 
         auto* upgradeShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
-        upgradeShape->setPosition(sf::Vector2f(upgradeX, windowHeight - 45.f));
+        upgradeShape->setPosition(sf::Vector2f(upgradeX, row3Y));
         upgradeShape->setFillColor(sf::Color(150, 150, 150));
         upgradeShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
         UIEntity->addComponent<ButtonComponent>(upgradeShape, "UPGRADE", fontLetters,
@@ -605,12 +616,14 @@ namespace Desolate::Factory
         return audioEntity;
     }
 
-    inline Entity* createRadioEntity(const sf::Font& fontNumbers, const sf::Font& fontLetters, ResourceManager* resManager, float windowWidth, float windowHeight)
+    inline Entity* createRadioEntity(WorldComponent* world, const sf::Font& fontNumbers, const sf::Font& fontLetters, ResourceManager* resManager, float windowWidth, float windowHeight)
     {
         Entity* Radio = new Entity();
         Radio->type = EntityType::UI;
 
-        Radio->position = sf::Vector2f(windowWidth * 0.92f, windowHeight * 0.25f);
+        float sideX = windowWidth * MAP_VIEW_WIDTH_RATIO;
+        float sideW = windowWidth - sideX;
+        Radio->position = sf::Vector2f(sideX + sideW * 0.5f, windowHeight * 0.15f);
 
         int numFontSize = int(windowHeight * 0.028f + 0.5f);
         int smallFontSize = int(windowHeight * 0.018f + 0.5f);
@@ -641,7 +654,7 @@ namespace Desolate::Factory
             sf::Vector2f(600.f, 400.f),
             AIRDROP_COLOUR, AIRDROP_RADIUS, AIRDROP_TRIGGER_RADIUS,
             AIRDROP_VIEW_RANGE, AIRDROP_TIME_TO_APPEAR,
-            resManager, 30, 88
+            resManager, world, 30, 88
         );
 
         radioHandler->addEvent(airdropRadioEvent);

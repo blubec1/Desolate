@@ -2,6 +2,7 @@
 #include "Components/ScanComponent.hpp"
 #include "Components/SupplyComponent.hpp"
 #include "Components/FactionComponent.hpp"
+#include "Components/WorldPositionComponent.hpp"
 #include "Entity.hpp"
 
 void SupplyReplenishComponent::update(Context& context)
@@ -14,7 +15,7 @@ void SupplyReplenishComponent::update(Context& context)
 
     for(auto entity : scanComponent->getCollection())
     {
-        sf::Vector2f delta = entity->position - owner->position;
+        sf::Vector2f delta = getLogicPosition(entity) - getLogicPosition(owner);
         auto supplyComponent = entity->getComponent<SupplyComponent>();
         auto factionComponent = entity->getComponent<FactionComponent>();
 

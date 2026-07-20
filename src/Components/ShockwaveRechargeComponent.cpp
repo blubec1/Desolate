@@ -2,6 +2,7 @@
 #include "Components/ScanComponent.hpp"
 #include "Components/ShockwaveComponent.hpp"
 #include "Components/FactionComponent.hpp"
+#include "Components/WorldPositionComponent.hpp"
 #include "Entity.hpp"
 
 void ShockwaveRechargeComponent::update(Context& context)
@@ -14,7 +15,7 @@ void ShockwaveRechargeComponent::update(Context& context)
 
     for(auto entity : scanComponent->getCollection())
     {
-        sf::Vector2f delta = entity->position - owner->position;
+        sf::Vector2f delta = getLogicPosition(entity) - getLogicPosition(owner);
         auto shockwaveComponent = entity->getComponent<ShockwaveComponent>();
         auto factionComponent = entity->getComponent<FactionComponent>();
 

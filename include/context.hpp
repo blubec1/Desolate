@@ -9,6 +9,7 @@ class AudioSystemComponent;
 class AttackAnimation;
 class Entity;
 class ResourceManager;
+class WorldComponent;
 
 class Context : public sf::Drawable
 {
@@ -23,11 +24,15 @@ class Context : public sf::Drawable
     float deltaTime;
     float windowWidth;
     float windowHeight;
+    float mapViewWidth;
+    float mapViewHeight;
 
 
     std::vector<AttackAnimation*> activeEffects;
     ResourceManager* resourceManager = nullptr;
     AudioSystemComponent* audioManager = nullptr;
+
+    WorldComponent* world = nullptr;
 
     float squadMaxHp = 100.f;
     float squadDamage = 10.f;

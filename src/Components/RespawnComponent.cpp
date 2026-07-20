@@ -1,4 +1,5 @@
 #include "Components/RespawnComponent.hpp"
+#include "Components/WorldPositionComponent.hpp"
 #include "Entity.hpp"
 
 void StandardRespawnComponent::startRespawn()
@@ -10,6 +11,8 @@ void StandardRespawnComponent::startRespawn()
 void StandardRespawnComponent::respawn()
 {
     isRespawning = false;
-    owner->position = spawnPosition;
+    auto* wp = owner->getComponent<WorldPositionComponent>();
+    if (wp) wp->setPos(spawnPosition);
+    else owner->position = spawnPosition;
     owner->reset();
 }

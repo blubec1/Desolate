@@ -1,5 +1,6 @@
 #include "Strategies/AreaPatrolStrategy.hpp"
 #include "StrategyDrivers/StrategyDriver.hpp"
+#include "Components/WorldPositionComponent.hpp"
 #include <cstdlib>
 #include <ctime>
 
@@ -23,7 +24,7 @@ void AreaPatrolStrategy::setCentre(sf::Vector2f newCentre)
 
 void AreaPatrolStrategy::update(Context& context)
 {
-    sf::Vector2f currentPos = driver->owner->position;
+    sf::Vector2f currentPos = getLogicPosition(driver->owner);
     sf::Vector2f delta = target - currentPos;
     float distance = delta.length();
 

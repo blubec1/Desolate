@@ -4,10 +4,11 @@
 #include "Components/FactionComponent.hpp"
 #include "Components/HealthComponent.hpp"
 #include "Components/ProtectComponent.hpp"
+#include "Components/WorldPositionComponent.hpp"
 
 void ChaseStrategy::init()
 {
-    chaseStartPoint = driver->owner->position;
+    chaseStartPoint = getLogicPosition(driver->owner);
 }
 
 Entity* ChaseStrategy::findNearestEnemy(Context& context)
@@ -19,14 +20,14 @@ Entity* ChaseStrategy::findNearestEnemy(Context& context)
 
     entities = scanComponent->getCollection();
 
-    sf::Vector2f currentPos = driver->owner->position;
+    sf::Vector2f currentPos = getLogicPosition(driver->owner);
 
     Entity* nearest = nullptr;
     float minDist = FLT_MAX;
 
     for (auto entity : entities)
     {
-        sf::Vector2f delta = currentPos - entity->position;
+        sf::Vector2f delta = currentPos - getLogicPosition(entity);
 
         auto factionComponent = entity->getComponent<FactionComponent>();
         auto healthComponent = entity->getComponent<HealthComponent>();
@@ -49,11 +50,11 @@ Entity* ChaseStrategy::findNearestEnemy(Context& context)
 
 void ChaseStrategy::update(Context& context)
 {
-    sf::Vector2f currentPos = driver->owner->position;
+    sf::Vector2f currentPos = getLogicPosition(driver->owner);
 
     if(context.isEntityValid(chasedEntity) != false)
     {
-        sf::Vector2f targetPos = chasedEntity->position;
+        sf::Vector2f targetPos = getLogicPosition(chasedEntity);
         sf::Vector2f delta = targetPos - currentPos;
 
         sf::Vector2f chaseDelta = currentPos - chaseStartPoint;
