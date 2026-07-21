@@ -1,16 +1,13 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+#include "Animations/Animation.hpp"
 
-// Inherit from sf::Drawable
-class AttackAnimation : public sf::Drawable
+class AttackAnimation : public Animation
 {
 public:
     sf::VertexArray line;
-    float lifetime;
-    float maxDuration;
 
     AttackAnimation(sf::Vector2f start, sf::Vector2f end, float duration)
-        : maxDuration(duration), lifetime(duration)
+        : Animation(duration)
     {
         line = sf::VertexArray(sf::PrimitiveType::Lines, 2);
         line[0].position = start;
@@ -20,6 +17,5 @@ public:
     }
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-
-    bool update(float deltaTime);
+    bool update(float deltaTime) override;
 };

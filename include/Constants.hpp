@@ -125,7 +125,7 @@ const float SQUAD_SUPPLY_DRAIN_RATE = 5.f;
 const float SQUAD_SUPPLY_HP_DRAIN_PERCENTAGE = 10.f;
 
 const float SQUAD_DAMAGE = 10.f;
-const float SQUAD_SHOOT_RANGE = 400.f;
+const float SQUAD_SHOOT_RANGE = 150.f;
 const float SQUAD_ATTACK_COOLDOWN = 0.2f;
 const float SQUAD_MAX_HEALTH = 100.f;
 const float SQUAD_TIME_TO_APPEAR = 1.f;

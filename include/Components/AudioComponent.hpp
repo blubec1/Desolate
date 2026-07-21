@@ -27,6 +27,8 @@ class AudioComponent : public Component
     float playTimer = 0.f;
     float gameTime = 0.f;
     float combatTimer = 0.f;
+    bool voicelineStarted = false;
+    int voice = -1;
 
     float cooldownDuration;
     float queueDelay;

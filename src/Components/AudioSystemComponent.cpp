@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <cstdlib>
+#include <string>
 
 bool AudioSystemComponent::loadSoundBuffer(const std::string& name, const std::string& filepath)
 {
@@ -63,18 +64,35 @@ void AudioSystemComponent::update(Context& context)
     cleanupStoppedSounds();
 }
 
-sf::Sound* AudioSystemComponent::playEvent(EntityType entityType, SoundEvent event, float volume)
+sf::Sound* AudioSystemComponent::playEvent(EntityType entityType, SoundEvent event, float volume, int voice)
 {
     cleanupStoppedSounds();
 
     auto eit = eventSounds.find(entityType);
     if (eit == eventSounds.end()) return nullptr;
 
-    auto fit = eit->second.find(event);
-    if (fit == eit->second.end() || fit->second.empty()) return nullptr;
+    auto vit = eit->second.find(voice);
+    if (vit != eit->second.end())
+    {
+        auto fit = vit->second.find(event);
+        if (fit != vit->second.end() && !fit->second.empty())
+        {
+            int idx = std::rand() % fit->second.size();
+            return playSound(fit->second[idx], volume);
+        }
+    }
 
-    int idx = std::rand() % fit->second.size();
-    return playSound(fit->second[idx], volume);
+    if (voice != -1)
+    {
+        auto fit = eit->second[-1].find(event);
+        if (fit != eit->second[-1].end() && !fit->second.empty())
+        {
+            int idx = std::rand() % fit->second.size();
+            return playSound(fit->second[idx], volume);
+        }
+    }
+
+    return nullptr;
 }
 
 bool AudioSystemComponent::isSoundValid(sf::Sound* sound)

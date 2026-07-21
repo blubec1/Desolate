@@ -15,7 +15,7 @@ class AudioSystemComponent : public Component
     std::vector<sf::Sound*> activeSounds;
     sf::Music* currentMusic = nullptr;
     std::string resPath;
-    std::map<EntityType, std::map<SoundEvent, std::vector<std::string>>> eventSounds;
+    std::map<EntityType, std::map<int, std::map<SoundEvent, std::vector<std::string>>>> eventSounds;
 
     AudioSystemComponent(const std::string& resourcePath)
     : resPath(resourcePath)
@@ -50,16 +50,80 @@ class AudioSystemComponent : public Component
                 for(auto& categoryDir : std::filesystem::directory_iterator(entityDir))
                 {
                     if(!categoryDir.is_directory()) continue;
-                    for(auto& eventDir : std::filesystem::directory_iterator(categoryDir))
+                    std::string categoryName = categoryDir.path().filename().string();
+
+                    if(categoryName == "voicelines")
                     {
-                        if(!eventDir.is_directory()) continue;
-                        SoundEvent sEvent = stringToSoundEvent(eventDir.path().filename().string());
-                        if(static_cast<int>(sEvent) == -1) continue;
-                        for(auto& file : std::filesystem::directory_iterator(eventDir))
+                        for(auto& subDir : std::filesystem::directory_iterator(categoryDir))
                         {
-                            auto ext = file.path().extension();
-                            if(ext == ".wav" || ext == ".ogg")
-                                eventSounds[eType][sEvent].push_back(file.path().stem().string());
+                            if(!subDir.is_directory()) continue;
+
+                            bool isVoiceFolder = false;
+                            for(auto& child : std::filesystem::directory_iterator(subDir))
+                            {
+                                if(child.is_directory())
+                                {
+                                    SoundEvent sEvent = stringToSoundEvent(child.path().filename().string());
+                                    if(static_cast<int>(sEvent) != -1)
+                                    {
+                                        isVoiceFolder = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if(isVoiceFolder)
+                            {
+                                std::string dirName = subDir.path().filename().string();
+                                int voiceID = -1;
+                                if(dirName.size() > 6 && dirName.substr(0, 6) == "voice_")
+                                    voiceID = std::stoi(dirName.substr(6));
+                                else
+                                    continue;
+
+                                for(auto& eventDir : std::filesystem::directory_iterator(subDir))
+                                {
+                                    if(!eventDir.is_directory()) continue;
+                                    SoundEvent sEvent = stringToSoundEvent(eventDir.path().filename().string());
+                                    if(static_cast<int>(sEvent) == -1) continue;
+                                    for(auto& file : std::filesystem::directory_iterator(eventDir))
+                                    {
+                                        auto ext = file.path().extension();
+                                        if(ext == ".wav" || ext == ".ogg")
+                                            eventSounds[eType][voiceID][sEvent].push_back(file.path().stem().string());
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                for(auto& eventDir : std::filesystem::directory_iterator(subDir))
+                                {
+                                    if(!eventDir.is_directory()) continue;
+                                    SoundEvent sEvent = stringToSoundEvent(eventDir.path().filename().string());
+                                    if(static_cast<int>(sEvent) == -1) continue;
+                                    for(auto& file : std::filesystem::directory_iterator(eventDir))
+                                    {
+                                        auto ext = file.path().extension();
+                                        if(ext == ".wav" || ext == ".ogg")
+                                            eventSounds[eType][-1][sEvent].push_back(file.path().stem().string());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for(auto& eventDir : std::filesystem::directory_iterator(categoryDir))
+                        {
+                            if(!eventDir.is_directory()) continue;
+                            SoundEvent sEvent = stringToSoundEvent(eventDir.path().filename().string());
+                            if(static_cast<int>(sEvent) == -1) continue;
+                            for(auto& file : std::filesystem::directory_iterator(eventDir))
+                            {
+                                auto ext = file.path().extension();
+                                if(ext == ".wav" || ext == ".ogg")
+                                    eventSounds[eType][-1][sEvent].push_back(file.path().stem().string());
+                            }
                         }
                     }
                 }
@@ -77,7 +141,7 @@ class AudioSystemComponent : public Component
     }
 
     sf::Sound* playSound(const std::string& name, float volume = 100.f);
-    sf::Sound* playEvent(EntityType entityType, SoundEvent event, float volume = 100.f);
+    sf::Sound* playEvent(EntityType entityType, SoundEvent event, float volume = 100.f, int voice = -1);
     void playMusic(const std::string& name, bool loop = true);
     void stopMusic();
 

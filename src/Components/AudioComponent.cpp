@@ -1,5 +1,6 @@
 #include "Components/AudioComponent.hpp"
 #include "Components/AudioSystemComponent.hpp"
+#include "Animations/voicelineAnimation.hpp"
 #include "context.hpp"
 #include "Entity.hpp"
 
@@ -42,7 +43,8 @@ void AudioComponent::playQueuedSound(Context& context, const QueuedSound& queued
 {
     stopCurrentSound(context);
     if(context.audioManager)
-        currentVoiceline = context.audioManager->playEvent(owner->type, queuedSound.event, queuedSound.volume);
+        currentVoiceline = context.audioManager->playEvent(owner->type, queuedSound.event, queuedSound.volume, voice);
+    voicelineStarted = true;
     if(queuedSound.priority >= combatPriority)
         combatTimer = combatWindow;
 }
@@ -97,6 +99,14 @@ void AudioComponent::update(Context& context)
             playTimer = queueDelay;
         }
     }
+
+    if(voicelineStarted && currentVoiceline)
+    {
+        context.activeEffects.push_back(
+            new VoicelineAnimation(owner->position, 0.7f, 5.f, sf::Color::Yellow)
+        );
+        voicelineStarted = false;
+    }
 }
 
 void AudioComponent::playVoiceline(SoundEvent event, float volume)
@@ -115,5 +125,5 @@ void AudioComponent::playVoiceline(SoundEvent event, float volume)
 void AudioComponent::playSound(Context& context, SoundEvent event, float volume)
 {
     if(context.audioManager)
-        context.audioManager->playEvent(owner->type, event, volume);
+        context.audioManager->playEvent(owner->type, event, volume, voice);
 }

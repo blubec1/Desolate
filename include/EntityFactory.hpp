@@ -27,6 +27,7 @@
 #include "Components/ShockwaveComponent.hpp"
 #include "Components/RingIndicatorComponent.hpp"
 #include "Components/SegmentedRingIndicatorComponent.hpp"
+#include "Components/RadiusIndicatorComponent.hpp"
 #include "Components/SupplyComponent.hpp"
 #include "Components/NumberComponent.hpp"
 #include "Components/ButtonComponent.hpp"
@@ -61,7 +62,7 @@
 
 namespace Desolate::Factory
 {
-    inline Entity* createSquadEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID, float timeToAppear, float enemyFaction, float supplyMax, float supplyDrainRate, float supplyHpDrainRate, float shockwaveCooldown, float shockwaveRadius, int shockwaveMaxCharges, bool protectOthers, bool isProtected, float protectRange, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol)
+    inline Entity* createSquadEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID, float timeToAppear, float enemyFaction, float supplyMax, float supplyDrainRate, float supplyHpDrainRate, float shockwaveCooldown, float shockwaveRadius, int shockwaveMaxCharges, bool protectOthers, bool isProtected, float protectRange, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol, int voice = -1)
     {
         Entity *Squad = new Entity();
         Squad->type = EntityType::Squad;
@@ -84,6 +85,9 @@ namespace Desolate::Factory
         Squad->addComponent<MouseHitboxComponent>(radius + 20.f);
         Squad->addComponent<PathFollowerComponent>(moveSpeed, colour, true);
         Squad->addComponent<StillAttackComponent>(damage, shootRange, attackCD, enemies, gunVol, voiceVol);
+        auto* squadAttack = Squad->getComponent<StillAttackComponent>();
+        auto* attackRadiusIndicator = Squad->addComponent<RadiusIndicatorComponent>(2.f, sf::Color(255, 100, 100, 80));
+        attackRadiusIndicator->valuePtr = squadAttack->getAttackRange();
         Squad->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
         Squad->addComponent<FactionComponent>(ID);
         auto* squadShockwave = Squad->addComponent<ShockwaveComponent>(shockwaveCooldown, shockwaveRadius, shockwaveMaxCharges);
@@ -92,7 +96,9 @@ namespace Desolate::Factory
         chargesRing->maxValue = &squadShockwave->maxCharges;
 
         Squad->addComponent<ProtectComponent>(protectOthers, isProtected, protectRange);
-        Squad->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
+        auto* squadAudio = Squad->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
+        if(voice != -1)
+            squadAudio->voice = voice;
 
         return Squad;
     }
@@ -446,7 +452,7 @@ namespace Desolate::Factory
                 }
             }, btnFontSize);
 
-        viewRngBtn->hitboxShape->setPosition(sf::Vector2f(subBtn1X, row3Y));
+        viewRngBtn->hitboxShape->setPosition(sf::Vector2f(subBtn1X, barY + barH * 0.55f));
         viewRngBtn->hitboxShape->setFillColor(sf::Color(100, 100, 200));
         viewRngBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         viewRngBtn->disable();
@@ -467,7 +473,7 @@ namespace Desolate::Factory
                 }
             }, btnFontSize);
 
-        maxHpBtn->hitboxShape->setPosition(sf::Vector2f(subBtn2X, row3Y));
+        maxHpBtn->hitboxShape->setPosition(sf::Vector2f(subBtn2X, barY + barH * 0.55f));
         maxHpBtn->hitboxShape->setFillColor(sf::Color(200, 80, 80));
         maxHpBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         maxHpBtn->disable();
@@ -489,7 +495,7 @@ namespace Desolate::Factory
                 }
             }, btnFontSize);
 
-        supplyBtn->hitboxShape->setPosition(sf::Vector2f(subBtn3X, row3Y));
+        supplyBtn->hitboxShape->setPosition(sf::Vector2f(subBtn3X, barY + barH * 0.55f));
         supplyBtn->hitboxShape->setFillColor(sf::Color(80, 180, 80));
         supplyBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         supplyBtn->disable();
@@ -512,10 +518,32 @@ namespace Desolate::Factory
                 }
             }, btnFontSize);
 
-        dmgBtn->hitboxShape->setPosition(sf::Vector2f(subBtn1X, row2Y + barH * 0.25f));
+        dmgBtn->hitboxShape->setPosition(sf::Vector2f(subBtn1X, barY + barH * 0.71f));
         dmgBtn->hitboxShape->setFillColor(sf::Color(220, 140, 40));
         dmgBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         dmgBtn->disable();
+
+        auto* rangeBtn = UIEntity->addComponent<ButtonComponent>(
+            new sf::RectangleShape(sf::Vector2f(subButtonWidth, subButtonHeight)), "RANGE", fontLetters,
+            [resManager](Context& ctx) {
+                if(resManager->metal < 35) return;
+
+                resManager->metal -= 35;
+                ctx.squadAttackRange += 25.f;
+                for(auto* e : ctx.getEntities())
+                {
+                    auto* faction = e->getComponent<FactionComponent>();
+                    if(!faction || faction->FactionID != PLAYER_FACTION)
+                        continue;
+                    if(auto* attack = e->getComponent<AttackComponent>())
+                        attack->changeAttackRange(25.f);
+                }
+            }, btnFontSize);
+
+        rangeBtn->hitboxShape->setPosition(sf::Vector2f(subBtn2X, barY + barH * 0.71f));
+        rangeBtn->hitboxShape->setFillColor(sf::Color(200, 150, 50));
+        rangeBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
+        rangeBtn->disable();
 
         auto* foodBtn = UIEntity->addComponent<ButtonComponent>(
             new sf::RectangleShape(sf::Vector2f(subButtonWidth, subButtonHeight)), "FOOD", fontLetters,
@@ -530,7 +558,7 @@ namespace Desolate::Factory
                 if(resManager->increasedConsumptionRate < 0.f) resManager->increasedConsumptionRate = 0.f;
             }, btnFontSize);
 
-        foodBtn->hitboxShape->setPosition(sf::Vector2f(subBtn2X, row4Y));
+        foodBtn->hitboxShape->setPosition(sf::Vector2f(subBtn2X, barY + barH * 0.71f));
         foodBtn->hitboxShape->setFillColor(sf::Color(150, 200, 60));
         foodBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         foodBtn->disable();
@@ -545,7 +573,7 @@ namespace Desolate::Factory
                 resManager->metalProductionRate += 0.5f;
             }, btnFontSize);
             
-        metalBtn->hitboxShape->setPosition(sf::Vector2f(subBtn3X, row4Y));
+        metalBtn->hitboxShape->setPosition(sf::Vector2f(subBtn3X, barY + barH * 0.87f));
         metalBtn->hitboxShape->setFillColor(sf::Color(200, 170, 30));
         metalBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         metalBtn->disable();
@@ -553,15 +581,16 @@ namespace Desolate::Factory
         // --- Upgrade toggle ---
 
         auto* upgradeShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
-        upgradeShape->setPosition(sf::Vector2f(upgradeX, row3Y));
+        upgradeShape->setPosition(sf::Vector2f(upgradeX, row2Y));
         upgradeShape->setFillColor(sf::Color(150, 150, 150));
         upgradeShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
         UIEntity->addComponent<ButtonComponent>(upgradeShape, "UPGRADE", fontLetters,
-            [viewRngBtn, maxHpBtn, supplyBtn, dmgBtn, foodBtn, metalBtn](Context&) {
+            [viewRngBtn, maxHpBtn, supplyBtn, dmgBtn, rangeBtn, foodBtn, metalBtn](Context&) {
                 viewRngBtn->toggle();
                 maxHpBtn->toggle();
                 supplyBtn->toggle();
                 dmgBtn->toggle();
+                rangeBtn->toggle();
                 foodBtn->toggle();
                 metalBtn->toggle();
             }, btnFontSize);

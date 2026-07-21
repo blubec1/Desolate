@@ -1,6 +1,5 @@
 #include "context.hpp"
 #include "Entity.hpp"
-#include "Animations/attackAnimation.hpp"
 #include "Components/AudioSystemComponent.hpp"
 
 Context::Context(sf::RenderWindow *window, Input *input)
@@ -20,7 +19,7 @@ Context::~Context()
 
 void Context::update()
 {
-    std::vector<AttackAnimation*> effectsToRemove;
+    std::vector<Animation*> effectsToRemove;
 
     for (auto effect : activeEffects)
     {

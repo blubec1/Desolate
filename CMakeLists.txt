@@ -45,6 +45,7 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
      src/Components/RespawnComponent.cpp
      src/Components/RingIndicatorComponent.cpp
      src/Components/SegmentedRingIndicatorComponent.cpp
+     src/Components/RadiusIndicatorComponent.cpp
     src/Components/NumberComponent.cpp
     src/Components/ButtonComponent.cpp
     src/Components/SliderComponent.cpp
@@ -57,6 +58,7 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
      src/Components/TextComponent.cpp
      src/Components/RadioEventHandler.cpp
      src/RadioEvents/AirdropRadioEvent.cpp
+     src/Animations/voicelineAnimation.cpp
      src/Components/ShockwaveComponent.cpp
      src/Components/ShockwaveRechargeComponent.cpp
      src/Components/GlobalScanComponent.cpp

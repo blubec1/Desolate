@@ -2,11 +2,11 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
+#include "Animations/Animation.hpp"
 #include <set>
 
 class Input;
 class AudioSystemComponent;
-class AttackAnimation;
 class Entity;
 class ResourceManager;
 class WorldComponent;
@@ -28,7 +28,7 @@ class Context : public sf::Drawable
     float mapViewHeight;
 
 
-    std::vector<AttackAnimation*> activeEffects;
+    std::vector<Animation*> activeEffects;
     ResourceManager* resourceManager = nullptr;
     AudioSystemComponent* audioManager = nullptr;
 
@@ -38,6 +38,7 @@ class Context : public sf::Drawable
     float squadDamage = 10.f;
     float squadViewBuff = 0.f;
     float squadSupplyMax = 100.f;
+    float squadAttackRange = 150.f;
 
     Context(sf::RenderWindow *window, Input *input);
     ~Context();
