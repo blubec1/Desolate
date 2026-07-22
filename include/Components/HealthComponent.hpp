@@ -21,6 +21,6 @@ class HealthComponent : public Component
     void changeMaxHP(float val){ HealthMax += val; }
     float* getMaxHP(){ return &HealthMax; }
 
-    void changeHealth(float val);
+    void changeHealth(float val, bool silent = false);
     float* getHealth(){ return &HealthValue; }
 };

@@ -16,6 +16,7 @@ class AudioSystemComponent : public Component
     sf::Music* currentMusic = nullptr;
     std::string resPath;
     std::map<EntityType, std::map<int, std::map<SoundEvent, std::vector<std::string>>>> eventSounds;
+    float masterVolume = 100.f;
 
     AudioSystemComponent(const std::string& resourcePath)
     : resPath(resourcePath)
@@ -26,7 +27,7 @@ class AudioSystemComponent : public Component
             for(const auto& entry : std::filesystem::recursive_directory_iterator(sfxPath))
             {
                 auto ext = entry.path().extension();
-                if(ext == ".wav" || ext == ".ogg")
+                if(ext == ".wav" || ext == ".ogg" || ext == ".mp3")
                 {
                     std::string name = entry.path().stem().string();
                     auto* buffer = new sf::SoundBuffer();
@@ -68,7 +69,7 @@ class AudioSystemComponent : public Component
                                     {
                                         isVoiceFolder = true;
                                         break;
-                                    }
+                                    } 
                                 }
                             }
 
@@ -89,7 +90,7 @@ class AudioSystemComponent : public Component
                                     for(auto& file : std::filesystem::directory_iterator(eventDir))
                                     {
                                         auto ext = file.path().extension();
-                                        if(ext == ".wav" || ext == ".ogg")
+                                        if(ext == ".wav" || ext == ".ogg" || ext == ".mp3")
                                             eventSounds[eType][voiceID][sEvent].push_back(file.path().stem().string());
                                     }
                                 }
@@ -104,7 +105,7 @@ class AudioSystemComponent : public Component
                                     for(auto& file : std::filesystem::directory_iterator(eventDir))
                                     {
                                         auto ext = file.path().extension();
-                                        if(ext == ".wav" || ext == ".ogg")
+                                        if(ext == ".wav" || ext == ".ogg" || ext == ".mp3")
                                             eventSounds[eType][-1][sEvent].push_back(file.path().stem().string());
                                     }
                                 }
@@ -121,7 +122,7 @@ class AudioSystemComponent : public Component
                             for(auto& file : std::filesystem::directory_iterator(eventDir))
                             {
                                 auto ext = file.path().extension();
-                                if(ext == ".wav" || ext == ".ogg")
+                                if(ext == ".wav" || ext == ".ogg" || ext == ".mp3")
                                     eventSounds[eType][-1][sEvent].push_back(file.path().stem().string());
                             }
                         }

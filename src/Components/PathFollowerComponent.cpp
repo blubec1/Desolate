@@ -1,10 +1,20 @@
 #include "Components/PathFollowerComponent.hpp"
 #include "Components/WorldPositionComponent.hpp"
+#include "Components/AudioComponent.hpp"
 
 
 void PathFollowerComponent::update(Context& context)
 {
-    if (currentPath == nullptr || (!currentPath->isLooping && currentPath->isAtTheEnd())) return;
+    if (currentPath == nullptr || (!currentPath->isLooping && currentPath->isAtTheEnd())) {
+        wasMoving = false;
+        return;
+    }
+
+    if (!wasMoving) {
+        wasMoving = true;
+        if (auto* audio = owner->getComponent<AudioComponent>())
+            audio->playVoiceline(SoundEvent::Moving);
+    }
 
     sf::Vector2f targetPos = currentPath->curr->next->coords;
     auto* wp = owner->getComponent<WorldPositionComponent>();
@@ -28,7 +38,7 @@ void PathFollowerComponent::draw(sf::RenderTarget& target, sf::RenderStates stat
 
     auto* wp = owner->getComponent<WorldPositionComponent>();
     auto toScreen = [&](sf::Vector2f mapPos) -> sf::Vector2f {
-        if (wp && wp->world) return wp->world->mapToScreen(mapPos);
+        if (wp && wp->world) return wp->world->worldToScreen(mapPos);
         return mapPos;
     };
 

@@ -52,8 +52,13 @@ class MapDrawingComponent : public Component
 
     void drawLine(Context &context, sf::Color colour)
     {        
-        sf::Vector2f previousWorldPos = sf::Vector2f(context.input->previousMousePos);
-        sf::Vector2f worldPos = sf::Vector2f(context.input->mousePos);
+        auto toWorld = [&](sf::Vector2i screenPos) -> sf::Vector2f {
+            return context.world
+                ? context.world->screenToWorld(sf::Vector2f(screenPos))
+                : sf::Vector2f(screenPos);
+        };
+        sf::Vector2f previousWorldPos = toWorld(context.input->previousMousePos);
+        sf::Vector2f worldPos = toWorld(context.input->mousePos);
 
         previousWorldPos.x = std::clamp(previousWorldPos.x, 0.f, canvasWidth);
         previousWorldPos.y = std::clamp(previousWorldPos.y, 0.f, canvasHeight);
@@ -84,7 +89,7 @@ class MapDrawingComponent : public Component
             context.world->setProjection(sf::FloatRect({0.f, 0.f}, {mapViewWidth, mapViewHeight}));
 
         sf::Vector2f mouseWorld = context.world
-            ? context.world->screenToMap(sf::Vector2f(context.input->mousePos))
+            ? context.world->screenToWorld(sf::Vector2f(context.input->mousePos))
             : sf::Vector2f(context.input->mousePos);
         if (mouseWorld.x < 0.f || mouseWorld.x > canvasWidth ||
             mouseWorld.y < 0.f || mouseWorld.y > canvasHeight)
@@ -108,7 +113,7 @@ class MapDrawingComponent : public Component
                     if(context.isEntityValid(selectedEntity) == true && activePath != nullptr)
                     {
                         sf::Vector2f targetPos = context.world
-                            ? context.world->screenToMap(sf::Vector2f(context.input->mousePos))
+                            ? context.world->screenToWorld(sf::Vector2f(context.input->mousePos))
                             : sf::Vector2f(context.input->mousePos);
                         targetPos.x = std::clamp(targetPos.x, 0.f, canvasWidth);
                         targetPos.y = std::clamp(targetPos.y, 0.f, canvasHeight);

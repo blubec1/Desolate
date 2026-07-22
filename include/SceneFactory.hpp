@@ -13,6 +13,8 @@
 #include "SettingsState.hpp"
 #include "Components/ButtonComponent.hpp"
 #include "Components/TextComponent.hpp"
+#include "Components/SliderComponent.hpp"
+#include "Components/NumberComponent.hpp"
 #include "Components/WorldComponent.hpp"
 
 namespace Desolate::SceneFactory
@@ -179,6 +181,48 @@ namespace Desolate::SceneFactory
 
         auto* titleText = ENT_SettingsUI->addComponent<TextComponent>(
             sf::Vector2f(windowWidth / 2.f, windowHeight * 0.18f), "RESOLUTION", font, settingsTitleFontSize);
+
+        // FPS slider
+        float sliderWidth = windowWidth * 0.16f;
+        float sliderHeight = 6.f;
+        float notchSize = 14.f;
+
+        auto* fpsTrack = new sf::RectangleShape(sf::Vector2f(sliderWidth, sliderHeight));
+        fpsTrack->setFillColor(sf::Color(50, 50, 50));
+        fpsTrack->setOrigin(sf::Vector2f(sliderWidth / 2.f, sliderHeight / 2.f));
+        auto* fpsNotch = new sf::CircleShape(notchSize / 2.f);
+        fpsNotch->setFillColor(sf::Color(180, 180, 180));
+
+        float fpsY = windowHeight * 0.68f;
+        auto* fpsSlider = new Entity();
+        fpsSlider->type = EntityType::UI;
+        fpsSlider->position = sf::Vector2f(windowWidth / 2.f, fpsY);
+        fpsSlider->addComponent<SliderComponent>(fpsTrack, fpsNotch, &settingsState->fpsLimit, 30.f, 240.f);
+        fpsSlider->addComponent<TextComponent>(
+            sf::Vector2f(0.f, -30.f), "FPS LIMIT", font, settingsFontSize);
+        auto* fpsNum = fpsSlider->addComponent<NumberComponent>(
+            sf::Vector2f(sliderWidth / 2.f + 20.f, -8.f), font, settingsFontSize);
+        fpsNum->floatSource = &settingsState->fpsLimit;
+        scene->context.addEntity(fpsSlider);
+
+        // Volume slider
+        auto* volTrack = new sf::RectangleShape(sf::Vector2f(sliderWidth, sliderHeight));
+        volTrack->setFillColor(sf::Color(50, 50, 50));
+        volTrack->setOrigin(sf::Vector2f(sliderWidth / 2.f, sliderHeight / 2.f));
+        auto* volNotch = new sf::CircleShape(notchSize / 2.f);
+        volNotch->setFillColor(sf::Color(180, 180, 180));
+
+        float volY = windowHeight * 0.78f;
+        auto* volSlider = new Entity();
+        volSlider->type = EntityType::UI;
+        volSlider->position = sf::Vector2f(windowWidth / 2.f, volY);
+        volSlider->addComponent<SliderComponent>(volTrack, volNotch, &settingsState->masterVolume, 0.f, 100.f);
+        volSlider->addComponent<TextComponent>(
+            sf::Vector2f(0.f, -30.f), "MASTER VOLUME", font, settingsFontSize);
+        auto* volNum = volSlider->addComponent<NumberComponent>(
+            sf::Vector2f(sliderWidth / 2.f + 20.f, -8.f), font, settingsFontSize);
+        volNum->floatSource = &settingsState->masterVolume;
+        scene->context.addEntity(volSlider);
 
         float closeButtonSize = float(int(windowHeight * 0.037f + 0.5f));
         auto* crossShape = new sf::RectangleShape(sf::Vector2f(closeButtonSize, closeButtonSize));

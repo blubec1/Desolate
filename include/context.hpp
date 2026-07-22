@@ -40,6 +40,8 @@ class Context : public sf::Drawable
     float squadSupplyMax = 100.f;
     float squadAttackRange = 150.f;
 
+    float masterVolume = 100.f;
+
     Context(sf::RenderWindow *window, Input *input);
     ~Context();
 

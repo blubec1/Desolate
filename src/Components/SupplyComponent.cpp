@@ -15,7 +15,7 @@ void SupplyComponent::update(Context& context)
 
         if(healthComponent != nullptr)
         {
-            healthComponent->changeHealth(-(hpDrainRate / 100.f) * (*healthComponent->getMaxHP()) * context.deltaTime);
+            healthComponent->changeHealth(-(hpDrainRate / 100.f) * (*healthComponent->getMaxHP()) * context.deltaTime, true);
         }
     }
 }

@@ -8,7 +8,9 @@ void NumberComponent::changeNumber(int number)
 
 void NumberComponent::update(Context& context)
 {
-    if (valuePtr)
+    if (floatSource)
+        changeNumber((int)*floatSource);
+    else if (valuePtr)
         changeNumber(*valuePtr);
 }
 

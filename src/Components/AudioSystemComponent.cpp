@@ -25,7 +25,7 @@ sf::Sound* AudioSystemComponent::playSound(const std::string& name, float volume
         return nullptr;
 
     auto* sound = new sf::Sound(*it->second);
-    sound->setVolume(volume);
+    sound->setVolume(volume * masterVolume / 100.f);
     sound->play();
     activeSounds.push_back(sound);
 
@@ -43,13 +43,18 @@ void AudioSystemComponent::playMusic(const std::string& name, bool loop)
         std::string oggPath = resPath + "/music/" + name + ".ogg";
         if (!currentMusic->openFromFile(oggPath))
         {
-            delete currentMusic;
-            currentMusic = nullptr;
-            return;
+            std::string mp3Path = resPath + "/music/" + name + ".mp3";
+            if (!currentMusic->openFromFile(mp3Path))
+            {
+                delete currentMusic;
+                currentMusic = nullptr;
+                return;
+            }
         }
     }
 
     currentMusic->setLooping(loop);
+    currentMusic->setVolume(masterVolume);
     currentMusic->play();
 }
 
@@ -61,6 +66,7 @@ void AudioSystemComponent::stopMusic()
 
 void AudioSystemComponent::update(Context& context)
 {
+    masterVolume = context.masterVolume;
     cleanupStoppedSounds();
 }
 

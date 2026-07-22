@@ -15,7 +15,7 @@ class WorldPositionComponent : public Component
 
     void update(Context& context) override
     {
-        owner->position = world->mapToScreen(position);
+        owner->position = world->worldToScreen(position);
         prevPosition = position;
     }
 

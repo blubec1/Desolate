@@ -49,6 +49,7 @@
 #include "Components/AudioSystemComponent.hpp"
 #include "Components/AudioComponent.hpp"
 #include "Components/WorldPositionComponent.hpp"
+#include "Components/HearComponent.hpp"
 
 //Завод!
 
@@ -99,6 +100,10 @@ namespace Desolate::Factory
         auto* squadAudio = Squad->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
         if(voice != -1)
             squadAudio->voice = voice;
+
+        Squad->addComponent<HearComponent>();
+        auto* hearIndicator = Squad->addComponent<RadiusIndicatorComponent>(2.f, sf::Color(0, 200, 0, 80));
+        hearIndicator->valuePtr = &Squad->getComponent<HearComponent>()->hearRange;
 
         return Squad;
     }
@@ -166,6 +171,8 @@ namespace Desolate::Factory
         };
 
         Outpost->addComponent<ProtectComponent>(protectOthers, isProtected, protectRange);
+        auto* supplyIndicator = Outpost->addComponent<RadiusIndicatorComponent>(2.f, sf::Color(200, 150, 0, 80));
+        supplyIndicator->valuePtr = &Outpost->getComponent<SupplyReplenishComponent>()->replenishRange;
         Outpost->addComponent<VisibilityComponent>(OUTPOST_VIEW_RANGE, 0.f);
 
         return Outpost;

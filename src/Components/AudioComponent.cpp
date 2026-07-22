@@ -100,7 +100,7 @@ void AudioComponent::update(Context& context)
         }
     }
 
-    if(voicelineStarted && currentVoiceline)
+    if(voicelineStarted && context.audioManager->isSoundValid(currentVoiceline))
     {
         context.activeEffects.push_back(
             new VoicelineAnimation(owner->position, 0.7f, 5.f, sf::Color::Yellow)

@@ -10,6 +10,7 @@ class NumberComponent : public RenderComponent
     sf::Text text;
     sf::Color colour;
     int* valuePtr = nullptr;
+    float* floatSource = nullptr;
     
     NumberComponent(sf::Vector2f position, const sf::Font& font, int fontSize = 24)
     : font(font), fontSize(fontSize), text(this->font, "", fontSize)

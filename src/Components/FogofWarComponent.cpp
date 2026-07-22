@@ -109,7 +109,7 @@ void FogofWarComponent::update(Context& context)
         gradientSprite->setScale(sf::Vector2f(diameter / FOG_GRADIENT_SIZE, diameter / FOG_GRADIENT_SIZE));
         gradientSprite->setOrigin(sf::Vector2f(FOG_GRADIENT_SIZE / 2.f, FOG_GRADIENT_SIZE / 2.f));
         sf::Vector2f fogPos = context.world
-            ? context.world->screenToMap(entity->position)
+            ? context.world->screenToWorld(entity->position)
             : entity->position;
         gradientSprite->setPosition(fogPos);
 

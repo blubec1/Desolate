@@ -16,15 +16,15 @@ class WorldComponent : public Component
         projectionArea = projection;
     }
 
-    sf::Vector2f mapToScreen(sf::Vector2f mapPos) const
+    sf::Vector2f worldToScreen(sf::Vector2f worldPos) const
     {
         return sf::Vector2f(
-            projectionArea.position.x + (mapPos.x - mapArea.position.x) * (projectionArea.size.x / mapArea.size.x),
-            projectionArea.position.y + (mapPos.y - mapArea.position.y) * (projectionArea.size.y / mapArea.size.y)
+            projectionArea.position.x + (worldPos.x - mapArea.position.x) * (projectionArea.size.x / mapArea.size.x),
+            projectionArea.position.y + (worldPos.y - mapArea.position.y) * (projectionArea.size.y / mapArea.size.y)
         );
     }
 
-    sf::Vector2f screenToMap(sf::Vector2f screenPos) const
+    sf::Vector2f screenToWorld(sf::Vector2f screenPos) const
     {
         return sf::Vector2f(
             mapArea.position.x + (screenPos.x - projectionArea.position.x) * (mapArea.size.x / projectionArea.size.x),

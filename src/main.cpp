@@ -16,6 +16,8 @@ int main()
 	window.setView(gameView);
 
 	SettingsState settingsState{desktopMode};
+	settingsState.load("settings.txt");
+	window.setFramerateLimit((unsigned int)settingsState.fpsLimit);
 
 	sf::Font digitalFont;
 	sf::Font ledFont;
@@ -85,6 +87,7 @@ int main()
 			Context& context = top->context;
 
 			context.deltaTime = deltaTime;
+			context.masterVolume = settingsState.masterVolume;
 
 			input.getMouseInput(sf::Vector2i(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
 
@@ -110,7 +113,7 @@ int main()
 				settingsState.pendingResolutionChange = false;
 
 				window.create(settingsState.videoMode, "Desolate", sf::Style::None);
-				window.setFramerateLimit(60);
+				window.setFramerateLimit((unsigned int)settingsState.fpsLimit);
 
 				sf::Vector2u newWindowSize = window.getSize();
 				window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {(float)newWindowSize.x, (float)newWindowSize.y})));
@@ -122,7 +125,10 @@ int main()
 
 				sceneStack.push(Desolate::SceneFactory::createSettingsScene(
 					&window, &input, digitalFont, &settingsState, &sceneStack));
+
+				settingsState.save("settings.txt");
 			}
 		}
 	}
+	settingsState.save("settings.txt");
 }

@@ -83,9 +83,9 @@ sf::Color RingIndicatorComponent::supplyColor(float ratio)
     {
         float t = (ratio - 0.6f) / 0.4f;
         return sf::Color(
-            static_cast<std::uint8_t>(static_cast<int>(64 * (1.f - t))),
-            static_cast<std::uint8_t>(static_cast<int>(128 + 127 * t)),
-            255,
+            static_cast<std::uint8_t>(static_cast<int>(20 + 20 * t)),
+            static_cast<std::uint8_t>(static_cast<int>(30 + 30 * t)),
+            static_cast<std::uint8_t>(static_cast<int>(120 + 60 * t)),
             255
         );
     }
@@ -93,9 +93,9 @@ sf::Color RingIndicatorComponent::supplyColor(float ratio)
     {
         float t = (ratio - 0.3f) / 0.3f;
         return sf::Color(
-            0,
-            static_cast<std::uint8_t>(static_cast<int>(200 + 55 * (1.f - t))),
-            255,
+            static_cast<std::uint8_t>(static_cast<int>(10 + 10 * t)),
+            static_cast<std::uint8_t>(static_cast<int>(20 + 10 * t)),
+            static_cast<std::uint8_t>(static_cast<int>(80 + 40 * t)),
             255
         );
     }
@@ -103,9 +103,9 @@ sf::Color RingIndicatorComponent::supplyColor(float ratio)
     {
         float t = ratio / 0.3f;
         return sf::Color(
-            static_cast<std::uint8_t>(static_cast<int>(255 * (1.f - t))),
-            static_cast<std::uint8_t>(static_cast<int>(100 * t)),
-            0,
+            static_cast<std::uint8_t>(static_cast<int>(5 + 5 * t)),
+            static_cast<std::uint8_t>(static_cast<int>(10 + 10 * t)),
+            static_cast<std::uint8_t>(static_cast<int>(40 + 40 * t)),
             255
         );
     }

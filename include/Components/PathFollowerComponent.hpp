@@ -10,6 +10,7 @@ public:
     sf::Color pathColour;
 
     TracedPath* currentPath = nullptr;
+    bool wasMoving = false;
 
     PathFollowerComponent(float movementSpeed, sf::Color clr, bool assignableViaUserInpt)
     :   assignableViaUserInput(assignableViaUserInpt)
