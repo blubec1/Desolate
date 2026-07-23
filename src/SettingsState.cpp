@@ -27,6 +27,12 @@ void SettingsState::load(const std::string& path)
             fpsLimit = std::stof(val);
         else if (key == "volume")
             masterVolume = std::stof(val);
+        else if (key == "radioVolume")
+            radioVolume = std::stof(val);
+        else if (key == "sfxVolume")
+            sfxVolume = std::stof(val);
+        else if (key == "voicelineVolume")
+            voicelineVolume = std::stof(val);
     }
 }
 
@@ -37,4 +43,7 @@ void SettingsState::save(const std::string& path) const
     file << "resolution=" << videoMode.size.x << "x" << videoMode.size.y << "\n";
     file << "fps=" << (int)fpsLimit << "\n";
     file << "volume=" << (int)masterVolume << "\n";
+    file << "radioVolume=" << (int)radioVolume << "\n";
+    file << "sfxVolume=" << (int)sfxVolume << "\n";
+    file << "voicelineVolume=" << (int)voicelineVolume << "\n";
 }

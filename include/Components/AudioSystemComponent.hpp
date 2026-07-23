@@ -106,7 +106,7 @@ class AudioSystemComponent : public Component
                                     {
                                         auto ext = file.path().extension();
                                         if(ext == ".wav" || ext == ".ogg" || ext == ".mp3")
-                                            eventSounds[eType][-1][sEvent].push_back(file.path().stem().string());
+                                            eventSounds[eType][1][sEvent].push_back(file.path().stem().string());
                                     }
                                 }
                             }
@@ -123,7 +123,7 @@ class AudioSystemComponent : public Component
                             {
                                 auto ext = file.path().extension();
                                 if(ext == ".wav" || ext == ".ogg" || ext == ".mp3")
-                                    eventSounds[eType][-1][sEvent].push_back(file.path().stem().string());
+                                    eventSounds[eType][1][sEvent].push_back(file.path().stem().string());
                             }
                         }
                     }
@@ -142,7 +142,7 @@ class AudioSystemComponent : public Component
     }
 
     sf::Sound* playSound(const std::string& name, float volume = 100.f);
-    sf::Sound* playEvent(EntityType entityType, SoundEvent event, float volume = 100.f, int voice = -1);
+    sf::Sound* playEvent(EntityType entityType, SoundEvent event, float volume = 100.f, int voice = 1);
     void playMusic(const std::string& name, bool loop = true);
     void stopMusic();
 

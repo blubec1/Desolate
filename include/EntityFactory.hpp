@@ -63,7 +63,7 @@
 
 namespace Desolate::Factory
 {
-    inline Entity* createSquadEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID, float timeToAppear, float enemyFaction, float supplyMax, float supplyDrainRate, float supplyHpDrainRate, float shockwaveCooldown, float shockwaveRadius, int shockwaveMaxCharges, bool protectOthers, bool isProtected, float protectRange, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol, int voice = -1)
+    inline Entity* createSquadEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID, float timeToAppear, float enemyFaction, float supplyMax, float supplyDrainRate, float supplyHpDrainRate, float shockwaveCooldown, float shockwaveRadius, int shockwaveMaxCharges, bool protectOthers, bool isProtected, float protectRange, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol, int voice = 1)
     {
         Entity *Squad = new Entity();
         Squad->type = EntityType::Squad;
@@ -98,8 +98,7 @@ namespace Desolate::Factory
 
         Squad->addComponent<ProtectComponent>(protectOthers, isProtected, protectRange);
         auto* squadAudio = Squad->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
-        if(voice != -1)
-            squadAudio->voice = voice;
+        squadAudio->voice = voice;
 
         Squad->addComponent<HearComponent>();
         auto* hearIndicator = Squad->addComponent<RadiusIndicatorComponent>(2.f, sf::Color(0, 200, 0, 80));
@@ -316,7 +315,7 @@ namespace Desolate::Factory
         Airdrop->type = EntityType::Airdrop;
 
         Airdrop->addComponent<WorldPositionComponent>(position, world);
-        Airdrop->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
+        Airdrop->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, sf::Color::Transparent, RESOURCE_DIR "/textures/airdrop.png", 2.f);
         Airdrop->addComponent<ResourceComponent>();
         Airdrop->addComponent<VisibilityComponent>(viewRng, timeToAppear);
 
@@ -655,21 +654,21 @@ namespace Desolate::Factory
     inline Entity* createRadioEntity(WorldComponent* world, const sf::Font& fontNumbers, const sf::Font& fontLetters, ResourceManager* resManager, float windowWidth, float windowHeight)
     {
         Entity* Radio = new Entity();
-        Radio->type = EntityType::UI;
+        Radio->type = EntityType::Radio;
 
         float sideX = windowWidth * MAP_VIEW_WIDTH_RATIO;
         float sideW = windowWidth - sideX;
-        Radio->position = sf::Vector2f(sideX + sideW * 0.5f, windowHeight * 0.15f);
+        Radio->position = sf::Vector2f(sideX + sideW * 0.5f, windowHeight * 0.35f);
 
         int numFontSize = int(windowHeight * 0.028f + 0.5f);
         int smallFontSize = int(windowHeight * 0.018f + 0.5f);
 
         Radio->addComponent<RectRenderComponent>(sf::Vector2f(0, 0), sf::Vector2f(500.f, 750.f), sf::Color::White, RESOURCE_DIR "/textures/radio.png");
 
-        int* knobTestValue = new int(0);
+        int* frequencyPtr = new int(30);
 
         auto* knobDisplay = Radio->addComponent<NumberComponent>(sf::Vector2f(-30.f, -40.f), fontNumbers, numFontSize);
-        knobDisplay->valuePtr = knobTestValue;
+        knobDisplay->valuePtr = frequencyPtr;
 
         Radio->addComponent<TextComponent>(sf::Vector2f(30.f, -40.f), "FM", fontLetters, smallFontSize);
 
@@ -680,18 +679,26 @@ namespace Desolate::Factory
         knobShape->setOutlineThickness(0.f);
         knobShape->setOrigin(sf::Vector2f(knobRadius, knobRadius));
 
-        auto* knob = Radio->addComponent<KnobComponent>(knobTestValue, 30, 88, 100.f);
+        auto* knob = Radio->addComponent<KnobComponent>(frequencyPtr, 30, 88, 100.f);
         knob->hitboxShape = knobShape;
 
-        auto* radioHandler = Radio->addComponent<RadioEventHandler>(knobTestValue);
+        Radio->addComponent<AudioComponent>(
+            STANDARD_AUDIO_COOLDOWN,
+            STANDARD_AUDIO_QUEUE_DELAY,
+            STANDARD_AUDIO_COMBAT_WINDOW,
+            STANDARD_AUDIO_COMBAT_PRIORITY,
+            STANDARD_AUDIO_PREEMPT_THRESHOLD
+        );
+
+        auto* radioHandler = Radio->addComponent<RadioEventHandler>(frequencyPtr);
 
         auto* airdropRadioEvent = new AirdropRadioEvent(
-            50, 2, 2.f, 5.f,
+            50, 5, 100.f, 5.f,
             sf::Vector2f(600.f, 400.f),
             AIRDROP_COLOUR, AIRDROP_RADIUS, AIRDROP_TRIGGER_RADIUS,
             AIRDROP_VIEW_RANGE, AIRDROP_TIME_TO_APPEAR,
             resManager, world, 30, 88
-        );
+    );
 
         radioHandler->addEvent(airdropRadioEvent);
 

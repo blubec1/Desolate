@@ -88,10 +88,10 @@ sf::Sound* AudioSystemComponent::playEvent(EntityType entityType, SoundEvent eve
         }
     }
 
-    if (voice != -1)
+    if (voice != 1)
     {
-        auto fit = eit->second[-1].find(event);
-        if (fit != eit->second[-1].end() && !fit->second.empty())
+        auto fit = eit->second[1].find(event);
+        if (fit != eit->second[1].end() && !fit->second.empty())
         {
             int idx = std::rand() % fit->second.size();
             return playSound(fit->second[idx], volume);

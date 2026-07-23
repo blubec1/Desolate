@@ -37,6 +37,8 @@ public:
     bool wasInRange = false;
     bool continuousTrigger = false;
 
+    Context* contextPtr = nullptr;
+
     RadioEvent() = default;
     virtual ~RadioEvent() = default;
 

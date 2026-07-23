@@ -24,6 +24,7 @@ enum class EntityType
     DeathSystem,
     ResourceManager,
     Airdrop,
+    Radio,
     UI,
     QuestSystem,
     AudioSystem
@@ -38,7 +39,10 @@ enum class SoundEvent
     Spotted,
     Stalked,
     Damaged,
-    Death
+    Death,
+    AirdropMessage,
+    AirdropDigit0, AirdropDigit1, AirdropDigit2, AirdropDigit3, AirdropDigit4,
+    AirdropDigit5, AirdropDigit6, AirdropDigit7, AirdropDigit8, AirdropDigit9
 };
 
 const unsigned int MAP_HEIGHT = 1080;
@@ -194,6 +198,7 @@ inline const char* entityTypeToString(EntityType t)
         case EntityType::Territorial: return "Territorial";
         case EntityType::Lurker:      return "Lurker";
         case EntityType::Hunter:      return "Hunter";
+        case EntityType::Radio:       return "Radio";
         default:                      return "";
     }
 }
@@ -210,6 +215,17 @@ inline const char* soundEventToString(SoundEvent e)
         case SoundEvent::Spotted: return "Spotted";
         case SoundEvent::Stalked: return "Stalked";
         case SoundEvent::Heard:   return "Heard";
+        case SoundEvent::AirdropMessage: return "AirdropMessage";
+        case SoundEvent::AirdropDigit0:  return "AirdropDigit0";
+        case SoundEvent::AirdropDigit1:  return "AirdropDigit1";
+        case SoundEvent::AirdropDigit2:  return "AirdropDigit2";
+        case SoundEvent::AirdropDigit3:  return "AirdropDigit3";
+        case SoundEvent::AirdropDigit4:  return "AirdropDigit4";
+        case SoundEvent::AirdropDigit5:  return "AirdropDigit5";
+        case SoundEvent::AirdropDigit6:  return "AirdropDigit6";
+        case SoundEvent::AirdropDigit7:  return "AirdropDigit7";
+        case SoundEvent::AirdropDigit8:  return "AirdropDigit8";
+        case SoundEvent::AirdropDigit9:  return "AirdropDigit9";
         default:                  return "";
     }
 }
@@ -221,6 +237,7 @@ inline EntityType stringToEntityType(const std::string& s)
     if (s == "Territorial") return EntityType::Territorial;
     if (s == "Lurker")      return EntityType::Lurker;
     if (s == "Hunter")      return EntityType::Hunter;
+    if (s == "Radio")       return EntityType::Radio;
     return EntityType::None;
 }
 
@@ -234,5 +251,16 @@ inline SoundEvent stringToSoundEvent(const std::string& s)
     if (s == "Spotted") return SoundEvent::Spotted;
     if (s == "Stalked") return SoundEvent::Stalked;
     if (s == "Heard")   return SoundEvent::Heard;
+    if (s == "AirdropMessage") return SoundEvent::AirdropMessage;
+    if (s == "AirdropDigit0")  return SoundEvent::AirdropDigit0;
+    if (s == "AirdropDigit1")  return SoundEvent::AirdropDigit1;
+    if (s == "AirdropDigit2")  return SoundEvent::AirdropDigit2;
+    if (s == "AirdropDigit3")  return SoundEvent::AirdropDigit3;
+    if (s == "AirdropDigit4")  return SoundEvent::AirdropDigit4;
+    if (s == "AirdropDigit5")  return SoundEvent::AirdropDigit5;
+    if (s == "AirdropDigit6")  return SoundEvent::AirdropDigit6;
+    if (s == "AirdropDigit7")  return SoundEvent::AirdropDigit7;
+    if (s == "AirdropDigit8")  return SoundEvent::AirdropDigit8;
+    if (s == "AirdropDigit9")  return SoundEvent::AirdropDigit9;
     return static_cast<SoundEvent>(-1);
 }

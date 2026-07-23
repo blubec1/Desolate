@@ -41,6 +41,9 @@ class Context : public sf::Drawable
     float squadAttackRange = 150.f;
 
     float masterVolume = 100.f;
+    float radioVolume = 100.f;
+    float sfxVolume = 100.f;
+    float voicelineVolume = 100.f;
 
     Context(sf::RenderWindow *window, Input *input);
     ~Context();

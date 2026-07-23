@@ -3,10 +3,29 @@
 #include "Components/WorldComponent.hpp"
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/Audio.hpp>
 
 class Entity;
 class Context;
 class ResourceManager;
+class AudioSystemComponent;
+
+enum class AirdropStepType
+{
+    Message,
+    Digit,
+    Pause
+};
+
+struct AirdropBroadcastStep
+{
+    AirdropStepType type;
+    union
+    {
+        float duration;
+        int digit;
+    };
+};
 
 class AirdropRadioEvent : public RadioEvent
 {
@@ -26,6 +45,16 @@ public:
     float radius, triggerRadius, viewRange, timeToAppear;
     ResourceManager* resManager;
     WorldComponent* world;
+
+    static constexpr float STEP_DELAY = 0.5f;
+
+    std::vector<AirdropBroadcastStep> steps;
+    int stepIndex = 0;
+    sf::Sound* currentSound = nullptr;
+    float pauseTimer = 0.f;
+
+    void buildSteps();
+    void playStep(Context& context);
 
     AirdropRadioEvent(int secretFrequency, int tolerance, float decayCooldown, float respawnCooldown, sf::Vector2f spawnPos, sf::Color colour, float radius, float triggerRadius, float viewRange, float timeToAppear, ResourceManager* resManager, WorldComponent* world, int minFreq = 33, int maxFreq = 80)
     : RadioEvent(secretFrequency, tolerance),  decayCooldown(decayCooldown), respawnCooldown(respawnCooldown), spawnPosition(spawnPos), colour(colour), radius(radius), triggerRadius(triggerRadius), viewRange(viewRange), timeToAppear(timeToAppear), resManager(resManager), world(world), minFrequency(minFreq), maxFrequency(maxFreq)

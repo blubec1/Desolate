@@ -7,6 +7,9 @@ struct SettingsState {
     bool pendingResolutionChange = false;
     float fpsLimit = 60.f;
     float masterVolume = 100.f;
+    float radioVolume = 100.f;
+    float sfxVolume = 100.f;
+    float voicelineVolume = 100.f;
 
     void load(const std::string& path);
     void save(const std::string& path) const;

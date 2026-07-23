@@ -88,6 +88,9 @@ int main()
 
 			context.deltaTime = deltaTime;
 			context.masterVolume = settingsState.masterVolume;
+			context.radioVolume = settingsState.radioVolume;
+			context.sfxVolume = settingsState.sfxVolume;
+			context.voicelineVolume = settingsState.voicelineVolume;
 
 			input.getMouseInput(sf::Vector2i(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
 

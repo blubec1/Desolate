@@ -118,6 +118,8 @@ void AudioComponent::playVoiceline(SoundEvent event, float volume)
     if(combatTimer > 0.f && prio < combatPriority)
         return;
 
+    if (voicelineVolumePtr) volume = volume * (*voicelineVolumePtr) / 100.f;
+
     pendingEvents.push({event, volume, prio, gameTime + expirationOf(prio)});
     cooldownTimers[event] = cooldownDuration;
 }
@@ -125,5 +127,8 @@ void AudioComponent::playVoiceline(SoundEvent event, float volume)
 void AudioComponent::playSound(Context& context, SoundEvent event, float volume)
 {
     if(context.audioManager)
+    {
+        if (sfxVolumePtr) volume = volume * (*sfxVolumePtr) / 100.f;
         context.audioManager->playEvent(owner->type, event, volume, voice);
+    }
 }

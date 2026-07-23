@@ -90,6 +90,7 @@ void RadioEventHandler::update(Context& context)
 
     for (auto& [freq, event] : events)
     {
+        event->contextPtr = &context;
         event->onUpdate(context);
         
         bool isInRange = std::abs(currentFreq - event->secretFrequency) <= event->tolerance;

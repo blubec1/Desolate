@@ -87,6 +87,23 @@ namespace Desolate::SceneFactory
         Entity* ENT_Hunter = Desolate::Factory::createHunterEntity(context.world, sf::Vector2f(1575.f, 112.f), HUNTER_COLOUR, HUNTER_RADIUS, HUNTER_BASE_SPEED, HUNTER_MAX_SPEED, HUNTER_RAMP_UP_TIME, HUNTER_KILL_RANGE, HUNTER_VIEW_RANGE, HUNTER_TIME_TO_APPEAR, MONSTER_FACTION, HUNTER_MIN_RESPAWN_TIME, HUNTER_MAX_RESPAWN_TIME, 50.f, HUNTER_MAX_HEALTH, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD);
         Entity* ENT_AudioSystem = Desolate::Factory::createAudioSystemEntity(RESOURCE_DIR "/audio");
 
+        {
+            auto setAudioVolumes = [&](Entity* e)
+            {
+                if (auto* a = e->getComponent<AudioComponent>())
+                {
+                    a->sfxVolumePtr = &context.sfxVolume;
+                    a->voicelineVolumePtr = &context.voicelineVolume;
+                }
+            };
+            setAudioVolumes(ENT_Wanderer);
+            setAudioVolumes(ENT_Territorial);
+            setAudioVolumes(ENT_Lurker);
+            setAudioVolumes(ENT_Squad);
+            setAudioVolumes(ENT_Squad2);
+            setAudioVolumes(ENT_Hunter);
+        }
+
         ENT_Background->updatePriority = -10;
         ENT_ResourceMgr->updatePriority = -10;
         ENT_Map->updatePriority = -10;
@@ -223,6 +240,29 @@ namespace Desolate::SceneFactory
             sf::Vector2f(sliderWidth / 2.f + 20.f, -8.f), font, settingsFontSize);
         volNum->floatSource = &settingsState->masterVolume;
         scene->context.addEntity(volSlider);
+
+        auto addVolSlider = [&](const char* label, float* ptr, float yOff)
+        {
+            auto* track = new sf::RectangleShape(sf::Vector2f(sliderWidth, sliderHeight));
+            track->setFillColor(sf::Color(50, 50, 50));
+            track->setOrigin(sf::Vector2f(sliderWidth / 2.f, sliderHeight / 2.f));
+            auto* notch = new sf::CircleShape(notchSize / 2.f);
+            notch->setFillColor(sf::Color(180, 180, 180));
+
+            auto* slider = new Entity();
+            slider->type = EntityType::UI;
+            slider->position = sf::Vector2f(windowWidth / 2.f, volY + yOff);
+            slider->addComponent<SliderComponent>(track, notch, ptr, 0.f, 100.f);
+            slider->addComponent<TextComponent>(
+                sf::Vector2f(0.f, -30.f), label, font, settingsFontSize);
+            auto* num = slider->addComponent<NumberComponent>(
+                sf::Vector2f(sliderWidth / 2.f + 20.f, -8.f), font, settingsFontSize);
+            num->floatSource = ptr;
+            scene->context.addEntity(slider);
+        };
+        addVolSlider("RADIO VOLUME", &settingsState->radioVolume, settingsSpacing);
+        addVolSlider("SFX VOLUME", &settingsState->sfxVolume, settingsSpacing * 2);
+        addVolSlider("VOICELINE VOLUME", &settingsState->voicelineVolume, settingsSpacing * 3);
 
         float closeButtonSize = float(int(windowHeight * 0.037f + 0.5f));
         auto* crossShape = new sf::RectangleShape(sf::Vector2f(closeButtonSize, closeButtonSize));
