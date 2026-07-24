@@ -43,7 +43,7 @@ void AudioComponent::playQueuedSound(Context& context, const QueuedSound& queued
 {
     stopCurrentSound(context);
     if(context.audioManager)
-        currentVoiceline = context.audioManager->playEvent(owner->type, queuedSound.event, queuedSound.volume, voice);
+        currentVoiceline = context.audioManager->playEvent(owner->type, queuedSound.event, queuedSound.volume, voice, queuedSound.offset);
     voicelineStarted = true;
     if(queuedSound.priority >= combatPriority)
         combatTimer = combatWindow;
@@ -109,7 +109,7 @@ void AudioComponent::update(Context& context)
     }
 }
 
-void AudioComponent::playVoiceline(SoundEvent event, float volume)
+void AudioComponent::playVoiceline(SoundEvent event, float volume, float offset)
 {
     if(cooldownTimers[event] > 0.f)
         return;
@@ -120,15 +120,15 @@ void AudioComponent::playVoiceline(SoundEvent event, float volume)
 
     if (voicelineVolumePtr) volume = volume * (*voicelineVolumePtr) / 100.f;
 
-    pendingEvents.push({event, volume, prio, gameTime + expirationOf(prio)});
+    pendingEvents.push({event, volume, prio, gameTime + expirationOf(prio), offset});
     cooldownTimers[event] = cooldownDuration;
 }
 
-void AudioComponent::playSound(Context& context, SoundEvent event, float volume)
+void AudioComponent::playSound(Context& context, SoundEvent event, float volume, float offset)
 {
     if(context.audioManager)
     {
         if (sfxVolumePtr) volume = volume * (*sfxVolumePtr) / 100.f;
-        context.audioManager->playEvent(owner->type, event, volume, voice);
+        context.audioManager->playEvent(owner->type, event, volume, voice, offset);
     }
 }

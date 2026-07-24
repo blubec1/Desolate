@@ -27,7 +27,8 @@ enum class EntityType
     Radio,
     UI,
     QuestSystem,
-    AudioSystem
+    AudioSystem,
+    ResourceLocation
 };
 
 enum class SoundEvent
@@ -56,6 +57,7 @@ const float SQUAD_SPEED = 80;
 
 const float PLAYER_FACTION = 1;
 const float MONSTER_FACTION = 2;
+const float NEUTRAL_FACTION = 0;
 
 const float TRACED_PATH_NODE_DIST = 8.f;
 
@@ -137,6 +139,15 @@ const float SQUAD_VISIBILITY_RANGE = 400.f;
 
 const float RESOURCE_RADIUS = 8.f;
 const float RESOURCE_VIEW_RANGE = 1500.f;
+
+const float RESOURCE_LOCATION_RADIUS = RESOURCE_RADIUS;
+const float RESOURCE_LOCATION_TRIGGER_RANGE = 40.f;
+const float RESOURCE_LOCATION_VIEW_RANGE = 100.f;
+const float RESOURCE_LOCATION_TIME_TO_APPEAR = 0.5f;
+const float RESOURCE_LOCATION_DECAY_TIME = 60.f;
+const sf::Color RESOURCE_LOCATION_COLOUR_FOOD = sf::Color(76, 175, 80);
+const sf::Color RESOURCE_LOCATION_COLOUR_METAL = sf::Color(158, 158, 158);
+const sf::Color RESOURCE_LOCATION_COLOUR_PEOPLE = sf::Color(33, 150, 243);
 const float RESOURCE_TIME_TO_APPEAR = 1.f;
 const float RESOURCE_TICK_COOLDOWN = 5.f;
 const float RESOURCE_FOOD_CONSUMPTION_RATE = 1.f;
@@ -165,10 +176,16 @@ const float HUNTER_MAX_SPEED = 100.f;
 const float HUNTER_RAMP_UP_TIME = 5.f;
 const float HUNTER_KILL_RANGE = 12.f;
 const float HUNTER_MAX_HEALTH = 1000.f;
-const float HUNTER_VIEW_RANGE = 60.f;
+const float HUNTER_VIEW_RANGE = 80.f;
 const float HUNTER_TIME_TO_APPEAR = 0.3f;
 const float HUNTER_MIN_RESPAWN_TIME = 2.f;
 const float HUNTER_MAX_RESPAWN_TIME = 5.f;
+const float HUNTER_STALK_DURATION = 3.f;
+const float HUNTER_STRIKE_SPEED_MULTIPLIER = 1.1f;
+const float HUNTER_APPROACH_SPEED_MULTIPLIER = 0.9f;
+const float HUNTER_STALK_BUFFER = 20.f;
+
+const float VOICELINE_OFFSET = 0.1f;
 
 const sf::Color HUNTER_LAIR_COLOUR = sf::Color(50, 50, 50);
 const float HUNTER_LAIR_RADIUS = 12.f;
@@ -199,6 +216,7 @@ inline const char* entityTypeToString(EntityType t)
         case EntityType::Lurker:      return "Lurker";
         case EntityType::Hunter:      return "Hunter";
         case EntityType::Radio:       return "Radio";
+        case EntityType::ResourceLocation: return "ResourceLocation";
         default:                      return "";
     }
 }
@@ -238,6 +256,7 @@ inline EntityType stringToEntityType(const std::string& s)
     if (s == "Lurker")      return EntityType::Lurker;
     if (s == "Hunter")      return EntityType::Hunter;
     if (s == "Radio")       return EntityType::Radio;
+    if (s == "ResourceLocation") return EntityType::ResourceLocation;
     return EntityType::None;
 }
 

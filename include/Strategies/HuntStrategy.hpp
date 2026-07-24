@@ -1,26 +1,36 @@
 #pragma once
 #include "Strategies/Strategy.hpp"
 #include "Entity.hpp"
+#include "Constants.hpp"
 
 class HuntStrategy : public Strategy
 {
     public:
-    float baseSpeed;
-    float maxSpeed;
-    float rampUpTime;
-    float killRange;
-    float chaseTime;
-    Entity* target;
+    enum Phase { APPROACH, STALK, STRIKE };
 
-    HuntStrategy(StrategyDriver* driver, float baseSpd, float maxSpd, float rampTime, float killRng)
-    : Strategy(driver), baseSpeed(baseSpd), maxSpeed(maxSpd), rampUpTime(rampTime), killRange(killRng), chaseTime(0.f), target(nullptr) {}
+    float baseSpeed;
+    float killRange;
+    float stalkDuration;
+    float strikeSpeedMultiplier;
+    float stalkBuffer;
+    Entity* target;
+    Phase phase = APPROACH;
+    float stalkTimer = 0.f;
+    bool stalkAudioPlayed = false;
+
+    HuntStrategy(StrategyDriver* driver, float baseSpd, float killRng)
+    : Strategy(driver), baseSpeed(baseSpd), killRange(killRng),
+      stalkDuration(HUNTER_STALK_DURATION), strikeSpeedMultiplier(HUNTER_STRIKE_SPEED_MULTIPLIER),
+      stalkBuffer(HUNTER_STALK_BUFFER), target(nullptr) {}
 
     void setTarget(Entity* newTarget)
     {
         if (newTarget != target)
         {
-            chaseTime = 0.f;
             target = newTarget;
+            phase = APPROACH;
+            stalkTimer = 0.f;
+            stalkAudioPlayed = false;
         }
     }
 

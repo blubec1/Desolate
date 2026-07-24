@@ -13,6 +13,7 @@ class ScanComponent : public Component
     float viewBuff = 0.f;
     std::vector<Entity*> entities;
     std::set<Entity*> previousEntities;
+    std::set<int> enemies;
 
     virtual std::vector<Entity*>& getCollection() {return entities;}
 
@@ -26,7 +27,9 @@ class ScanComponent : public Component
         {
             if (previousEntities.contains(entity)) continue;
             auto* targetFaction = entity->getComponent<FactionComponent>();
-            if (targetFaction && ownerFaction->FactionID != targetFaction->FactionID)
+            if (targetFaction && (enemies.empty()
+                ? ownerFaction->FactionID != targetFaction->FactionID
+                : enemies.contains(targetFaction->FactionID)))
             {
                 spotted = true;
                 break;

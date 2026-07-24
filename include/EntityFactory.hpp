@@ -38,6 +38,7 @@
 #include "Components/QuestSystemComponent.hpp"
 #include "Components/QuestHudComponent.hpp"
 #include "Components/TriggerRadiusComponent.hpp"
+#include "Components/DecayTimerComponent.hpp"
 #include "Components/ResourceManager.hpp"
 #include "Components/SupplyReplenishComponent.hpp"
 #include "Components/ShockwaveRechargeComponent.hpp"
@@ -82,7 +83,7 @@ namespace Desolate::Factory
         supplyRing->valuePtr = squadSupply->getSupply();
         supplyRing->maxValue = squadSupply->getMaxSupply();
         supplyRing->colorScheme = RingIndicatorComponent::Supply;
-        Squad->addComponent<AreaScanComponent>();
+        Squad->addComponent<AreaScanComponent>()->enemies = enemies;
         Squad->addComponent<MouseHitboxComponent>(radius + 20.f);
         Squad->addComponent<PathFollowerComponent>(moveSpeed, colour, true);
         Squad->addComponent<StillAttackComponent>(damage, shootRange, attackCD, enemies, gunVol, voiceVol);
@@ -136,7 +137,7 @@ namespace Desolate::Factory
         auto* wandererRing = Wanderer->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
         wandererRing->valuePtr = wandererHealth->getHealth();
         wandererRing->maxValue = wandererHealth->getMaxHP();
-        Wanderer->addComponent<AreaScanComponent>();
+        Wanderer->addComponent<AreaScanComponent>()->enemies = enemies;
         Wanderer->addComponent<TimedAttackComponent>(damage, shootRange, attackCD, enemies, gunVol, voiceVol);
         Wanderer->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
         Wanderer->addComponent<WandererStrategyDriver>(path, moveSpeed, chaseSpeed, aggroRng, deAggroRng, deAggroCD, enemies, shootRange);
@@ -155,8 +156,7 @@ namespace Desolate::Factory
         Outpost->addComponent<WorldPositionComponent>(position, world);
         Outpost->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, sf::Color::Transparent, RESOURCE_DIR "/textures/outpost.png", 2.f);
         Outpost->addComponent<AreaScanComponent>();
-        Outpost->addComponent<HealComponent>(healRange, healValue);
-        Outpost->addComponent<SupplyReplenishComponent>(supplyRange, supplyvalue);
+        Outpost->addComponent<HealComponent>(healRange, healValue);        Outpost->addComponent<SupplyReplenishComponent>(supplyRange, supplyvalue);
         Outpost->addComponent<ShockwaveRechargeComponent>(shockwaveRechargeRange, shockwaveRechargeRate);
         Outpost->addComponent<FactionComponent>(ID);
 
@@ -205,7 +205,7 @@ namespace Desolate::Factory
         auto* territorialRing = Territorial->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
         territorialRing->valuePtr = territorialHealth->getHealth();
         territorialRing->maxValue = territorialHealth->getMaxHP();
-        Territorial->addComponent<AreaScanComponent>();
+        Territorial->addComponent<AreaScanComponent>()->enemies = enemies;
         Territorial->addComponent<TimedAttackComponent>(damage, shootRange, attackCD, enemies, gunVol, voiceVol);
         Territorial->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
         Territorial->addComponent<TerritorialStrategyDriver>(patrolSpeed, patrolRadius, position, chaseSpeed, aggroRng, deAggroRng, deAggroCD, enemies, shootRange);
@@ -230,7 +230,7 @@ namespace Desolate::Factory
         auto* lurkerRing = Lurker->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
         lurkerRing->valuePtr = lurkerHealth->getHealth();
         lurkerRing->maxValue = lurkerHealth->getMaxHP();
-        Lurker->addComponent<AreaScanComponent>();
+        Lurker->addComponent<AreaScanComponent>()->enemies = enemies;
         Lurker->addComponent<TimedAttackComponent>(damage, shootRange, attackCD, enemies, gunVol, voiceVol);
         Lurker->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
         Lurker->addComponent<LurkerStrategyDriver>(patrolSpeed, patrolRadius, chaseSpeed, aggroRng, deAggroRng, shootRange, deAggroCD, arrivalDist, enemies);
@@ -251,7 +251,7 @@ namespace Desolate::Factory
 
         Hunter->addComponent<WorldPositionComponent>(position, world);
         Hunter->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, sf::Color::Transparent, RESOURCE_DIR "/textures/hunter.png", 3.f);
-        Hunter->addComponent<GlobalScanComponent>();
+        Hunter->addComponent<GlobalScanComponent>()->enemies = enemies;
         Hunter->addComponent<HealthComponent>(maxHealth, maxHealth);
         Hunter->addComponent<StandardRespawnComponent>(2.f, position);
         Hunter->addComponent<VisibilityComponent>(viewRng, timeToAppear);
@@ -318,6 +318,7 @@ namespace Desolate::Factory
         Airdrop->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, sf::Color::Transparent, RESOURCE_DIR "/textures/airdrop.png", 2.f);
         Airdrop->addComponent<ResourceComponent>();
         Airdrop->addComponent<VisibilityComponent>(viewRng, timeToAppear);
+        Airdrop->addComponent<FactionComponent>(NEUTRAL_FACTION);
 
         auto* trigger = Airdrop->addComponent<TriggerRadiusComponent>(triggerRadius);
         trigger->triggerFunc = [Airdrop, resManager](Entity* entity)
@@ -332,6 +333,58 @@ namespace Desolate::Factory
         };
 
         return Airdrop;
+    }
+
+    inline Entity* createResourceLocationEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, ResourceType type, int amount, float triggerRadius, float viewRng, float timeToAppear, float decayTime, ResourceManager* resManager)
+    {
+        Entity* ResourceLocation = new Entity();
+        ResourceLocation->type = EntityType::ResourceLocation;
+
+        std::string texPath;
+        switch (type)
+        {
+            case ResourceType::Food:   texPath = RESOURCE_DIR "/textures/resource_food.png"; break;
+            case ResourceType::Metal:  texPath = RESOURCE_DIR "/textures/resource_metal.png"; break;
+            case ResourceType::People: texPath = RESOURCE_DIR "/textures/resource_people.png"; break;
+        }
+
+        ResourceLocation->addComponent<WorldPositionComponent>(position, world);
+        ResourceLocation->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour, texPath, 2.f);
+        {
+            auto* render = ResourceLocation->getComponent<CircleRenderComponent>();
+            render->shapeCircle.setOutlineThickness(1.5f);
+            sf::Color outlineColour;
+            switch (type)
+            {
+                case ResourceType::Food:   outlineColour = sf::Color(0, 230, 0); break;
+                case ResourceType::Metal:  outlineColour = sf::Color(255, 255, 255); break;
+                case ResourceType::People: outlineColour = sf::Color(0, 200, 255); break;
+            }
+            render->shapeCircle.setOutlineColor(outlineColour);
+        }
+        ResourceLocation->addComponent<ResourceComponent>();
+        ResourceLocation->addComponent<VisibilityComponent>(viewRng, timeToAppear);
+        ResourceLocation->addComponent<DecayTimerComponent>(decayTime);
+        ResourceLocation->addComponent<FactionComponent>(NEUTRAL_FACTION);
+
+        auto* trigger = ResourceLocation->addComponent<TriggerRadiusComponent>(triggerRadius);
+        trigger->triggerFunc = [ResourceLocation, type, amount, resManager](Entity* entity)
+        {
+            if (entity == ResourceLocation || ResourceLocation->isMarkedForDeletion()) return;
+            auto faction = entity->getComponent<FactionComponent>();
+            if (faction && faction->FactionID == PLAYER_FACTION)
+            {
+                switch (type)
+                {
+                    case ResourceType::Food:   resManager->addFood(amount); break;
+                    case ResourceType::Metal:  resManager->addMetal(amount); break;
+                    case ResourceType::People: resManager->addPeople(amount); break;
+                }
+                ResourceLocation->destroy();
+            }
+        };
+
+        return ResourceLocation;
     }
 
     inline Entity* createQuestSystemEntity()

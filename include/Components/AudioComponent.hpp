@@ -12,6 +12,7 @@ class AudioComponent : public Component
         float volume;
         int priority;
         float expiresAt;
+        float offset;
 
         bool operator<(const QueuedSound& o) const {
             return priority < o.priority;
@@ -48,7 +49,7 @@ class AudioComponent : public Component
     static int priorityOf(SoundEvent e);
     static float expirationOf(int priority);
 
-    void playVoiceline(SoundEvent event, float volume = 100.f);
-    void playSound(Context& context, SoundEvent event, float volume = 100.f);
+    void playVoiceline(SoundEvent event, float volume = 100.f, float offset = VOICELINE_OFFSET);
+    void playSound(Context& context, SoundEvent event, float volume = 100.f, float offset = 0.f);
     void update(Context& context) override;
 };

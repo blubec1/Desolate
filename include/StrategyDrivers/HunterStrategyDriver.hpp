@@ -22,7 +22,7 @@ class HunterStrategyDriver : public StrategyDriver
     Entity* currentLair;
 
     HunterStrategyDriver(float baseSpd, float maxSpd, float rampTime, float killRng, float arrivalDist, std::set<int> enemies)
-    : stillStrategy(this), huntStrategy(this, baseSpd, maxSpd, rampTime, killRng), moveToLairStrategy(this, nullptr, arrivalDist), respawnTimer(0.f), currentLair(nullptr), enemies(enemies)
+    : stillStrategy(this), huntStrategy(this, baseSpd, killRng), moveToLairStrategy(this, nullptr, arrivalDist), respawnTimer(0.f), currentLair(nullptr), enemies(enemies)
     {
         currentStrategy = &stillStrategy;
     }

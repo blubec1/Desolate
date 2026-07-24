@@ -138,6 +138,38 @@ namespace Desolate::SceneFactory
         context.addEntity(ENT_UI);
         context.addEntity(ENT_Radio);
 
+        struct ResourceSpawn {
+            ResourceType type;
+            int amount;
+        };
+        ResourceSpawn spawns[] = {
+            {ResourceType::Food, 50}, {ResourceType::Food, 50}, {ResourceType::Food, 50}, {ResourceType::Food, 50},
+            {ResourceType::Metal, 30}, {ResourceType::Metal, 30}, {ResourceType::Metal, 30},
+            {ResourceType::People, 2}, {ResourceType::People, 2}, {ResourceType::People, 2}
+        };
+
+        for (auto& spawn : spawns)
+        {
+            float x = 100.f + static_cast<float>(std::rand()) / RAND_MAX * (MAP_WIDTH - 200.f);
+            float y = 100.f + static_cast<float>(std::rand()) / RAND_MAX * (MAP_HEIGHT - 200.f);
+
+            sf::Color colour;
+            switch (spawn.type)
+            {
+                case ResourceType::Food:   colour = RESOURCE_LOCATION_COLOUR_FOOD; break;
+                case ResourceType::Metal:  colour = RESOURCE_LOCATION_COLOUR_METAL; break;
+                case ResourceType::People: colour = RESOURCE_LOCATION_COLOUR_PEOPLE; break;
+            }
+
+            Entity* ent = Desolate::Factory::createResourceLocationEntity(
+                context.world, sf::Vector2f(x, y), colour,
+                RESOURCE_LOCATION_RADIUS, spawn.type, spawn.amount,
+                RESOURCE_LOCATION_TRIGGER_RANGE, RESOURCE_LOCATION_VIEW_RANGE,
+                RESOURCE_LOCATION_TIME_TO_APPEAR, RESOURCE_LOCATION_DECAY_TIME, resManager
+            );
+            context.addEntity(ent);
+        }
+
         context.audioManager->playMusic("ambient");
 
         return scene;
