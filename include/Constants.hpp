@@ -48,6 +48,10 @@ enum class SoundEvent
 
 const unsigned int MAP_HEIGHT = 1080;
 const unsigned int MAP_WIDTH = 1920;
+const float CHUNK_SIZE_X = 240.f;
+const float CHUNK_SIZE_Y = 216.f;
+const int CHUNK_COLS = 8;
+const int CHUNK_ROWS = 5;
 const float MAP_VIEW_WIDTH_RATIO = 0.75f;
 const float MAP_VIEW_HEIGHT_RATIO = 0.75f;
 const int BRUSH_STARTING_RADIUS = 8;
