@@ -10,9 +10,24 @@ void RenderComponent::setTexture(const std::string& filePath)
     }
 }
 
+void RenderComponent::applyClip(sf::RenderTarget& target) {
+    if (clipViewport.has_value()) {
+        savedView = target.getView();
+        sf::View view = savedView;
+        view.setViewport(clipViewport.value());
+        target.setView(view);
+    }
+}
+
+void RenderComponent::restoreClip(sf::RenderTarget& target) {
+    if (clipViewport.has_value()) target.setView(savedView);
+}
+
 void RenderComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
 {
     if (owner == nullptr || shouldBeDrawn == false) return;
+
+    applyClip(target);
 
     auto visibilityComponent = owner->getComponent<VisibilityComponent>();
 
@@ -38,4 +53,6 @@ void RenderComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
     shapeColour = originalColour;
     if (hasSprite)
         sprite->setColor(sf::Color::White);
+
+    restoreClip(target);
 }

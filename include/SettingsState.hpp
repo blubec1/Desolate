@@ -5,6 +5,8 @@
 struct SettingsState {
     sf::VideoMode videoMode;
     bool pendingResolutionChange = false;
+    bool fullscreen = true;
+    bool pendingFullscreenChange = false;
     float fpsLimit = 60.f;
     float masterVolume = 100.f;
     float radioVolume = 100.f;

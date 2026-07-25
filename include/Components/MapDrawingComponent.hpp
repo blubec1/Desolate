@@ -21,8 +21,8 @@ enum ENT_PAINT_STATE {
 class MapDrawingComponent : public Component
 {
     public:
-    sf::Sprite canvasSprite;
-    sf::RenderTexture canvas;
+    sf::Sprite worldMapSprite;
+    sf::RenderTexture worldMap;
     TracedPath* activePath = nullptr;
     Entity* selectedEntity = nullptr;
     sf::Color drawColour, eraseColour;
@@ -30,24 +30,25 @@ class MapDrawingComponent : public Component
     sf::RectangleShape interpRect;
     ENT_PAINT_STATE state;
     float tracedPathNodeDistance;
-    float canvasWidth, canvasHeight;
+    float worldWidth, worldHeight;
     float mapViewWidth, mapViewHeight;
     float gridCellSize;
     sf::Color gridColour;
 
-    MapDrawingComponent(float canvasX, float canvasY, float brushRadius, sf::Color drawClr, sf::Color eraseClr, float tracedPathNodeDist)
-    : drawColour(drawClr), eraseColour(eraseClr), tracedPathNodeDistance(tracedPathNodeDist), canvas(sf::Vector2u(canvasX, canvasY)), canvasSprite(canvas.getTexture()),
-      canvasWidth(canvasX), canvasHeight(canvasY), mapViewWidth(canvasX), mapViewHeight(canvasY), gridCellSize(GRID_CELL_SIZE), gridColour(GRID_COLOUR)
+    MapDrawingComponent(float worldW, float worldH, float viewW, float viewH, float brushRadius, sf::Color drawClr, sf::Color eraseClr, float tracedPathNodeDist)
+    : drawColour(drawClr), eraseColour(eraseClr), tracedPathNodeDistance(tracedPathNodeDist), worldMap(sf::Vector2u(worldW, worldH)), worldMapSprite(worldMap.getTexture()),
+      worldWidth(worldW), worldHeight(worldH), mapViewWidth(viewW), mapViewHeight(viewH), gridCellSize(GRID_CELL_SIZE), gridColour(GRID_COLOUR)
     {
         brush.setRadius(brushRadius);
         brush.setOrigin(sf::Vector2f(brushRadius, brushRadius));
         
         state = ENT_IDLING;
 
-        canvas.clear(eraseColour);
+        worldMap.clear(eraseColour);
+        worldMap.display();
 
-        canvasSprite.setPosition({0.f, 0.f});
-        canvasSprite.setTextureRect(sf::IntRect({0, 0}, {(int)canvasX, (int)canvasY}));
+        worldMapSprite.setPosition({0.f, 0.f});
+        worldMapSprite.setTextureRect(sf::IntRect({0, 0}, {(int)worldW, (int)worldH}));
     };
 
     void drawLine(Context &context, sf::Color colour)
@@ -60,10 +61,10 @@ class MapDrawingComponent : public Component
         sf::Vector2f previousWorldPos = toWorld(context.input->previousMousePos);
         sf::Vector2f worldPos = toWorld(context.input->mousePos);
 
-        previousWorldPos.x = std::clamp(previousWorldPos.x, 0.f, canvasWidth);
-        previousWorldPos.y = std::clamp(previousWorldPos.y, 0.f, canvasHeight);
-        worldPos.x = std::clamp(worldPos.x, 0.f, canvasWidth);
-        worldPos.y = std::clamp(worldPos.y, 0.f, canvasHeight);
+        previousWorldPos.x = std::clamp(previousWorldPos.x, 0.f, worldWidth);
+        previousWorldPos.y = std::clamp(previousWorldPos.y, 0.f, worldHeight);
+        worldPos.x = std::clamp(worldPos.x, 0.f, worldWidth);
+        worldPos.y = std::clamp(worldPos.y, 0.f, worldHeight);
 
         brush.setFillColor(colour);
         interpRect.setFillColor(colour);
@@ -72,12 +73,12 @@ class MapDrawingComponent : public Component
         rs.blendMode = (colour.a == 0) ? sf::BlendNone : sf::BlendAlpha;
 
         brush.setPosition(previousWorldPos);
-        canvas.draw(brush, rs);      
+        worldMap.draw(brush, rs);      
         brush.setPosition(worldPos);
-        canvas.draw(brush, rs); 
+        worldMap.draw(brush, rs); 
         
-        drawRectBetween2Pts(canvas, previousWorldPos, worldPos, colour, brush.getRadius(), rs);
-        canvas.display();
+        drawRectBetween2Pts(worldMap, previousWorldPos, worldPos, colour, brush.getRadius(), rs);
+        worldMap.display();
     }
 
     void update(Context& context) override
@@ -91,8 +92,8 @@ class MapDrawingComponent : public Component
         sf::Vector2f mouseWorld = context.world
             ? context.world->screenToWorld(sf::Vector2f(context.input->mousePos))
             : sf::Vector2f(context.input->mousePos);
-        if (mouseWorld.x < 0.f || mouseWorld.x > canvasWidth ||
-            mouseWorld.y < 0.f || mouseWorld.y > canvasHeight)
+        if (mouseWorld.x < 0.f || mouseWorld.x > worldWidth ||
+            mouseWorld.y < 0.f || mouseWorld.y > worldHeight)
         {
             activePath = nullptr;
             state = ENT_IDLING;
@@ -115,8 +116,8 @@ class MapDrawingComponent : public Component
                         sf::Vector2f targetPos = context.world
                             ? context.world->screenToWorld(sf::Vector2f(context.input->mousePos))
                             : sf::Vector2f(context.input->mousePos);
-                        targetPos.x = std::clamp(targetPos.x, 0.f, canvasWidth);
-                        targetPos.y = std::clamp(targetPos.y, 0.f, canvasHeight);
+                        targetPos.x = std::clamp(targetPos.x, 0.f, worldWidth);
+                        targetPos.y = std::clamp(targetPos.y, 0.f, worldHeight);
                         sf::Vector2i originalMousePos = context.input->mousePos;
                         context.input->mousePos = sf::Vector2i(targetPos);
                         activePath->extendPath(*context.input, tracedPathNodeDistance);
@@ -212,21 +213,21 @@ class MapDrawingComponent : public Component
     {
         sf::RenderStates mapStates = states;
         mapStates.transform.scale(
-            sf::Vector2f(mapViewWidth / canvasWidth, mapViewHeight / canvasHeight)
+            sf::Vector2f(mapViewWidth / worldWidth, mapViewHeight / worldHeight)
         );
-        target.draw(canvasSprite, mapStates);
+        target.draw(worldMapSprite, mapStates);
 
         sf::VertexArray gridLines(sf::PrimitiveType::Lines);
-        float scaleX = mapViewWidth / canvasWidth;
-        float scaleY = mapViewHeight / canvasHeight;
+        float scaleX = mapViewWidth / worldWidth;
+        float scaleY = mapViewHeight / worldHeight;
 
-        for (float x = 0.f; x <= canvasWidth; x += gridCellSize)
+        for (float x = 0.f; x <= worldWidth; x += gridCellSize)
         {
             gridLines.append(sf::Vertex(sf::Vector2f(x * scaleX, 0.f), gridColour));
             gridLines.append(sf::Vertex(sf::Vector2f(x * scaleX, mapViewHeight), gridColour));
         }
 
-        for (float y = 0.f; y <= canvasHeight; y += gridCellSize)
+        for (float y = 0.f; y <= worldHeight; y += gridCellSize)
         {
             gridLines.append(sf::Vertex(sf::Vector2f(0.f, y * scaleY), gridColour));
             gridLines.append(sf::Vertex(sf::Vector2f(mapViewWidth, y * scaleY), gridColour));

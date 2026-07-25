@@ -9,7 +9,7 @@ class KnobComponent : public Component
 
     sf::Shape* hitboxShape;
 
-    int* valuePtr;
+    float* valuePtr;
     float minValue;
     float maxValue;
     float maxDistance;
@@ -23,7 +23,7 @@ class KnobComponent : public Component
 
     ~KnobComponent() override { delete hitboxShape; }
     
-    KnobComponent(int* valuePtr, float minValue, float maxValue, float maxDistance)
+    KnobComponent(float* valuePtr, float minValue, float maxValue, float maxDistance)
     : valuePtr(valuePtr), minValue(minValue), maxValue(maxValue), maxDistance(maxDistance) {}
 
     void update(Context& context) override;

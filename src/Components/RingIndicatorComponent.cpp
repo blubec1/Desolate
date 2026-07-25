@@ -1,13 +1,14 @@
 #include "Components/RingIndicatorComponent.hpp"
 #include "Components/FactionComponent.hpp"
 #include "Components/VisibilityComponent.hpp"
+#include "Components/WorldPositionComponent.hpp"
 #include "Entity.hpp"
 #include "Constants.hpp"
 #include <cstdint>
 #include <cmath>
 #include <numbers>
 
-void RingIndicatorComponent::buildRing(sf::VertexArray& vertexArray, float startAngle, float endAngle, sf::Color color, int factionID) const
+void RingIndicatorComponent::buildRing(sf::VertexArray& vertexArray, float startAngle, float endAngle, sf::Color color, int factionID, float scale) const
 {
     auto visibilityComponent = owner->getComponent<VisibilityComponent>();
     sf::Color playerColour = PLAYER_HP_COLOUR;
@@ -20,8 +21,10 @@ void RingIndicatorComponent::buildRing(sf::VertexArray& vertexArray, float start
         monsterColour = sf::Color(monsterColour.r, monsterColour.g, monsterColour.b, monsterColour.a * visibilityComponent->visionRatio); 
     }
 
-    float inner = radius - thickness / 2.f;
-    float outer = radius + thickness / 2.f;
+    float sRadius = radius * scale;
+    float sThickness = thickness * scale;
+    float inner = sRadius - sThickness / 2.f;
+    float outer = sRadius + sThickness / 2.f;
     int steps = segments;
 
     vertexArray.clear();
@@ -111,17 +114,36 @@ sf::Color RingIndicatorComponent::supplyColor(float ratio)
     }
 }
 
+void RingIndicatorComponent::applyClip(sf::RenderTarget& target) {
+    if (clipViewport.has_value()) {
+        savedView = target.getView();
+        sf::View view = savedView;
+        view.setViewport(clipViewport.value());
+        target.setView(view);
+    }
+}
+
+void RingIndicatorComponent::restoreClip(sf::RenderTarget& target) {
+    if (clipViewport.has_value()) target.setView(savedView);
+}
+
 void RingIndicatorComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
 {
     if (owner == nullptr) return;
+
+    applyClip(target);
 
     float ratio = (valuePtr && *maxValue > 0.f) ? *valuePtr / *maxValue : 0.f;
     ratio = std::max(0.f, std::min(1.f, ratio));
 
     states.transform.translate(owner->position);
 
+    float scale = 1.f;
+    if (auto* wp = owner->getComponent<WorldPositionComponent>())
+        if (wp->world) scale = wp->world->getScale();
+
     sf::VertexArray backgroundVertexArray;
-    buildRing(backgroundVertexArray, 0.f, 2*std::numbers::pi, backgroundColor, -1);
+    buildRing(backgroundVertexArray, 0.f, 2*std::numbers::pi, backgroundColor, -1, scale);
     target.draw(backgroundVertexArray, states);
 
     if (ratio > 0.f)
@@ -138,7 +160,9 @@ void RingIndicatorComponent::draw(sf::RenderTarget& target, sf::RenderStates sta
         float start = -std::numbers::pi/2; //trigonometric circle is flipped because of how SFML works
         float end = start + ratio * 2*std::numbers::pi;
 
-        buildRing(foregroundVertexArray, start, end, foregroundColor, factionID);
+        buildRing(foregroundVertexArray, start, end, foregroundColor, factionID, scale);
         target.draw(foregroundVertexArray, states);
     }
+
+    restoreClip(target);
 }

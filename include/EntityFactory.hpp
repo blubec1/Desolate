@@ -64,7 +64,7 @@
 
 namespace Desolate::Factory
 {
-    inline Entity* createSquadEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID, float timeToAppear, float enemyFaction, float supplyMax, float supplyDrainRate, float supplyHpDrainRate, float shockwaveCooldown, float shockwaveRadius, int shockwaveMaxCharges, bool protectOthers, bool isProtected, float protectRange, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol, int voice = 1)
+    inline Entity* createSquadEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID, float timeToAppear, float enemyFaction, float supplyMax, float supplyDrainRate, float supplyHpDrainRate, float shockwaveCooldown, float shockwaveRadius, int shockwaveMaxCharges, bool protectOthers, bool isProtected, float protectRange, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol, sf::FloatRect clipViewport, int voice = 1)
     {
         Entity *Squad = new Entity();
         Squad->type = EntityType::Squad;
@@ -101,27 +101,35 @@ namespace Desolate::Factory
         auto* squadAudio = Squad->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
         squadAudio->voice = voice;
 
-        Squad->addComponent<HearComponent>();
+        auto* hear = Squad->addComponent<HearComponent>();
+        hear->enemies = enemies;
         auto* hearIndicator = Squad->addComponent<RadiusIndicatorComponent>(2.f, sf::Color(0, 200, 0, 80));
-        hearIndicator->valuePtr = &Squad->getComponent<HearComponent>()->hearRange;
+        hearIndicator->valuePtr = &hear->hearRange;
+
+        Squad->getComponent<CircleRenderComponent>()->clipViewport = clipViewport;
+        squadRing->clipViewport = clipViewport;
+        supplyRing->clipViewport = clipViewport;
+        attackRadiusIndicator->clipViewport = clipViewport;
+        chargesRing->clipViewport = clipViewport;
+        hearIndicator->clipViewport = clipViewport;
 
         return Squad;
     }
 
-    inline Entity* createMapEntity(float canvasX, float canvasY, float brushRadius, sf::Color drawColour, sf::Color eraseColour, float tracedPathNodeDist)
+    inline Entity* createMapEntity(float worldW, float worldH, float viewW, float viewH, float brushRadius, sf::Color drawColour, sf::Color eraseColour, float tracedPathNodeDist)
     {
         Entity* Map = new Entity();
         Map->type = EntityType::Map;
 
         Map->position = sf::Vector2f(0,0);
 
-        Map->addComponent<RectRenderComponent>(sf::Vector2f(canvasX / 2.f, canvasY / 2.f), sf::Vector2f(canvasX, canvasY), sf::Color::White, RESOURCE_DIR "/textures/map.png");
-        Map->addComponent<MapDrawingComponent>(canvasX, canvasY, brushRadius, drawColour, eraseColour, tracedPathNodeDist);
+        Map->addComponent<RectRenderComponent>(sf::Vector2f(viewW / 2.f, viewH / 2.f), sf::Vector2f(viewW, viewH), sf::Color::White, RESOURCE_DIR "/textures/map.png");
+        Map->addComponent<MapDrawingComponent>(worldW, worldH, viewW, viewH, brushRadius, drawColour, eraseColour, tracedPathNodeDist);
 
         return Map;
     }
 
-    inline Entity* createWandererEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, TracedPath* path, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID, float timeToAppear, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol)
+    inline Entity* createWandererEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, TracedPath* path, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID, float timeToAppear, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol, sf::FloatRect clipViewport)
     {
         Entity* Wanderer = new Entity();
         Wanderer->type = EntityType::Wanderer;
@@ -145,10 +153,13 @@ namespace Desolate::Factory
         Wanderer->addComponent<FactionComponent>(ID);
         Wanderer->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
 
+        Wanderer->getComponent<CircleRenderComponent>()->clipViewport = clipViewport;
+        wandererRing->clipViewport = clipViewport;
+
         return Wanderer;
     }
 
-    inline Entity* createOutpostEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float healRange, float healValue, float supplyRange, float supplyvalue, float ID, float triggerRadius, float shockwaveRechargeRange, float shockwaveRechargeRate, bool protectOthers, bool isProtected, float protectRange)
+    inline Entity* createOutpostEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float healRange, float healValue, float supplyRange, float supplyvalue, float ID, float triggerRadius, float shockwaveRechargeRange, float shockwaveRechargeRate, bool protectOthers, bool isProtected, float protectRange, sf::FloatRect clipViewport)
     {
         Entity* Outpost = new Entity();
         Outpost->type = EntityType::Outpost;
@@ -174,6 +185,9 @@ namespace Desolate::Factory
         supplyIndicator->valuePtr = &Outpost->getComponent<SupplyReplenishComponent>()->replenishRange;
         Outpost->addComponent<VisibilityComponent>(OUTPOST_VIEW_RANGE, 0.f);
 
+        Outpost->getComponent<CircleRenderComponent>()->clipViewport = clipViewport;
+        supplyIndicator->clipViewport = clipViewport;
+
         return Outpost;
     }
 
@@ -189,7 +203,7 @@ namespace Desolate::Factory
         return FogofWarEntity;
     }
 
-    inline Entity* createTerritorialEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float patrolSpeed, float patrolRadius, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID, float timeToAppear, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol)
+    inline Entity* createTerritorialEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float patrolSpeed, float patrolRadius, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID, float timeToAppear, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol, sf::FloatRect clipViewport)
     {
         Entity* Territorial = new Entity();
         Territorial->type = EntityType::Territorial;
@@ -213,10 +227,13 @@ namespace Desolate::Factory
         Territorial->addComponent<FactionComponent>(ID);
         Territorial->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
 
+        Territorial->getComponent<CircleRenderComponent>()->clipViewport = clipViewport;
+        territorialRing->clipViewport = clipViewport;
+
         return Territorial;
     }
 
-    inline Entity* createLurkerEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float patrolSpeed, float patrolRadius, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, float aggroRng, float deAggroRng, float deAggroCD, float arrivalDist, float visibilityRng, float timeToAppear, float ID, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol)
+    inline Entity* createLurkerEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float patrolSpeed, float patrolRadius, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, float aggroRng, float deAggroRng, float deAggroCD, float arrivalDist, float visibilityRng, float timeToAppear, float ID, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol, sf::FloatRect clipViewport)
     {
         Entity* Lurker = new Entity();
         Lurker->type = EntityType::Lurker;
@@ -238,10 +255,13 @@ namespace Desolate::Factory
         Lurker->addComponent<FactionComponent>(ID);
         Lurker->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
 
+        Lurker->getComponent<CircleRenderComponent>()->clipViewport = clipViewport;
+        lurkerRing->clipViewport = clipViewport;
+
         return Lurker;
     }
 
-    inline Entity* createHunterEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float baseSpeed, float maxSpeed, float rampTime, float killRange, float viewRng, float timeToAppear, float ID, float minRespawnTime, float maxRespawnTime, float arrivalDist, float maxHealth, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold)
+    inline Entity* createHunterEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float baseSpeed, float maxSpeed, float rampTime, float killRange, float viewRng, float timeToAppear, float ID, float minRespawnTime, float maxRespawnTime, float arrivalDist, float maxHealth, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, sf::FloatRect clipViewport)
     {
         Entity* Hunter = new Entity();
         Hunter->type = EntityType::Hunter;
@@ -259,10 +279,12 @@ namespace Desolate::Factory
         Hunter->addComponent<FactionComponent>(ID);
         Hunter->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
 
+        Hunter->getComponent<CircleRenderComponent>()->clipViewport = clipViewport;
+
         return Hunter;
     }
 
-    inline Entity* createHunterLairEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float viewRng, float timeToAppear)
+    inline Entity* createHunterLairEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float viewRng, float timeToAppear, sf::FloatRect clipViewport)
     {
         Entity* Lair = new Entity();
         Lair->type = EntityType::HunterLair;
@@ -271,6 +293,8 @@ namespace Desolate::Factory
         Lair->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
         Lair->addComponent<HunterLairComponent>();
         Lair->addComponent<VisibilityComponent>(viewRng, timeToAppear);
+
+        Lair->getComponent<CircleRenderComponent>()->clipViewport = clipViewport;
 
         return Lair;
     }
@@ -309,7 +333,7 @@ namespace Desolate::Factory
         return resourceEntity;
     }
 
-    inline Entity* createAirdropEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float triggerRadius, float viewRng, float timeToAppear, ResourceManager* resManager)
+    inline Entity* createAirdropEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float triggerRadius, float viewRng, float timeToAppear, ResourceManager* resManager, sf::FloatRect clipViewport)
     {
         Entity* Airdrop = new Entity();
         Airdrop->type = EntityType::Airdrop;
@@ -332,10 +356,12 @@ namespace Desolate::Factory
             }
         };
 
+        Airdrop->getComponent<CircleRenderComponent>()->clipViewport = clipViewport;
+
         return Airdrop;
     }
 
-    inline Entity* createResourceLocationEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, ResourceType type, int amount, float triggerRadius, float viewRng, float timeToAppear, float decayTime, ResourceManager* resManager)
+    inline Entity* createResourceLocationEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, ResourceType type, int amount, float triggerRadius, float viewRng, float timeToAppear, float decayTime, ResourceManager* resManager, sf::FloatRect clipViewport)
     {
         Entity* ResourceLocation = new Entity();
         ResourceLocation->type = EntityType::ResourceLocation;
@@ -384,6 +410,8 @@ namespace Desolate::Factory
             }
         };
 
+        ResourceLocation->getComponent<CircleRenderComponent>()->clipViewport = clipViewport;
+
         return ResourceLocation;
     }
 
@@ -407,10 +435,10 @@ namespace Desolate::Factory
         float sideX = mapViewWidth;
         float sideW = windowWidth - mapViewWidth;
 
-        float buttonWidth = float(int(sideW * 0.15f + 0.5f));
-        float buttonHeight = float(int(barH * 0.35f + 0.5f));
-        float subButtonWidth = float(int(sideW * 0.12f + 0.5f));
-        float subButtonHeight = float(int(barH * 0.22f + 0.5f));
+        float buttonWidth = float(int(sideW * 0.28f + 0.5f));
+        float buttonHeight = float(int(barH * 0.12f + 0.5f));
+        float subButtonWidth = float(int(sideW * 0.18f + 0.5f));
+        float subButtonHeight = float(int(barH * 0.12f + 0.5f));
 
         int btnFontSize = int(barH * 0.12f + 0.5f);
         int numFontSize = int(barH * 0.16f + 0.5f);
@@ -423,9 +451,9 @@ namespace Desolate::Factory
         float col5X = mapViewWidth * 0.443f;
         float col6X = mapViewWidth * 0.495f;
         float upgradeX = mapViewWidth * 0.550f;
-        float subBtn1X = mapViewWidth * 0.602f;
-        float subBtn2X = mapViewWidth * 0.654f;
-        float subBtn3X = mapViewWidth * 0.706f;
+        float subBtn1X = mapViewWidth * 0.575f;
+        float subBtn2X = mapViewWidth * 0.645f;
+        float subBtn3X = mapViewWidth * 0.715f;
 
         float row1Y = barY + barH * 0.25f;
         float row2Y = barY + barH * 0.50f;
@@ -447,7 +475,7 @@ namespace Desolate::Factory
         metalBtnShape->setPosition(sf::Vector2f(col1X, row2Y));
         metalBtnShape->setFillColor(sf::Color::Yellow);
         metalBtnShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
-        UIEntity->addComponent<ButtonComponent>(metalBtnShape, "Metal", fontLetters, [resManager](Context&) { resManager->addMetal(10); }, btnFontSize);
+        UIEntity->addComponent<ButtonComponent>(metalBtnShape, "Metal", fontLetters, [resManager](Context&) { resManager->addMetal(10); }, RESOURCE_DIR "/textures/button.png", btnFontSize);
     
 
     
@@ -455,7 +483,7 @@ namespace Desolate::Factory
         foodBtnShape->setPosition(sf::Vector2f(col2X, row2Y));
         foodBtnShape->setFillColor(sf::Color(100, 200, 100));
         foodBtnShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
-        UIEntity->addComponent<ButtonComponent>(foodBtnShape, "Food", fontLetters, [resManager](Context&) { resManager->addFood(10); }, btnFontSize);
+        UIEntity->addComponent<ButtonComponent>(foodBtnShape, "Food", fontLetters, [resManager](Context&) { resManager->addFood(10); }, RESOURCE_DIR "/textures/button.png", btnFontSize);
     
 
         auto* workingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col4X, row1Y), fontNumbers, numFontSize);
@@ -487,7 +515,7 @@ namespace Desolate::Factory
         peopleBtnShape->setPosition(sf::Vector2f(col3X, row2Y));
         peopleBtnShape->setFillColor(sf::Color::Cyan);
         peopleBtnShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
-        UIEntity->addComponent<ButtonComponent>(peopleBtnShape, "KICK OUT", fontLetters, [resManager](Context&) { resManager->addPeople(-1); }, btnFontSize);
+        UIEntity->addComponent<ButtonComponent>(peopleBtnShape, "KICK OUT", fontLetters, [resManager](Context&) { resManager->addPeople(-1); }, RESOURCE_DIR "/textures/button.png", btnFontSize);
     
 
         auto* questHud = UIEntity->addComponent<QuestHudComponent>(sf::Vector2f(sideX + sideW * 0.5f, barY + barH * 0.5f), fontLetters, fontNumbers, questSystem, smallFontSize, barH * 0.12f);
@@ -509,7 +537,7 @@ namespace Desolate::Factory
                     if (auto* scan = e->getComponent<AreaScanComponent>())
                         scan->viewBuff += 50.f;
                 }
-            }, btnFontSize);
+            }, RESOURCE_DIR "/textures/button.png", btnFontSize);
 
         viewRngBtn->hitboxShape->setPosition(sf::Vector2f(subBtn1X, barY + barH * 0.55f));
         viewRngBtn->hitboxShape->setFillColor(sf::Color(100, 100, 200));
@@ -530,7 +558,7 @@ namespace Desolate::Factory
                         if (auto* hp = e->getComponent<HealthComponent>())
                             hp->changeMaxHP(50.f);
                 }
-            }, btnFontSize);
+            }, RESOURCE_DIR "/textures/button.png", btnFontSize);
 
         maxHpBtn->hitboxShape->setPosition(sf::Vector2f(subBtn2X, barY + barH * 0.55f));
         maxHpBtn->hitboxShape->setFillColor(sf::Color(200, 80, 80));
@@ -552,7 +580,7 @@ namespace Desolate::Factory
                     if (auto* supply = e->getComponent<SupplyComponent>())
                         supply->changeMaxSupply(50.f);
                 }
-            }, btnFontSize);
+            }, RESOURCE_DIR "/textures/button.png", btnFontSize);
 
         supplyBtn->hitboxShape->setPosition(sf::Vector2f(subBtn3X, barY + barH * 0.55f));
         supplyBtn->hitboxShape->setFillColor(sf::Color(80, 180, 80));
@@ -575,7 +603,7 @@ namespace Desolate::Factory
                     if(auto* attack = e->getComponent<AttackComponent>())
                         attack->changeDamage(25.f);
                 }
-            }, btnFontSize);
+            }, RESOURCE_DIR "/textures/button.png", btnFontSize);
 
         dmgBtn->hitboxShape->setPosition(sf::Vector2f(subBtn1X, barY + barH * 0.71f));
         dmgBtn->hitboxShape->setFillColor(sf::Color(220, 140, 40));
@@ -597,7 +625,7 @@ namespace Desolate::Factory
                     if(auto* attack = e->getComponent<AttackComponent>())
                         attack->changeAttackRange(25.f);
                 }
-            }, btnFontSize);
+            }, RESOURCE_DIR "/textures/button.png", btnFontSize);
 
         rangeBtn->hitboxShape->setPosition(sf::Vector2f(subBtn2X, barY + barH * 0.71f));
         rangeBtn->hitboxShape->setFillColor(sf::Color(200, 150, 50));
@@ -615,9 +643,9 @@ namespace Desolate::Factory
                 if(resManager->foodConsumptionRate < 0.f) resManager->foodConsumptionRate = 0.f;
                 resManager->increasedConsumptionRate -= 0.15f;
                 if(resManager->increasedConsumptionRate < 0.f) resManager->increasedConsumptionRate = 0.f;
-            }, btnFontSize);
+            }, RESOURCE_DIR "/textures/button.png", btnFontSize);
 
-        foodBtn->hitboxShape->setPosition(sf::Vector2f(subBtn2X, barY + barH * 0.71f));
+        foodBtn->hitboxShape->setPosition(sf::Vector2f(subBtn3X, barY + barH * 0.71f));
         foodBtn->hitboxShape->setFillColor(sf::Color(150, 200, 60));
         foodBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         foodBtn->disable();
@@ -630,7 +658,7 @@ namespace Desolate::Factory
                 resManager->metal -= 35;
                 resManager->upgradeMetalProductionLevel++;
                 resManager->metalProductionRate += 0.5f;
-            }, btnFontSize);
+            }, RESOURCE_DIR "/textures/button.png", btnFontSize);
             
         metalBtn->hitboxShape->setPosition(sf::Vector2f(subBtn3X, barY + barH * 0.87f));
         metalBtn->hitboxShape->setFillColor(sf::Color(200, 170, 30));
@@ -652,7 +680,7 @@ namespace Desolate::Factory
                 rangeBtn->toggle();
                 foodBtn->toggle();
                 metalBtn->toggle();
-            }, btnFontSize);
+            }, RESOURCE_DIR "/textures/button.png", btnFontSize);
 
         return UIEntity;
     }
@@ -675,19 +703,19 @@ namespace Desolate::Factory
         playShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.35f));
         playShape->setFillColor(sf::Color(80, 200, 80));
         playShape->setOrigin(sf::Vector2f(menuButtonWidth / 2.f, menuButtonHeight / 2.f));
-        MenuUI->addComponent<ButtonComponent>(playShape, "PLAY", font, onPlay, menuFontSize);
+        MenuUI->addComponent<ButtonComponent>(playShape, "PLAY", font, onPlay, RESOURCE_DIR "/textures/button.png", menuFontSize);
 
         auto* settingsShape = new sf::RectangleShape(sf::Vector2f(menuButtonWidth, menuButtonHeight));
         settingsShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.50f));
         settingsShape->setFillColor(sf::Color(100, 100, 200));
         settingsShape->setOrigin(sf::Vector2f(menuButtonWidth / 2.f, menuButtonHeight / 2.f));
-        MenuUI->addComponent<ButtonComponent>(settingsShape, "SETTINGS", font, onSettings, menuFontSize);
+        MenuUI->addComponent<ButtonComponent>(settingsShape, "SETTINGS", font, onSettings, RESOURCE_DIR "/textures/button.png", menuFontSize);
 
         auto* exitShape = new sf::RectangleShape(sf::Vector2f(menuButtonWidth, menuButtonHeight));
         exitShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.65f));
         exitShape->setFillColor(sf::Color(200, 80, 80));
         exitShape->setOrigin(sf::Vector2f(menuButtonWidth / 2.f, menuButtonHeight / 2.f));
-        MenuUI->addComponent<ButtonComponent>(exitShape, "EXIT", font, onExit, menuFontSize);
+        MenuUI->addComponent<ButtonComponent>(exitShape, "EXIT", font, onExit, RESOURCE_DIR "/textures/button.png", menuFontSize);
 
         return MenuUI;
     }
@@ -704,7 +732,7 @@ namespace Desolate::Factory
         return audioEntity;
     }
 
-    inline Entity* createRadioEntity(WorldComponent* world, const sf::Font& fontNumbers, const sf::Font& fontLetters, ResourceManager* resManager, float windowWidth, float windowHeight)
+    inline Entity* createRadioEntity(WorldComponent* world, const sf::Font& fontNumbers, const sf::Font& fontLetters, ResourceManager* resManager, float windowWidth, float windowHeight, sf::FloatRect clipViewport)
     {
         Entity* Radio = new Entity();
         Radio->type = EntityType::Radio;
@@ -718,21 +746,21 @@ namespace Desolate::Factory
 
         Radio->addComponent<RectRenderComponent>(sf::Vector2f(0, 0), sf::Vector2f(500.f, 750.f), sf::Color::White, RESOURCE_DIR "/textures/radio.png");
 
-        int* frequencyPtr = new int(30);
+        float* frequencyPtr = new float(30.f);
 
         auto* knobDisplay = Radio->addComponent<NumberComponent>(sf::Vector2f(-30.f, -40.f), fontNumbers, numFontSize);
-        knobDisplay->valuePtr = frequencyPtr;
+        knobDisplay->floatSource = frequencyPtr;
 
         Radio->addComponent<TextComponent>(sf::Vector2f(30.f, -40.f), "FM", fontLetters, smallFontSize);
 
         float knobRadius = 40.f;
         auto* knobShape = new sf::CircleShape(knobRadius);
-        knobShape->setPosition(sf::Vector2f(0, -280.f));
+        knobShape->setPosition(sf::Vector2f(0, -150.f));
         knobShape->setFillColor(sf::Color::Transparent);
         knobShape->setOutlineThickness(0.f);
         knobShape->setOrigin(sf::Vector2f(knobRadius, knobRadius));
 
-        auto* knob = Radio->addComponent<KnobComponent>(frequencyPtr, 30, 88, 100.f);
+        auto* knob = Radio->addComponent<KnobComponent>(frequencyPtr, 30.f, 88.f, 100.f);
         knob->hitboxShape = knobShape;
 
         Radio->addComponent<AudioComponent>(
@@ -746,11 +774,11 @@ namespace Desolate::Factory
         auto* radioHandler = Radio->addComponent<RadioEventHandler>(frequencyPtr);
 
         auto* airdropRadioEvent = new AirdropRadioEvent(
-            50, 5, 100.f, 5.f,
+            50.f, 5.f, 100.f, 5.f,
             sf::Vector2f(600.f, 400.f),
             AIRDROP_COLOUR, AIRDROP_RADIUS, AIRDROP_TRIGGER_RADIUS,
             AIRDROP_VIEW_RANGE, AIRDROP_TIME_TO_APPEAR,
-            resManager, world, 30, 88
+            resManager, world, clipViewport, 30.f, 88.f
     );
 
         radioHandler->addEvent(airdropRadioEvent);

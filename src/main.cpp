@@ -11,13 +11,16 @@ int main()
 	sf::RenderWindow window(desktopMode, "Desolate", sf::Style::None);
 	window.setFramerateLimit(60);
 
-	sf::Vector2u windowSize = window.getSize();
-	sf::View gameView(sf::FloatRect({0.f, 0.f}, {(float)windowSize.x, (float)windowSize.y}));
-	window.setView(gameView);
-
 	SettingsState settingsState{desktopMode};
 	settingsState.load("settings.txt");
+
+	if (settingsState.fullscreen)
+		window.create(settingsState.videoMode, "Desolate", sf::State::Fullscreen);
+	else
+		window.create(settingsState.videoMode, "Desolate", sf::Style::None, sf::State::Windowed);
 	window.setFramerateLimit((unsigned int)settingsState.fpsLimit);
+
+	window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {(float)settingsState.videoMode.size.x, (float)settingsState.videoMode.size.y})));
 
 	sf::Font digitalFont;
 	sf::Font ledFont;
@@ -115,11 +118,36 @@ int main()
 			{
 				settingsState.pendingResolutionChange = false;
 
-				window.create(settingsState.videoMode, "Desolate", sf::Style::None);
+				if (settingsState.fullscreen)
+					window.create(settingsState.videoMode, "Desolate", sf::State::Fullscreen);
+				else
+					window.create(settingsState.videoMode, "Desolate", sf::Style::None, sf::State::Windowed);
 				window.setFramerateLimit((unsigned int)settingsState.fpsLimit);
 
-				sf::Vector2u newWindowSize = window.getSize();
-				window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {(float)newWindowSize.x, (float)newWindowSize.y})));
+				window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {(float)settingsState.videoMode.size.x, (float)settingsState.videoMode.size.y})));
+
+				sceneStack.clear();
+
+				sceneStack.push(Desolate::SceneFactory::createMenuScene(
+					&window, &input, ledFont, digitalFont, ledFont, erodeFont, &sceneStack, &settingsState));
+
+				sceneStack.push(Desolate::SceneFactory::createSettingsScene(
+					&window, &input, digitalFont, &settingsState, &sceneStack));
+
+				settingsState.save("settings.txt");
+			}
+
+			if (settingsState.pendingFullscreenChange)
+			{
+				settingsState.pendingFullscreenChange = false;
+
+				if (settingsState.fullscreen)
+					window.create(settingsState.videoMode, "Desolate", sf::State::Fullscreen);
+				else
+					window.create(settingsState.videoMode, "Desolate", sf::Style::None, sf::State::Windowed);
+				window.setFramerateLimit((unsigned int)settingsState.fpsLimit);
+
+				window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {(float)settingsState.videoMode.size.x, (float)settingsState.videoMode.size.y})));
 
 				sceneStack.clear();
 

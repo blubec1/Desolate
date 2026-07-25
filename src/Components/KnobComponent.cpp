@@ -2,6 +2,7 @@
 #include "context.hpp"
 #include "input.hpp"
 #include "Entity.hpp"
+#include <cmath>
 
 void KnobComponent::update(Context& context)
 {
@@ -39,7 +40,7 @@ void KnobComponent::update(Context& context)
 
                 float t = currentDist / maxDistance;
 
-                *valuePtr = static_cast<int>(minValue + t * (maxValue - minValue));
+                *valuePtr = std::round((minValue + t * (maxValue - minValue)) * 10.f) / 10.f;
                 lastMousePos = mousePos;
             }
         }

@@ -1,15 +1,35 @@
 #include "Components/RadiusIndicatorComponent.hpp"
 #include "Components/VisibilityComponent.hpp"
+#include "Components/WorldPositionComponent.hpp"
 #include "Entity.hpp"
 #include <cmath>
 #include <numbers>
+
+void RadiusIndicatorComponent::applyClip(sf::RenderTarget& target) {
+    if (clipViewport.has_value()) {
+        savedView = target.getView();
+        sf::View view = savedView;
+        view.setViewport(clipViewport.value());
+        target.setView(view);
+    }
+}
+
+void RadiusIndicatorComponent::restoreClip(sf::RenderTarget& target) {
+    if (clipViewport.has_value()) target.setView(savedView);
+}
 
 void RadiusIndicatorComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
 {
     if (owner == nullptr || valuePtr == nullptr) return;
 
+    applyClip(target);
+
     float radius = *valuePtr;
-    if (radius <= 0.f) return;
+    if (radius <= 0.f) { restoreClip(target); return; }
+
+    float scale = 1.f;
+    if (auto* wp = owner->getComponent<WorldPositionComponent>())
+        if (wp->world) scale = wp->world->getScale();
 
     sf::Color drawColor = color;
 
@@ -19,8 +39,10 @@ void RadiusIndicatorComponent::draw(sf::RenderTarget& target, sf::RenderStates s
 
     states.transform.translate(owner->position);
 
-    float inner = radius - thickness / 2.f;
-    float outer = radius + thickness / 2.f;
+    float sRadius = radius * scale;
+    float sThickness = thickness * scale;
+    float inner = sRadius - sThickness / 2.f;
+    float outer = sRadius + sThickness / 2.f;
 
     sf::VertexArray va(sf::PrimitiveType::TriangleStrip, (segments + 1) * 2);
 
@@ -37,4 +59,6 @@ void RadiusIndicatorComponent::draw(sf::RenderTarget& target, sf::RenderStates s
     }
 
     target.draw(va, states);
+
+    restoreClip(target);
 }

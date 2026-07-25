@@ -4,6 +4,19 @@
 #include "input.hpp"
 #include "Components/AudioSystemComponent.hpp"
 
+ButtonComponent::ButtonComponent(sf::Shape* shape, const std::string& text, const sf::Font& font, std::function<void(Context&)> callback, const std::string& texturePath, int fontSize)
+    : hitboxShape(shape), label(font, text, fontSize), onClick(callback)
+{
+    label.setFillColor(sf::Color::White);
+    sf::FloatRect textBounds = label.getLocalBounds();
+    label.setOrigin(sf::Vector2f(textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f));
+    if (!texturePath.empty() && texture.loadFromFile(texturePath))
+    {
+        hasTexture = true;
+        hitboxShape->setFillColor(sf::Color::Transparent);
+    }
+}
+
 void ButtonComponent::update(Context& context)
 {
     sf::Vector2f mousePos = sf::Vector2f(context.input->mousePos);
@@ -29,6 +42,16 @@ void ButtonComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
     states.transform.translate(owner->position);
 
     sf::FloatRect bounds = hitboxShape->getGlobalBounds();
+
+    if (hasTexture)
+    {
+        sf::Sprite sprite(texture);
+        sprite.setPosition(sf::Vector2f(bounds.position.x, bounds.position.y));
+        sprite.setScale(sf::Vector2f(
+            bounds.size.x / static_cast<float>(texture.getSize().x),
+            bounds.size.y / static_cast<float>(texture.getSize().y)));
+        target.draw(sprite, states);
+    }
 
     sf::Vector2f center(bounds.position.x + bounds.size.x / 2.f, bounds.position.y + bounds.size.y / 2.f);
 

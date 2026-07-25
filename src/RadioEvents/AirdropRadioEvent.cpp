@@ -6,6 +6,8 @@
 #include "context.hpp"
 #include "Entity.hpp"
 #include <cstdlib>
+#include <cmath>
+#include <vector>
 
 static void extractDigits(int n, int* out, int& count)
 {
@@ -84,7 +86,7 @@ void AirdropRadioEvent::playStep(Context& context)
 
 void AirdropRadioEvent::onInit()
 {
-    airdropEntity = Desolate::Factory::createAirdropEntity(world, spawnPosition, colour, radius, triggerRadius, viewRange, timeToAppear, resManager);
+    airdropEntity = Desolate::Factory::createAirdropEntity(world, spawnPosition, colour, radius, triggerRadius, viewRange, timeToAppear, resManager, clipViewport);
     airdropEntity->addComponent<DecayTimerComponent>(decayCooldown);
     hasSpawned = false;
     respawnTimer = respawnCooldown;
@@ -94,7 +96,7 @@ void AirdropRadioEvent::onInit()
         playStep(*contextPtr);
 }
 
-void AirdropRadioEvent::onTrigger(int playerFreq, Context& context)
+void AirdropRadioEvent::onTrigger(float playerFreq, Context& context)
 {
     if (context.isEntityValid(airdropEntity))
     {
@@ -119,18 +121,18 @@ void AirdropRadioEvent::onUpdate(Context& context)
         {
             airdropEntity = nullptr;
 
-            int newFreq;
+            float newFreq;
 
-            std::vector<std::pair<int, int>> availableRanges = {{minFrequency, maxFrequency}};
+            std::vector<std::pair<float, float>> availableRanges = {{minFrequency, maxFrequency}};
 
             for (auto& [freq, event] : owner->events)
             {
                 if (event == this) continue;
 
-                int oLow  = freq - event->tolerance - this->tolerance;
-                int oHigh = freq + event->tolerance + this->tolerance;
+                float oLow  = freq - event->tolerance - this->tolerance;
+                float oHigh = freq + event->tolerance + this->tolerance;
 
-                std::vector<std::pair<int, int>> nextRanges;
+                std::vector<std::pair<float, float>> nextRanges;
                 for (auto& [aLow, aHigh] : availableRanges)
                 {
                     if (oHigh < aLow || oLow > aHigh)
@@ -140,9 +142,9 @@ void AirdropRadioEvent::onUpdate(Context& context)
                     else
                     {
                         if (aLow < oLow)
-                            nextRanges.push_back({aLow, oLow - 1});
+                            nextRanges.push_back({aLow, oLow - 0.1f});
                         if (aHigh > oHigh)
-                            nextRanges.push_back({oHigh + 1, aHigh});
+                            nextRanges.push_back({oHigh + 0.1f, aHigh});
                     }
                 }
                 availableRanges = nextRanges;
@@ -154,16 +156,20 @@ void AirdropRadioEvent::onUpdate(Context& context)
             }
             else
             {
-                int total = 0;
+                int totalSteps = 0;
                 for (auto& [lo, hi] : availableRanges)
-                    total += hi - lo + 1;
+                    totalSteps += static_cast<int>(std::round((hi - lo) * 10.f)) + 1;
 
-                int pick = std::rand() % total;
+                int pick = std::rand() % totalSteps;
                 for (auto& [lo, hi] : availableRanges)
                 {
-                    int size = hi - lo + 1;
-                    if (pick < size) { newFreq = lo + pick; break; }
-                    pick -= size;
+                    int steps = static_cast<int>(std::round((hi - lo) * 10.f)) + 1;
+                    if (pick < steps)
+                    {
+                        newFreq = std::round((lo + pick * 0.1f) * 10.f) / 10.f;
+                        break;
+                    }
+                    pick -= steps;
                 }
             }
 
@@ -173,7 +179,7 @@ void AirdropRadioEvent::onUpdate(Context& context)
         return;
     }
 
-    int currentFreq = *owner->playerFrequencyPtr;
+    float currentFreq = *owner->playerFrequencyPtr;
     bool isInRange = std::abs(currentFreq - secretFrequency) <= tolerance;
 
     if (pauseTimer > 0.f)
@@ -191,8 +197,8 @@ void AirdropRadioEvent::onUpdate(Context& context)
     {
         if (isInRange)
         {
-            int diff = std::abs(currentFreq - secretFrequency);
-            float proximity = 1.f - static_cast<float>(diff) / tolerance;
+            float diff = std::abs(currentFreq - secretFrequency);
+            float proximity = 1.f - diff / tolerance;
             currentSound->setVolume(proximity * context.radioVolume * context.masterVolume / 100.f);
         }
         else

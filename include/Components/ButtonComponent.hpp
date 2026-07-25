@@ -17,15 +17,12 @@ public:
     sf::Color hoverBorderColor = sf::Color::Yellow;
     sf::Color pressedBorderColor = sf::Color::Red;
 
+    sf::Texture texture;
+    bool hasTexture = false;
+
     ~ButtonComponent() override { delete hitboxShape; }
 
-    ButtonComponent(sf::Shape* shape, const std::string& text, const sf::Font& font, std::function<void(Context&)> callback, int fontSize = 24)
-    : hitboxShape(shape), label(font, text, fontSize), onClick(callback)
-    {
-        label.setFillColor(sf::Color::White);
-        sf::FloatRect textBounds = label.getLocalBounds();
-        label.setOrigin(sf::Vector2f(textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f));
-    }
+    ButtonComponent(sf::Shape* shape, const std::string& text, const sf::Font& font, std::function<void(Context&)> callback, const std::string& texturePath = "", int fontSize = 24);
 
     void update(Context& context) override;
     void draw(sf::RenderTarget& target, sf::RenderStates states) override;

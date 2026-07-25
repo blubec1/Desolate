@@ -1,5 +1,6 @@
 #include "Components/NumberComponent.hpp"
 #include "context.hpp"
+#include <cstdio>
 
 void NumberComponent::changeNumber(int number)
 {
@@ -9,7 +10,11 @@ void NumberComponent::changeNumber(int number)
 void NumberComponent::update(Context& context)
 {
     if (floatSource)
-        changeNumber((int)*floatSource);
+    {
+        char buf[16];
+        std::snprintf(buf, sizeof(buf), "%.1f", *floatSource);
+        text.setString(buf);
+    }
     else if (valuePtr)
         changeNumber(*valuePtr);
 }

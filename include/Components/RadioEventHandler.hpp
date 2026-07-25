@@ -1,6 +1,6 @@
 #pragma once
 #include "Component.hpp"
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 class Entity;
@@ -22,9 +22,9 @@ struct RadioEventAction
     union
     {
         RadioEvent* event;
-        int frequency;
+        float frequency;
     };
-    int newFrequency = 0;
+    float newFrequency = 0.f;
 };
 
 class RadioEvent
@@ -32,8 +32,8 @@ class RadioEvent
 public:
     RadioEventHandler* owner = nullptr;
 
-    int secretFrequency;
-    int tolerance;
+    float secretFrequency;
+    float tolerance;
     bool wasInRange = false;
     bool continuousTrigger = false;
 
@@ -42,10 +42,10 @@ public:
     RadioEvent() = default;
     virtual ~RadioEvent() = default;
 
-    RadioEvent(int secretFrequency, int tolerance)
+    RadioEvent(float secretFrequency, float tolerance)
         : secretFrequency(secretFrequency), tolerance(tolerance) {}
 
-    virtual void onTrigger(int playerFreq, Context& context) {}
+    virtual void onTrigger(float playerFreq, Context& context) {}
     virtual void onUpdate(Context& context) {}
     virtual void onInit() {}
 };
@@ -53,16 +53,16 @@ public:
 class RadioEventHandler : public Component
 {
 public:
-    int* playerFrequencyPtr;
-    std::unordered_map<int, RadioEvent*> events;
+    float* playerFrequencyPtr;
+    std::map<float, RadioEvent*> events;
     std::vector<RadioEventAction> pendingAction;
 
-    RadioEventHandler(int* freqPtr) : playerFrequencyPtr(freqPtr) {}
+    RadioEventHandler(float* freqPtr) : playerFrequencyPtr(freqPtr) {}
     ~RadioEventHandler();
 
     void addEvent(RadioEvent* event);
-    void removeEvent(int secretFrequency);
-    void changeEventFrequency(int secretFrequency, int newFrequency);
+    void removeEvent(float secretFrequency);
+    void changeEventFrequency(float secretFrequency, float newFrequency);
 
     virtual void update(Context& context) override;
 

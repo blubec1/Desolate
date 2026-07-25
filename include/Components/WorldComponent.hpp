@@ -31,4 +31,9 @@ class WorldComponent : public Component
             mapArea.position.y + (screenPos.y - projectionArea.position.y) * (mapArea.size.y / projectionArea.size.y)
         );
     }
+
+    float getScale() const
+    {
+        return projectionArea.size.x / mapArea.size.x;
+    }
 };

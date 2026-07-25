@@ -7,6 +7,7 @@ class HearComponent : public Component
 {
     public:
     float hearRange;
+    std::set<int> enemies;
     std::set<Entity*> previouslyHeard;
 
     HearComponent(float range = STANDARD_HEAR_RANGE) : hearRange(range) {}

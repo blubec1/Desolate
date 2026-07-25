@@ -22,7 +22,11 @@ void HearComponent::update(Context& context)
         if (entity == owner || !context.isEntityValid(entity)) continue;
 
         auto* targetFaction = entity->getComponent<FactionComponent>();
-        if (!targetFaction || targetFaction->FactionID == ownerFaction->FactionID) continue;
+        if (!targetFaction) continue;
+        if (enemies.empty()
+            ? targetFaction->FactionID == ownerFaction->FactionID
+            : !enemies.contains(targetFaction->FactionID))
+            continue;
 
         auto* visComponent = entity->getComponent<VisibilityComponent>();
         if (!visComponent) continue;

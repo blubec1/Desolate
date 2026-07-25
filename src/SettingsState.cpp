@@ -33,6 +33,8 @@ void SettingsState::load(const std::string& path)
             sfxVolume = std::stof(val);
         else if (key == "voicelineVolume")
             voicelineVolume = std::stof(val);
+        else if (key == "fullscreen")
+            fullscreen = (val == "1");
     }
 }
 
@@ -46,4 +48,5 @@ void SettingsState::save(const std::string& path) const
     file << "radioVolume=" << (int)radioVolume << "\n";
     file << "sfxVolume=" << (int)sfxVolume << "\n";
     file << "voicelineVolume=" << (int)voicelineVolume << "\n";
+    file << "fullscreen=" << (fullscreen ? "1" : "0") << "\n";
 }

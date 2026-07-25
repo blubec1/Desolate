@@ -32,7 +32,7 @@ class AirdropRadioEvent : public RadioEvent
 public:
     Entity* airdropEntity = nullptr;
     float decayCooldown;
-    int minFrequency, maxFrequency;
+    float minFrequency, maxFrequency;
 
     bool hasSpawned = false;
     bool expired = true;
@@ -45,6 +45,7 @@ public:
     float radius, triggerRadius, viewRange, timeToAppear;
     ResourceManager* resManager;
     WorldComponent* world;
+    sf::FloatRect clipViewport;
 
     static constexpr float STEP_DELAY = 0.5f;
 
@@ -56,14 +57,14 @@ public:
     void buildSteps();
     void playStep(Context& context);
 
-    AirdropRadioEvent(int secretFrequency, int tolerance, float decayCooldown, float respawnCooldown, sf::Vector2f spawnPos, sf::Color colour, float radius, float triggerRadius, float viewRange, float timeToAppear, ResourceManager* resManager, WorldComponent* world, int minFreq = 33, int maxFreq = 80)
-    : RadioEvent(secretFrequency, tolerance),  decayCooldown(decayCooldown), respawnCooldown(respawnCooldown), spawnPosition(spawnPos), colour(colour), radius(radius), triggerRadius(triggerRadius), viewRange(viewRange), timeToAppear(timeToAppear), resManager(resManager), world(world), minFrequency(minFreq), maxFrequency(maxFreq)
+    AirdropRadioEvent(float secretFrequency, float tolerance, float decayCooldown, float respawnCooldown, sf::Vector2f spawnPos, sf::Color colour, float radius, float triggerRadius, float viewRange, float timeToAppear, ResourceManager* resManager, WorldComponent* world, sf::FloatRect clipViewport, float minFreq = 33.f, float maxFreq = 80.f)
+    : RadioEvent(secretFrequency, tolerance),  decayCooldown(decayCooldown), respawnCooldown(respawnCooldown), spawnPosition(spawnPos), colour(colour), radius(radius), triggerRadius(triggerRadius), viewRange(viewRange), timeToAppear(timeToAppear), resManager(resManager), world(world), clipViewport(clipViewport), minFrequency(minFreq), maxFrequency(maxFreq)
     {
         respawnTimer = respawnCooldown;
         continuousTrigger = true;
     }
 
     void onInit() override;
-    void onTrigger(int playerFreq, Context& context) override;
+    void onTrigger(float playerFreq, Context& context) override;
     void onUpdate(Context& context) override;
 };

@@ -19,15 +19,14 @@
 
 namespace Desolate::SceneFactory
 {
-    inline Scene* createPlayScene(sf::RenderWindow* window, Input* input, const sf::Font& digitalFont, const sf::Font& ledFont)
+    inline Scene* createPlayScene(sf::RenderWindow* window, Input* input, const sf::Font& digitalFont, const sf::Font& ledFont, SettingsState* settingsState)
     {
         Scene* scene = new Scene(window, input);
         Context& context = scene->context;
         scene->isEscapable = true;
 
-        sf::Vector2u windowSize = window->getSize();
-        context.windowWidth = (float)windowSize.x;
-        context.windowHeight = (float)windowSize.y;
+        context.windowWidth = (float)settingsState->videoMode.size.x;
+        context.windowHeight = (float)settingsState->videoMode.size.y;
         context.mapViewWidth = context.windowWidth * MAP_VIEW_WIDTH_RATIO;
         context.mapViewHeight = context.windowHeight * MAP_VIEW_HEIGHT_RATIO;
 
@@ -68,23 +67,24 @@ namespace Desolate::SceneFactory
         Entity* ENT_DeathSystem = Desolate::Factory::createDeathSystemEntity();
         Entity* ENT_ProtectionSystem = Desolate::Factory::createProtectionSystemEntity();
         Entity* ENT_FogofWarSystem = Desolate::Factory::createFogofWarEntity();
-        Entity* ENT_Map = Desolate::Factory::createMapEntity(MAP_WIDTH, MAP_HEIGHT, BRUSH_STARTING_RADIUS, MAP_DRAW_COLOUR, MAP_ERASE_COLOUR, TRACED_PATH_NODE_DIST);
+        Entity* ENT_Map = Desolate::Factory::createMapEntity((float)MAP_WIDTH, (float)MAP_HEIGHT, context.mapViewWidth, context.mapViewHeight, BRUSH_STARTING_RADIUS, MAP_DRAW_COLOUR, MAP_ERASE_COLOUR, TRACED_PATH_NODE_DIST);
         context.world = ENT_Map->addComponent<WorldComponent>(
             sf::FloatRect({0.f, 0.f}, {(float)MAP_WIDTH, (float)MAP_HEIGHT}),
             sf::FloatRect({0.f, 0.f}, {context.mapViewWidth, context.mapViewHeight})
         );
-        Entity* ENT_Radio = Desolate::Factory::createRadioEntity(context.world, digitalFont, ledFont, resManager, context.windowWidth, context.windowHeight);
-        Entity* ENT_Wanderer = Desolate::Factory::createWandererEntity(context.world, sf::Vector2f(900.f, 450.f), WANDERER_COLOUR, WANDERER_RADIUS, WANDERER_MOVE_SPEED, WANDERER_CHASE_SPEED, WANDERER_DAMAGE, WANDERER_SHOOT_RANGE, WANDERER_ATTACK_COOLDOWN, WANDERER_MAX_HEALTH, path, WANDERER_AGGRO_RANGE, WANDERER_DE_AGGRO_RANGE, WANDERER_DE_AGGRO_COOLDOWN, STANDARD_VISIBILITY_RANGE, MONSTER_FACTION, WANDERER_TIME_TO_APPEAR, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME);
-        Entity* ENT_Territorial = Desolate::Factory::createTerritorialEntity(context.world, sf::Vector2f(900.f, 225.f), TERRITORIAL_COLOUR, TERRITORIAL_RADIUS, TERRITORIAL_PATROL_SPEED, TERRITORIAL_PATROL_RADIUS, TERRITORIAL_CHASE_SPEED, TERRITORIAL_DAMAGE, TERRITORIAL_SHOOT_RANGE, TERRITORIAL_ATTACK_COOLDOWN, TERRITORIAL_MAX_HEALTH, TERRITORIAL_AGGRO_RANGE, TERRITORIAL_DE_AGGRO_RANGE, TERRITORIAL_DE_AGGRO_COOLDOWN, STANDARD_VISIBILITY_RANGE, MONSTER_FACTION, TERRITORIAL_TIME_TO_APPEAR, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME);
-        Entity* ENT_Outpost = Desolate::Factory::createOutpostEntity(context.world, sf::Vector2f(450.f, 225.f), OUTPOST_COLOUR, OUTPOST_RADIUS, OUTPOST_HEAL_RANGE, OUTPOST_HEAL_PERCENTAGE, OUTPOST_SUPPLY_REPLENISH_RANGE, OUTPOST_SUPPLY_REPLENISH_PERCENTAGE, PLAYER_FACTION, OUTPOST_TRIGGER_RADIUS, SHOCKWAVE_RECHARGE_RANGE, SHOCKWAVE_RECHARGE_RATE, true, true, OUTPOST_PROTECT_RANGE);
-        Entity* ENT_Squad = Desolate::Factory::createSquadEntity(context.world, sf::Vector2f(225.f, 112.f), SQUAD_1_COLOUR, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, context.squadDamage, SQUAD_SHOOT_RANGE, SQUAD_ATTACK_COOLDOWN, context.squadMaxHp, STANDARD_VISIBILITY_RANGE, PLAYER_FACTION, SQUAD_TIME_TO_APPEAR, MONSTER_FACTION, context.squadSupplyMax, SQUAD_SUPPLY_DRAIN_RATE, SQUAD_SUPPLY_HP_DRAIN_PERCENTAGE, SHOCKWAVE_COOLDOWN, SHOCKWAVE_RADIUS, SHOCKWAVE_DEFAULT_MAX_CHARGES, false, false, 0.f, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, 1);
+        sf::FloatRect mapClipViewport({0.f, 0.f}, {context.mapViewWidth / context.windowWidth, context.mapViewHeight / context.windowHeight});
+        Entity* ENT_Radio = Desolate::Factory::createRadioEntity(context.world, digitalFont, ledFont, resManager, context.windowWidth, context.windowHeight, mapClipViewport);
+        Entity* ENT_Wanderer = Desolate::Factory::createWandererEntity(context.world, sf::Vector2f(900.f, 450.f), WANDERER_COLOUR, WANDERER_RADIUS, WANDERER_MOVE_SPEED, WANDERER_CHASE_SPEED, WANDERER_DAMAGE, WANDERER_SHOOT_RANGE, WANDERER_ATTACK_COOLDOWN, WANDERER_MAX_HEALTH, path, WANDERER_AGGRO_RANGE, WANDERER_DE_AGGRO_RANGE, WANDERER_DE_AGGRO_COOLDOWN, STANDARD_VISIBILITY_RANGE, MONSTER_FACTION, WANDERER_TIME_TO_APPEAR, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, mapClipViewport);
+        Entity* ENT_Territorial = Desolate::Factory::createTerritorialEntity(context.world, sf::Vector2f(900.f, 225.f), TERRITORIAL_COLOUR, TERRITORIAL_RADIUS, TERRITORIAL_PATROL_SPEED, TERRITORIAL_PATROL_RADIUS, TERRITORIAL_CHASE_SPEED, TERRITORIAL_DAMAGE, TERRITORIAL_SHOOT_RANGE, TERRITORIAL_ATTACK_COOLDOWN, TERRITORIAL_MAX_HEALTH, TERRITORIAL_AGGRO_RANGE, TERRITORIAL_DE_AGGRO_RANGE, TERRITORIAL_DE_AGGRO_COOLDOWN, STANDARD_VISIBILITY_RANGE, MONSTER_FACTION, TERRITORIAL_TIME_TO_APPEAR, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, mapClipViewport);
+        Entity* ENT_Outpost = Desolate::Factory::createOutpostEntity(context.world, sf::Vector2f(450.f, 225.f), OUTPOST_COLOUR, OUTPOST_RADIUS, OUTPOST_HEAL_RANGE, OUTPOST_HEAL_PERCENTAGE, OUTPOST_SUPPLY_REPLENISH_RANGE, OUTPOST_SUPPLY_REPLENISH_PERCENTAGE, PLAYER_FACTION, OUTPOST_TRIGGER_RADIUS, SHOCKWAVE_RECHARGE_RANGE, SHOCKWAVE_RECHARGE_RATE, true, true, OUTPOST_PROTECT_RANGE, mapClipViewport);
+        Entity* ENT_Squad = Desolate::Factory::createSquadEntity(context.world, sf::Vector2f(225.f, 112.f), SQUAD_1_COLOUR, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, context.squadDamage, SQUAD_SHOOT_RANGE, SQUAD_ATTACK_COOLDOWN, context.squadMaxHp, STANDARD_VISIBILITY_RANGE, PLAYER_FACTION, SQUAD_TIME_TO_APPEAR, MONSTER_FACTION, context.squadSupplyMax, SQUAD_SUPPLY_DRAIN_RATE, SQUAD_SUPPLY_HP_DRAIN_PERCENTAGE, SHOCKWAVE_COOLDOWN, SHOCKWAVE_RADIUS, SHOCKWAVE_DEFAULT_MAX_CHARGES, false, false, 0.f, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, mapClipViewport, 1);
         ENT_Squad->getComponent<AreaScanComponent>()->viewBuff = context.squadViewBuff;
-        Entity* ENT_Squad2 = Desolate::Factory::createSquadEntity(context.world, sf::Vector2f(225.f, 350.f), SQUAD_2_COLOUR, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, context.squadDamage, SQUAD_SHOOT_RANGE, SQUAD_ATTACK_COOLDOWN, context.squadMaxHp, STANDARD_VISIBILITY_RANGE, PLAYER_FACTION, SQUAD_TIME_TO_APPEAR, MONSTER_FACTION, context.squadSupplyMax, SQUAD_SUPPLY_DRAIN_RATE, SQUAD_SUPPLY_HP_DRAIN_PERCENTAGE, SHOCKWAVE_COOLDOWN, SHOCKWAVE_RADIUS, SHOCKWAVE_DEFAULT_MAX_CHARGES, false, false, 0.f, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, 2);
+        Entity* ENT_Squad2 = Desolate::Factory::createSquadEntity(context.world, sf::Vector2f(225.f, 350.f), SQUAD_2_COLOUR, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, context.squadDamage, SQUAD_SHOOT_RANGE, SQUAD_ATTACK_COOLDOWN, context.squadMaxHp, STANDARD_VISIBILITY_RANGE, PLAYER_FACTION, SQUAD_TIME_TO_APPEAR, MONSTER_FACTION, context.squadSupplyMax, SQUAD_SUPPLY_DRAIN_RATE, SQUAD_SUPPLY_HP_DRAIN_PERCENTAGE, SHOCKWAVE_COOLDOWN, SHOCKWAVE_RADIUS, SHOCKWAVE_DEFAULT_MAX_CHARGES, false, false, 0.f, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, mapClipViewport, 2);
         ENT_Squad2->getComponent<AreaScanComponent>()->viewBuff = context.squadViewBuff;
-        Entity* ENT_Lurker = Desolate::Factory::createLurkerEntity(context.world, sf::Vector2f(1350.f, 675.f), LURKER_COLOUR, LURKER_RADIUS, LURKER_PATROL_SPEED, LURKER_PATROL_RADIUS, LURKER_CHASE_SPEED, LURKER_DAMAGE, LURKER_SHOOT_RANGE, LURKER_ATTACK_COOLDOWN, LURKER_MAX_HEALTH, LURKER_AGGRO_RANGE, LURKER_DE_AGGRO_RANGE, LURKER_DE_AGGRO_COOLDOWN, LURKER_ARRIVAL_DISTANCE, LURKER_VISIBILITY_RANGE, LURKER_TIME_TO_APPEAR, MONSTER_FACTION, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME);
-        Entity* ENT_HunterLair1 = Desolate::Factory::createHunterLairEntity(context.world, sf::Vector2f(1575.f, 112.f), HUNTER_LAIR_COLOUR, HUNTER_LAIR_RADIUS, HUNTER_LAIR_VIEW_RANGE, HUNTER_LAIR_TIME_TO_APPEAR);
-        Entity* ENT_HunterLair2 = Desolate::Factory::createHunterLairEntity(context.world, sf::Vector2f(1575.f, 788.f), HUNTER_LAIR_COLOUR, HUNTER_LAIR_RADIUS, HUNTER_LAIR_VIEW_RANGE, HUNTER_LAIR_TIME_TO_APPEAR);
-        Entity* ENT_Hunter = Desolate::Factory::createHunterEntity(context.world, sf::Vector2f(1575.f, 112.f), HUNTER_COLOUR, HUNTER_RADIUS, HUNTER_BASE_SPEED, HUNTER_MAX_SPEED, HUNTER_RAMP_UP_TIME, HUNTER_KILL_RANGE, HUNTER_VIEW_RANGE, HUNTER_TIME_TO_APPEAR, MONSTER_FACTION, HUNTER_MIN_RESPAWN_TIME, HUNTER_MAX_RESPAWN_TIME, 50.f, HUNTER_MAX_HEALTH, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD);
+        Entity* ENT_Lurker = Desolate::Factory::createLurkerEntity(context.world, sf::Vector2f(1350.f, 675.f), LURKER_COLOUR, LURKER_RADIUS, LURKER_PATROL_SPEED, LURKER_PATROL_RADIUS, LURKER_CHASE_SPEED, LURKER_DAMAGE, LURKER_SHOOT_RANGE, LURKER_ATTACK_COOLDOWN, LURKER_MAX_HEALTH, LURKER_AGGRO_RANGE, LURKER_DE_AGGRO_RANGE, LURKER_DE_AGGRO_COOLDOWN, LURKER_ARRIVAL_DISTANCE, LURKER_VISIBILITY_RANGE, LURKER_TIME_TO_APPEAR, MONSTER_FACTION, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, mapClipViewport);
+        Entity* ENT_HunterLair1 = Desolate::Factory::createHunterLairEntity(context.world, sf::Vector2f(1575.f, 112.f), HUNTER_LAIR_COLOUR, HUNTER_LAIR_RADIUS, HUNTER_LAIR_VIEW_RANGE, HUNTER_LAIR_TIME_TO_APPEAR, mapClipViewport);
+        Entity* ENT_HunterLair2 = Desolate::Factory::createHunterLairEntity(context.world, sf::Vector2f(1575.f, 788.f), HUNTER_LAIR_COLOUR, HUNTER_LAIR_RADIUS, HUNTER_LAIR_VIEW_RANGE, HUNTER_LAIR_TIME_TO_APPEAR, mapClipViewport);
+        Entity* ENT_Hunter = Desolate::Factory::createHunterEntity(context.world, sf::Vector2f(1575.f, 112.f), HUNTER_COLOUR, HUNTER_RADIUS, HUNTER_BASE_SPEED, HUNTER_MAX_SPEED, HUNTER_RAMP_UP_TIME, HUNTER_KILL_RANGE, HUNTER_VIEW_RANGE, HUNTER_TIME_TO_APPEAR, MONSTER_FACTION, HUNTER_MIN_RESPAWN_TIME, HUNTER_MAX_RESPAWN_TIME, 50.f, HUNTER_MAX_HEALTH, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, mapClipViewport);
         Entity* ENT_AudioSystem = Desolate::Factory::createAudioSystemEntity(RESOURCE_DIR "/audio");
 
         {
@@ -165,7 +165,7 @@ namespace Desolate::SceneFactory
                 context.world, sf::Vector2f(x, y), colour,
                 RESOURCE_LOCATION_RADIUS, spawn.type, spawn.amount,
                 RESOURCE_LOCATION_TRIGGER_RANGE, RESOURCE_LOCATION_VIEW_RANGE,
-                RESOURCE_LOCATION_TIME_TO_APPEAR, RESOURCE_LOCATION_DECAY_TIME, resManager
+                RESOURCE_LOCATION_TIME_TO_APPEAR, RESOURCE_LOCATION_DECAY_TIME, resManager, mapClipViewport
             );
             context.addEntity(ent);
         }
@@ -180,9 +180,8 @@ namespace Desolate::SceneFactory
         Scene* scene = new Scene(window, input);
         scene->isEscapable = true;
 
-        sf::Vector2u windowSize = window->getSize();
-        float windowWidth = (float)windowSize.x;
-        float windowHeight = (float)windowSize.y;
+        float windowWidth = (float)settingsState->videoMode.size.x;
+        float windowHeight = (float)settingsState->videoMode.size.y;
 
         sf::VideoMode currentMode = settingsState->videoMode;
 
@@ -225,11 +224,25 @@ namespace Desolate::SceneFactory
                 [window, stack, settingsState, input, resolution = resolutions[i]](Context&) {
                     settingsState->videoMode = sf::VideoMode(sf::Vector2u(resolution.width, resolution.height));
                     settingsState->pendingResolutionChange = true;
-                }, settingsFontSize);
+                }, RESOURCE_DIR "/textures/button.png", settingsFontSize);
         }
 
         auto* titleText = ENT_SettingsUI->addComponent<TextComponent>(
             sf::Vector2f(windowWidth / 2.f, windowHeight * 0.18f), "RESOLUTION", font, settingsTitleFontSize);
+
+        // Fullscreen toggle
+        float fullscreenButtonWidth = float(int(windowWidth * 0.115f + 0.5f));
+        float fullscreenButtonHeight = float(int(windowHeight * 0.037f + 0.5f));
+        auto* fsShape = new sf::RectangleShape(sf::Vector2f(fullscreenButtonWidth, fullscreenButtonHeight));
+        fsShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.62f));
+        fsShape->setOrigin(sf::Vector2f(fullscreenButtonWidth / 2.f, fullscreenButtonHeight / 2.f));
+        fsShape->setFillColor(settingsState->fullscreen ? sf::Color(80, 180, 80) : sf::Color(60, 60, 60));
+        ENT_SettingsUI->addComponent<ButtonComponent>(fsShape,
+            settingsState->fullscreen ? "FULLSCREEN: ON" : "FULLSCREEN: OFF", font,
+            [settingsState](Context&) {
+                settingsState->fullscreen = !settingsState->fullscreen;
+                settingsState->pendingFullscreenChange = true;
+            }, RESOURCE_DIR "/textures/button.png", settingsFontSize);
 
         // FPS slider
         float sliderWidth = windowWidth * 0.16f;
@@ -304,7 +317,7 @@ namespace Desolate::SceneFactory
         ENT_SettingsUI->addComponent<ButtonComponent>(crossShape, "X", font,
             [scene](Context&) {
                 scene->pendingPop = true;
-            }, settingsFontSize);
+            }, RESOURCE_DIR "/textures/button.png", settingsFontSize);
 
         scene->context.addEntity(ENT_SettingsUI);
         return scene;
@@ -314,9 +327,8 @@ namespace Desolate::SceneFactory
     {
         Scene* scene = new Scene(window, input);
 
-        sf::Vector2u windowSize = window->getSize();
-        float windowWidth = (float)windowSize.x;
-        float windowHeight = (float)windowSize.y;
+        float windowWidth = (float)settingsState->videoMode.size.x;
+        float windowHeight = (float)settingsState->videoMode.size.y;
 
         Entity* ENT_MenuBg = new Entity();
         ENT_MenuBg->type = EntityType::None;
@@ -331,7 +343,7 @@ namespace Desolate::SceneFactory
 
         Entity* menuUI = Desolate::Factory::createMenuUIEntity(font, erodeFont, windowWidth, windowHeight,
             [=](Context&) {
-                Scene* playScene = createPlayScene(window, input, digitalFont, ledFont);
+                Scene* playScene = createPlayScene(window, input, digitalFont, ledFont, settingsState);
                 stack->push(playScene);
             },
             [=](Context&) {

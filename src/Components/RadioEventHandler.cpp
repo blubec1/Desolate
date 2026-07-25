@@ -20,7 +20,7 @@ void RadioEventHandler::addEvent(RadioEvent* event)
     pendingAction.push_back(action);
 }
 
-void RadioEventHandler::removeEvent(int secretFrequency)
+void RadioEventHandler::removeEvent(float secretFrequency)
 {
     RadioEventAction action;
     action.type = RadioActionType::Remove;
@@ -28,7 +28,7 @@ void RadioEventHandler::removeEvent(int secretFrequency)
     pendingAction.push_back(action);
 }
 
-void RadioEventHandler::changeEventFrequency(int secretFrequency, int newFrequency)
+void RadioEventHandler::changeEventFrequency(float secretFrequency, float newFrequency)
 {
     RadioEventAction action;
     action.type = RadioActionType::Change;
@@ -86,7 +86,7 @@ void RadioEventHandler::update(Context& context)
     if (!playerFrequencyPtr)
         return;
 
-    int currentFreq = *playerFrequencyPtr;
+    float currentFreq = *playerFrequencyPtr;
 
     for (auto& [freq, event] : events)
     {
