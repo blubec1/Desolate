@@ -11,6 +11,8 @@ class Entity;
 class ResourceManager;
 class WorldComponent;
 
+#include "ChunkData.hpp"
+
 class Context : public sf::Drawable
 {
     private:
@@ -33,6 +35,8 @@ class Context : public sf::Drawable
     AudioSystemComponent* audioManager = nullptr;
 
     WorldComponent* world = nullptr;
+
+    std::vector<Desolate::ChunkGen::Chunk> chunks;
 
     float squadMaxHp = 100.f;
     float squadDamage = 10.f;

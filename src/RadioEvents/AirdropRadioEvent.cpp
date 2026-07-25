@@ -101,6 +101,8 @@ void AirdropRadioEvent::onTrigger(float playerFreq, Context& context)
     if (context.isEntityValid(airdropEntity))
     {
         auto visibilityComponent = airdropEntity->getComponent<VisibilityComponent>();
+        visibilityComponent->outOfVision = false;
+        visibilityComponent->timeAppeared = visibilityComponent->timeToAppear;
         visibilityComponent->visionRatio = 1.f;
     }
 }

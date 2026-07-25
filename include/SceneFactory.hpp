@@ -9,6 +9,7 @@
 #include "QuestSystem/Questline.hpp"
 #include "QuestSystem/Nodes/ResourceThresholdQuest.hpp"
 #include "QuestSystem/Nodes/KillCountQuest.hpp"
+#include "QuestSystem/Nodes/ObjectivePickupQuest.hpp"
 #include "Components/QuestSystemComponent.hpp"
 #include "SettingsState.hpp"
 #include "Components/ButtonComponent.hpp"
@@ -55,6 +56,10 @@ namespace Desolate::SceneFactory
             "Clear enemies", "Kill 2 enemies",
             2, static_cast<int>(MONSTER_FACTION),
             ResourceType::Metal, 100));
+        auto* objectiveQuest = new ObjectivePickupQuest(
+            "Find the objective", "Locate and pick up the objective",
+            ResourceType::Metal, 150);
+        questline->addNode(objectiveQuest);
         questSys->addQuestline(questline);
         questSys->startQuestline(0);
 
@@ -97,6 +102,25 @@ namespace Desolate::SceneFactory
         context.addEntity(ENT_Radio);
 
         ChunkGen::generateSceneEntities(context, resManager, mapClipViewport);
+
+        std::vector<Desolate::ChunkGen::Chunk*> tier2Wilderness;
+        for (auto& chunk : context.chunks)
+        {
+            if (chunk.tier == 2 && chunk.type == Desolate::ChunkGen::ChunkType::Wilderness)
+                tier2Wilderness.push_back(&chunk);
+        }
+        if (!tier2Wilderness.empty())
+        {
+            auto pickerRng = Desolate::ChunkGen::makeRng(42, 77, 77);
+            auto* chosen = tier2Wilderness[Desolate::ChunkGen::randomInt(pickerRng, 0, (int)tier2Wilderness.size() - 1)];
+            auto chunkRng = Desolate::ChunkGen::makeRng(42, chosen->gridX, chosen->gridY);
+            sf::Vector2f pos = Desolate::ChunkGen::randomPosInChunk(chunkRng, chosen->bounds);
+            Entity* objective = Desolate::Factory::createObjectiveEntity(
+                context.world, pos, OBJECTIVE_ITEM_COLOUR, OBJECTIVE_ITEM_RADIUS,
+                OBJECTIVE_ITEM_TRIGGER_RANGE, OBJECTIVE_ITEM_VIEW_RANGE,
+                OBJECTIVE_ITEM_TIME_TO_APPEAR, mapClipViewport, objectiveQuest->getCollectedPtr());
+            context.addEntity(objective);
+        }
 
         context.audioManager->playMusic("ambient");
 

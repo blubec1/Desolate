@@ -148,8 +148,7 @@ class MapDrawingComponent : public Component
                                 state = ENT_PATHING;
                                 pathFollowerComponent->currentPath = new TracedPath();
                                 {
-                                    auto* wp = entity->getComponent<WorldPositionComponent>();
-                                    sf::Vector2f pathStart = wp ? wp->position : entity->position;
+                                    sf::Vector2f pathStart = getLogicPosition(entity);
                                     pathFollowerComponent->currentPath->startPath(pathStart, false);
                                 }
                                 selectedEntity = entity;

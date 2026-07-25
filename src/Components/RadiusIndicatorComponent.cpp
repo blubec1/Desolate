@@ -9,6 +9,9 @@ void RadiusIndicatorComponent::applyClip(sf::RenderTarget& target) {
     if (clipViewport.has_value()) {
         savedView = target.getView();
         sf::View view = savedView;
+        auto defaultSize = target.getDefaultView().getSize();
+        view.setSize(sf::Vector2f(clipViewport->size.x * defaultSize.x, clipViewport->size.y * defaultSize.y));
+        view.setCenter(view.getSize() / 2.f);
         view.setViewport(clipViewport.value());
         target.setView(view);
     }

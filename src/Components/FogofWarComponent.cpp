@@ -103,7 +103,7 @@ void FogofWarComponent::update(Context& context)
         if (!visComponent)
             continue;
 
-        float range = visComponent->viewRange + areaScan->viewBuff;
+        float range = STANDARD_VISIBILITY_RANGE + areaScan->viewBuff;
         float diameter = range * 2.f;
 
         gradientSprite->setScale(sf::Vector2f(diameter / FOG_GRADIENT_SIZE, diameter / FOG_GRADIENT_SIZE));

@@ -2,9 +2,9 @@
 #include "Constants.hpp"
 #include "context.hpp"
 #include "tracedPath.hpp"
+#include "ChunkData.hpp"
 #include "Components/ResourceManager.hpp"
 #include "Components/AreaScanComponent.hpp"
-#include "Components/AudioComponent.hpp"
 #include "Components/WorldPositionComponent.hpp"
 #include <random>
 #include <vector>
@@ -13,25 +13,6 @@
 
 namespace Desolate::ChunkGen
 {
-    enum class ChunkType
-    {
-        StartingZone,
-        NeutralOutpost,
-        Wilderness,
-        TerritorialZone,
-        LurkZone,
-        HunterZone,
-        ResourceCluster,
-        Empty
-    };
-
-    struct Chunk
-    {
-        int gridX, gridY;
-        sf::FloatRect bounds;
-        ChunkType type;
-    };
-
     inline std::mt19937 makeRng(int seed, int gridX, int gridY)
     {
         return std::mt19937(seed ^ (gridX * 31 + gridY * 17));
@@ -96,7 +77,7 @@ namespace Desolate::ChunkGen
             if (i == startIdx) continue;
             float dx = (float)(chunks[i].gridX - startCol);
             float dy = (float)(chunks[i].gridY - startRow);
-            entries.push_back({i, std::sqrt(dx * dx + dy * dy)});
+            entries.push_back({i, dx * dx + dy * dy});
         }
         std::sort(entries.begin(), entries.end(),
             [](auto& a, auto& b) { return a.dist < b.dist; });
@@ -106,15 +87,15 @@ namespace Desolate::ChunkGen
         struct Guarantee { ChunkType type; int count; };
         Guarantee guarantees[3][3] = {
             { {ChunkType::NeutralOutpost, 2}, {ChunkType::ResourceCluster, 2}, {ChunkType::Empty, 0} },
-            { {ChunkType::NeutralOutpost, 3}, {ChunkType::TerritorialZone, 2}, {ChunkType::LurkZone, 2} },
-            { {ChunkType::NeutralOutpost, 2}, {ChunkType::HunterZone, 2}, {ChunkType::LurkZone, 2} }
+            { {ChunkType::NeutralOutpost, 3}, {ChunkType::TerritorialZone, 2}, {ChunkType::Wilderness, 2} },
+            { {ChunkType::NeutralOutpost, 2}, {ChunkType::HunterZone, 2}, {ChunkType::Wilderness, 2} }
         };
 
         using WeightPair = std::pair<ChunkType, float>;
         std::vector<std::vector<WeightPair>> tierWeights = {
             { {ChunkType::Wilderness, 0.40f}, {ChunkType::ResourceCluster, 0.25f}, {ChunkType::Empty, 0.35f} },
-            { {ChunkType::Wilderness, 0.25f}, {ChunkType::TerritorialZone, 0.15f}, {ChunkType::LurkZone, 0.15f}, {ChunkType::ResourceCluster, 0.15f}, {ChunkType::Empty, 0.30f} },
-            { {ChunkType::Wilderness, 0.10f}, {ChunkType::LurkZone, 0.20f}, {ChunkType::HunterZone, 0.25f}, {ChunkType::ResourceCluster, 0.05f}, {ChunkType::Empty, 0.40f} }
+            { {ChunkType::Wilderness, 0.40f}, {ChunkType::TerritorialZone, 0.15f}, {ChunkType::ResourceCluster, 0.15f}, {ChunkType::Empty, 0.30f} },
+            { {ChunkType::Wilderness, 0.30f}, {ChunkType::HunterZone, 0.25f}, {ChunkType::ResourceCluster, 0.05f}, {ChunkType::Empty, 0.40f} }
         };
 
         for (int tier = 0; tier < 3; ++tier)
@@ -124,20 +105,33 @@ namespace Desolate::ChunkGen
 
             std::vector<int> tierIndices;
             for (int i = tierStart; i < tierEnd; ++i)
+            {
                 tierIndices.push_back(entries[i].index);
+                chunks[entries[i].index].tier = tier;
+            }
 
             auto tierRng = makeRng(seed ^ (tier * 12345), tier, 0);
             std::shuffle(tierIndices.begin(), tierIndices.end(), tierRng);
 
             int used = 0;
             for (auto& g : guarantees[tier])
+            {
                 for (int c = 0; c < g.count; ++c)
+                {
                     if (used < (int)tierIndices.size())
-                        chunks[tierIndices[used++]].type = g.type;
+                    {
+                        chunks[tierIndices[used]].type = g.type;
+                        ++used;
+                    }
+                }
+            }
 
             auto fillRng = makeRng(seed ^ (tier * 67890), tier, 1);
             while (used < (int)tierIndices.size())
-                chunks[tierIndices[used++]].type = weightedPick(fillRng, tierWeights[tier]);
+            {
+                chunks[tierIndices[used]].type = weightedPick(fillRng, tierWeights[tier]);
+                ++used;
+            }
         }
 
         return chunks;
@@ -150,15 +144,6 @@ namespace Desolate::ChunkGen
         return {x, y};
     }
 
-    inline void setAudioVolumes(Entity* e, Context& context)
-    {
-        if (auto* a = e->getComponent<AudioComponent>())
-        {
-            a->sfxVolumePtr = &context.sfxVolume;
-            a->voicelineVolumePtr = &context.voicelineVolume;
-        }
-    }
-
     inline void populateStartingZone(Context& context, const Chunk& chunk, ResourceManager* resManager, const sf::FloatRect& clipViewport, std::mt19937& rng)
     {
         auto* world = context.world;
@@ -169,15 +154,13 @@ namespace Desolate::ChunkGen
         context.addEntity(outpost);
 
         sf::Vector2f squad1Pos = randomPosInChunk(rng, chunk.bounds);
-        Entity* squad1 = Desolate::Factory::createSquadEntity(world, squad1Pos, SQUAD_1_COLOUR, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, context.squadDamage, SQUAD_SHOOT_RANGE, SQUAD_ATTACK_COOLDOWN, context.squadMaxHp, STANDARD_VISIBILITY_RANGE, PLAYER_FACTION, SQUAD_TIME_TO_APPEAR, MONSTER_FACTION, context.squadSupplyMax, SQUAD_SUPPLY_DRAIN_RATE, SQUAD_SUPPLY_HP_DRAIN_PERCENTAGE, SHOCKWAVE_COOLDOWN, SHOCKWAVE_RADIUS, SHOCKWAVE_DEFAULT_MAX_CHARGES, false, false, 0.f, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport, 1);
+        Entity* squad1 = Desolate::Factory::createSquadEntity(world, squad1Pos, SQUAD_1_COLOUR, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, context.squadDamage, SQUAD_SHOOT_RANGE, SQUAD_ATTACK_COOLDOWN, context.squadMaxHp, SQUAD_VISIBILITY_RANGE, PLAYER_FACTION, SQUAD_TIME_TO_APPEAR, MONSTER_FACTION, context.squadSupplyMax, SQUAD_SUPPLY_DRAIN_RATE, SQUAD_SUPPLY_HP_DRAIN_PERCENTAGE, SHOCKWAVE_COOLDOWN, SHOCKWAVE_RADIUS, SHOCKWAVE_DEFAULT_MAX_CHARGES, false, false, 0.f, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport, &context.sfxVolume, &context.voicelineVolume, 1);
         squad1->getComponent<AreaScanComponent>()->viewBuff = context.squadViewBuff;
-        setAudioVolumes(squad1, context);
         context.addEntity(squad1);
 
         sf::Vector2f squad2Pos = randomPosInChunk(rng, chunk.bounds);
-        Entity* squad2 = Desolate::Factory::createSquadEntity(world, squad2Pos, SQUAD_2_COLOUR, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, context.squadDamage, SQUAD_SHOOT_RANGE, SQUAD_ATTACK_COOLDOWN, context.squadMaxHp, STANDARD_VISIBILITY_RANGE, PLAYER_FACTION, SQUAD_TIME_TO_APPEAR, MONSTER_FACTION, context.squadSupplyMax, SQUAD_SUPPLY_DRAIN_RATE, SQUAD_SUPPLY_HP_DRAIN_PERCENTAGE, SHOCKWAVE_COOLDOWN, SHOCKWAVE_RADIUS, SHOCKWAVE_DEFAULT_MAX_CHARGES, false, false, 0.f, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport, 2);
+        Entity* squad2 = Desolate::Factory::createSquadEntity(world, squad2Pos, SQUAD_2_COLOUR, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, context.squadDamage, SQUAD_SHOOT_RANGE, SQUAD_ATTACK_COOLDOWN, context.squadMaxHp, SQUAD_VISIBILITY_RANGE, PLAYER_FACTION, SQUAD_TIME_TO_APPEAR, MONSTER_FACTION, context.squadSupplyMax, SQUAD_SUPPLY_DRAIN_RATE, SQUAD_SUPPLY_HP_DRAIN_PERCENTAGE, SHOCKWAVE_COOLDOWN, SHOCKWAVE_RADIUS, SHOCKWAVE_DEFAULT_MAX_CHARGES, false, false, 0.f, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport, &context.sfxVolume, &context.voicelineVolume, 2);
         squad2->getComponent<AreaScanComponent>()->viewBuff = context.squadViewBuff;
-        setAudioVolumes(squad2, context);
         context.addEntity(squad2);
     }
 
@@ -203,8 +186,7 @@ namespace Desolate::ChunkGen
             for (int i = 0; i < 3; ++i)
                 path->addNode(new TracedPathNode(randomPosInChunk(rng, chunk.bounds), path));
 
-            Entity* wanderer = Desolate::Factory::createWandererEntity(world, pos, WANDERER_COLOUR, WANDERER_RADIUS, WANDERER_MOVE_SPEED, WANDERER_CHASE_SPEED, WANDERER_DAMAGE, WANDERER_SHOOT_RANGE, WANDERER_ATTACK_COOLDOWN, WANDERER_MAX_HEALTH, path, WANDERER_AGGRO_RANGE, WANDERER_DE_AGGRO_RANGE, WANDERER_DE_AGGRO_COOLDOWN, STANDARD_VISIBILITY_RANGE, MONSTER_FACTION, WANDERER_TIME_TO_APPEAR, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport);
-            setAudioVolumes(wanderer, context);
+            Entity* wanderer = Desolate::Factory::createWandererEntity(world, pos, WANDERER_COLOUR, WANDERER_RADIUS, WANDERER_MOVE_SPEED, WANDERER_CHASE_SPEED, WANDERER_DAMAGE, WANDERER_SHOOT_RANGE, WANDERER_ATTACK_COOLDOWN, WANDERER_MAX_HEALTH, path, WANDERER_AGGRO_RANGE, WANDERER_DE_AGGRO_RANGE, WANDERER_DE_AGGRO_COOLDOWN, STANDARD_VISIBILITY_RANGE, MONSTER_FACTION, WANDERER_TIME_TO_APPEAR, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport, &context.sfxVolume, &context.voicelineVolume);
             context.addEntity(wanderer);
         }
 
@@ -234,17 +216,8 @@ namespace Desolate::ChunkGen
     inline void populateTerritorialZone(Context& context, const Chunk& chunk, const sf::FloatRect& clipViewport, std::mt19937& rng)
     {
         sf::Vector2f pos = randomPosInChunk(rng, chunk.bounds);
-        Entity* territorial = Desolate::Factory::createTerritorialEntity(context.world, pos, TERRITORIAL_COLOUR, TERRITORIAL_RADIUS, TERRITORIAL_PATROL_SPEED, TERRITORIAL_PATROL_RADIUS, TERRITORIAL_CHASE_SPEED, TERRITORIAL_DAMAGE, TERRITORIAL_SHOOT_RANGE, TERRITORIAL_ATTACK_COOLDOWN, TERRITORIAL_MAX_HEALTH, TERRITORIAL_AGGRO_RANGE, TERRITORIAL_DE_AGGRO_RANGE, TERRITORIAL_DE_AGGRO_COOLDOWN, STANDARD_VISIBILITY_RANGE, MONSTER_FACTION, TERRITORIAL_TIME_TO_APPEAR, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport);
-        setAudioVolumes(territorial, context);
+        Entity* territorial = Desolate::Factory::createTerritorialEntity(context.world, pos, TERRITORIAL_COLOUR, TERRITORIAL_RADIUS, TERRITORIAL_PATROL_SPEED, TERRITORIAL_PATROL_RADIUS, TERRITORIAL_CHASE_SPEED, TERRITORIAL_DAMAGE, TERRITORIAL_SHOOT_RANGE, TERRITORIAL_ATTACK_COOLDOWN, TERRITORIAL_MAX_HEALTH, TERRITORIAL_AGGRO_RANGE, TERRITORIAL_DE_AGGRO_RANGE, TERRITORIAL_DE_AGGRO_COOLDOWN, STANDARD_VISIBILITY_RANGE, MONSTER_FACTION, TERRITORIAL_TIME_TO_APPEAR, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport, &context.sfxVolume, &context.voicelineVolume);
         context.addEntity(territorial);
-    }
-
-    inline void populateLurkZone(Context& context, const Chunk& chunk, const sf::FloatRect& clipViewport, std::mt19937& rng)
-    {
-        sf::Vector2f pos = randomPosInChunk(rng, chunk.bounds);
-        Entity* lurker = Desolate::Factory::createLurkerEntity(context.world, pos, LURKER_COLOUR, LURKER_RADIUS, LURKER_PATROL_SPEED, LURKER_PATROL_RADIUS, LURKER_CHASE_SPEED, LURKER_DAMAGE, LURKER_SHOOT_RANGE, LURKER_ATTACK_COOLDOWN, LURKER_MAX_HEALTH, LURKER_AGGRO_RANGE, LURKER_DE_AGGRO_RANGE, LURKER_DE_AGGRO_COOLDOWN, LURKER_ARRIVAL_DISTANCE, LURKER_VISIBILITY_RANGE, LURKER_TIME_TO_APPEAR, MONSTER_FACTION, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport);
-        setAudioVolumes(lurker, context);
-        context.addEntity(lurker);
     }
 
     inline void populateHunterZone(Context& context, const Chunk& chunk, std::vector<Entity*>& hunterLairs, const sf::FloatRect& clipViewport, std::mt19937& rng)
@@ -284,10 +257,10 @@ namespace Desolate::ChunkGen
 
     inline void generateSceneEntities(Context& context, ResourceManager* resManager, const sf::FloatRect& clipViewport, int seed = 42)
     {
-        auto chunks = generateChunks(seed);
+        context.chunks = generateChunks(seed);
         std::vector<Entity*> hunterLairs;
 
-        for (auto& chunk : chunks)
+        for (auto& chunk : context.chunks)
         {
             auto chunkRng = makeRng(seed, chunk.gridX, chunk.gridY);
 
@@ -304,9 +277,6 @@ namespace Desolate::ChunkGen
                     break;
                 case ChunkType::TerritorialZone:
                     populateTerritorialZone(context, chunk, clipViewport, chunkRng);
-                    break;
-                case ChunkType::LurkZone:
-                    populateLurkZone(context, chunk, clipViewport, chunkRng);
                     break;
                 case ChunkType::HunterZone:
                     populateHunterZone(context, chunk, hunterLairs, clipViewport, chunkRng);
@@ -327,8 +297,7 @@ namespace Desolate::ChunkGen
             auto* lairPos = chosenLair->getComponent<WorldPositionComponent>();
             sf::Vector2f hunterPos = lairPos ? lairPos->position : sf::Vector2f(0, 0);
 
-            Entity* hunter = Desolate::Factory::createHunterEntity(context.world, hunterPos, HUNTER_COLOUR, HUNTER_RADIUS, HUNTER_BASE_SPEED, HUNTER_MAX_SPEED, HUNTER_RAMP_UP_TIME, HUNTER_KILL_RANGE, HUNTER_VIEW_RANGE, HUNTER_TIME_TO_APPEAR, MONSTER_FACTION, HUNTER_MIN_RESPAWN_TIME, HUNTER_MAX_RESPAWN_TIME, 50.f, HUNTER_MAX_HEALTH, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, clipViewport);
-            setAudioVolumes(hunter, context);
+            Entity* hunter = Desolate::Factory::createHunterEntity(context.world, hunterPos, HUNTER_COLOUR, HUNTER_RADIUS, HUNTER_BASE_SPEED, HUNTER_MAX_SPEED, HUNTER_RAMP_UP_TIME, HUNTER_KILL_RANGE, HUNTER_VIEW_RANGE, HUNTER_TIME_TO_APPEAR, MONSTER_FACTION, HUNTER_MIN_RESPAWN_TIME, HUNTER_MAX_RESPAWN_TIME, 50.f, HUNTER_MAX_HEALTH, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, clipViewport, &context.sfxVolume, &context.voicelineVolume);
             context.addEntity(hunter);
         }
     }

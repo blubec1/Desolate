@@ -67,6 +67,7 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
      src/QuestSystem/Questline.cpp
      src/QuestSystem/Nodes/ResourceThresholdQuest.cpp
      src/QuestSystem/Nodes/KillCountQuest.cpp
+     src/QuestSystem/Nodes/ObjectivePickupQuest.cpp
      src/Components/AudioSystemComponent.cpp
      src/Components/AudioComponent.cpp
      src/Components/HearComponent.cpp

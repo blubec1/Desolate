@@ -64,7 +64,7 @@
 
 namespace Desolate::Factory
 {
-    inline Entity* createSquadEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID, float timeToAppear, float enemyFaction, float supplyMax, float supplyDrainRate, float supplyHpDrainRate, float shockwaveCooldown, float shockwaveRadius, int shockwaveMaxCharges, bool protectOthers, bool isProtected, float protectRange, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol, sf::FloatRect clipViewport, int voice = 1)
+    inline Entity* createSquadEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float damage, float shootRange, float attackCD, float MaxHP, float visibilityRng, float ID, float timeToAppear, float enemyFaction, float supplyMax, float supplyDrainRate, float supplyHpDrainRate, float shockwaveCooldown, float shockwaveRadius, int shockwaveMaxCharges, bool protectOthers, bool isProtected, float protectRange, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol, sf::FloatRect clipViewport, float* sfxVolPtr, float* voiceVolPtr, int voice = 1)
     {
         Entity *Squad = new Entity();
         Squad->type = EntityType::Squad;
@@ -100,6 +100,8 @@ namespace Desolate::Factory
         Squad->addComponent<ProtectComponent>(protectOthers, isProtected, protectRange);
         auto* squadAudio = Squad->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
         squadAudio->voice = voice;
+        squadAudio->sfxVolumePtr = sfxVolPtr;
+        squadAudio->voicelineVolumePtr = voiceVolPtr;
 
         auto* hear = Squad->addComponent<HearComponent>();
         hear->enemies = enemies;
@@ -129,7 +131,7 @@ namespace Desolate::Factory
         return Map;
     }
 
-    inline Entity* createWandererEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, TracedPath* path, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID, float timeToAppear, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol, sf::FloatRect clipViewport)
+    inline Entity* createWandererEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float moveSpeed, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, TracedPath* path, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID, float timeToAppear, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol, sf::FloatRect clipViewport, float* sfxVolPtr, float* voiceVolPtr)
     {
         Entity* Wanderer = new Entity();
         Wanderer->type = EntityType::Wanderer;
@@ -151,7 +153,9 @@ namespace Desolate::Factory
         Wanderer->addComponent<WandererStrategyDriver>(path, moveSpeed, chaseSpeed, aggroRng, deAggroRng, deAggroCD, enemies, shootRange);
         Wanderer->addComponent<HPColorShadingComponent>();
         Wanderer->addComponent<FactionComponent>(ID);
-        Wanderer->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
+        auto* wandererAudio = Wanderer->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
+        wandererAudio->sfxVolumePtr = sfxVolPtr;
+        wandererAudio->voicelineVolumePtr = voiceVolPtr;
 
         Wanderer->getComponent<CircleRenderComponent>()->clipViewport = clipViewport;
         wandererRing->clipViewport = clipViewport;
@@ -183,7 +187,7 @@ namespace Desolate::Factory
         Outpost->addComponent<ProtectComponent>(protectOthers, isProtected, protectRange);
         auto* supplyIndicator = Outpost->addComponent<RadiusIndicatorComponent>(2.f, sf::Color(200, 150, 0, 80));
         supplyIndicator->valuePtr = &Outpost->getComponent<SupplyReplenishComponent>()->replenishRange;
-        Outpost->addComponent<VisibilityComponent>(OUTPOST_VIEW_RANGE, 0.f);
+        Outpost->addComponent<VisibilityComponent>(OUTPOST_VIEW_RANGE, STANDARD_TIME_TO_APPEAR);
 
         Outpost->getComponent<CircleRenderComponent>()->clipViewport = clipViewport;
         supplyIndicator->clipViewport = clipViewport;
@@ -203,7 +207,7 @@ namespace Desolate::Factory
         return FogofWarEntity;
     }
 
-    inline Entity* createTerritorialEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float patrolSpeed, float patrolRadius, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID, float timeToAppear, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol, sf::FloatRect clipViewport)
+    inline Entity* createTerritorialEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float patrolSpeed, float patrolRadius, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, float aggroRng, float deAggroRng, float deAggroCD, float visibilityRng, float ID, float timeToAppear, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol, sf::FloatRect clipViewport, float* sfxVolPtr, float* voiceVolPtr)
     {
         Entity* Territorial = new Entity();
         Territorial->type = EntityType::Territorial;
@@ -225,7 +229,9 @@ namespace Desolate::Factory
         Territorial->addComponent<TerritorialStrategyDriver>(patrolSpeed, patrolRadius, position, chaseSpeed, aggroRng, deAggroRng, deAggroCD, enemies, shootRange);
         Territorial->addComponent<HPColorShadingComponent>();
         Territorial->addComponent<FactionComponent>(ID);
-        Territorial->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
+        auto* territorialAudio = Territorial->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
+        territorialAudio->sfxVolumePtr = sfxVolPtr;
+        territorialAudio->voicelineVolumePtr = voiceVolPtr;
 
         Territorial->getComponent<CircleRenderComponent>()->clipViewport = clipViewport;
         territorialRing->clipViewport = clipViewport;
@@ -233,7 +239,7 @@ namespace Desolate::Factory
         return Territorial;
     }
 
-    inline Entity* createLurkerEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float patrolSpeed, float patrolRadius, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, float aggroRng, float deAggroRng, float deAggroCD, float arrivalDist, float visibilityRng, float timeToAppear, float ID, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol, sf::FloatRect clipViewport)
+    inline Entity* createLurkerEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float patrolSpeed, float patrolRadius, float chaseSpeed, float damage, float shootRange, float attackCD, float MaxHP, float aggroRng, float deAggroRng, float deAggroCD, float arrivalDist, float visibilityRng, float timeToAppear, float ID, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, float gunVol, float voiceVol, sf::FloatRect clipViewport, float* sfxVolPtr, float* voiceVolPtr)
     {
         Entity* Lurker = new Entity();
         Lurker->type = EntityType::Lurker;
@@ -253,7 +259,9 @@ namespace Desolate::Factory
         Lurker->addComponent<LurkerStrategyDriver>(patrolSpeed, patrolRadius, chaseSpeed, aggroRng, deAggroRng, shootRange, deAggroCD, arrivalDist, enemies);
         Lurker->addComponent<HPColorShadingComponent>();
         Lurker->addComponent<FactionComponent>(ID);
-        Lurker->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
+        auto* lurkerAudio = Lurker->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
+        lurkerAudio->sfxVolumePtr = sfxVolPtr;
+        lurkerAudio->voicelineVolumePtr = voiceVolPtr;
 
         Lurker->getComponent<CircleRenderComponent>()->clipViewport = clipViewport;
         lurkerRing->clipViewport = clipViewport;
@@ -261,7 +269,7 @@ namespace Desolate::Factory
         return Lurker;
     }
 
-    inline Entity* createHunterEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float baseSpeed, float maxSpeed, float rampTime, float killRange, float viewRng, float timeToAppear, float ID, float minRespawnTime, float maxRespawnTime, float arrivalDist, float maxHealth, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, sf::FloatRect clipViewport)
+    inline Entity* createHunterEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float baseSpeed, float maxSpeed, float rampTime, float killRange, float viewRng, float timeToAppear, float ID, float minRespawnTime, float maxRespawnTime, float arrivalDist, float maxHealth, float audioCooldown, float audioQueueDelay, float audioCombatWindow, int audioCombatPriority, int audioPreemptThreshold, sf::FloatRect clipViewport, float* sfxVolPtr, float* voiceVolPtr)
     {
         Entity* Hunter = new Entity();
         Hunter->type = EntityType::Hunter;
@@ -277,7 +285,9 @@ namespace Desolate::Factory
         Hunter->addComponent<VisibilityComponent>(viewRng, timeToAppear);
         Hunter->addComponent<HunterStrategyDriver>(baseSpeed, maxSpeed, rampTime, killRange, arrivalDist, enemies);
         Hunter->addComponent<FactionComponent>(ID);
-        Hunter->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
+        auto* hunterAudio = Hunter->addComponent<AudioComponent>(audioCooldown, audioQueueDelay, audioCombatWindow, audioCombatPriority, audioPreemptThreshold);
+        hunterAudio->sfxVolumePtr = sfxVolPtr;
+        hunterAudio->voicelineVolumePtr = voiceVolPtr;
 
         Hunter->getComponent<CircleRenderComponent>()->clipViewport = clipViewport;
 
@@ -415,6 +425,33 @@ namespace Desolate::Factory
         return ResourceLocation;
     }
 
+    inline Entity* createObjectiveEntity(WorldComponent* world, sf::Vector2f position, sf::Color colour, float radius, float triggerRadius, float viewRng, float timeToAppear, sf::FloatRect clipViewport, bool* collectedFlag)
+    {
+        Entity* Objective = new Entity();
+        Objective->type = EntityType::ObjectiveItem;
+
+        Objective->addComponent<WorldPositionComponent>(position, world);
+        Objective->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
+        Objective->addComponent<VisibilityComponent>(viewRng, timeToAppear);
+        Objective->addComponent<FactionComponent>(NEUTRAL_FACTION);
+
+        auto* trigger = Objective->addComponent<TriggerRadiusComponent>(triggerRadius);
+        trigger->triggerFunc = [Objective, collectedFlag](Entity* entity)
+        {
+            if (entity == Objective || Objective->isMarkedForDeletion()) return;
+            auto faction = entity->getComponent<FactionComponent>();
+            if (faction && faction->FactionID == PLAYER_FACTION)
+            {
+                *collectedFlag = true;
+                Objective->destroy();
+            }
+        };
+
+        Objective->getComponent<CircleRenderComponent>()->clipViewport = clipViewport;
+
+        return Objective;
+    }
+
     inline Entity* createQuestSystemEntity()
     {
         Entity* QuestSystem = new Entity();
@@ -518,7 +555,7 @@ namespace Desolate::Factory
         UIEntity->addComponent<ButtonComponent>(peopleBtnShape, "KICK OUT", fontLetters, [resManager](Context&) { resManager->addPeople(-1); }, RESOURCE_DIR "/textures/button.png", btnFontSize);
     
 
-        auto* questHud = UIEntity->addComponent<QuestHudComponent>(sf::Vector2f(sideX + sideW * 0.5f, barY + barH * 0.5f), fontLetters, fontNumbers, questSystem, smallFontSize, barH * 0.12f);
+        auto* questHud = UIEntity->addComponent<QuestHudComponent>(sf::Vector2f(sideX + 10.f, windowHeight * 0.35f + 375.f + 10.f), fontLetters, fontNumbers, questSystem, smallFontSize, barH * 0.08f);
 
         // --- Upgrade sub-buttons (initially disabled) ---
 

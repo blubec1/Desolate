@@ -28,7 +28,8 @@ enum class EntityType
     UI,
     QuestSystem,
     AudioSystem,
-    ResourceLocation
+    ResourceLocation,
+    ObjectiveItem
 };
 
 enum class SoundEvent
@@ -66,6 +67,7 @@ const float NEUTRAL_FACTION = 0;
 const float TRACED_PATH_NODE_DIST = 8.f;
 
 const float STANDARD_VISIBILITY_RANGE = 100.f;
+const float STANDARD_TIME_TO_APPEAR = 0.5f;
 
 const float FOG_OVERLAY_ALPHA = 150.f;
 const float FOG_GRADIENT_SIZE = 256.f;
@@ -139,7 +141,7 @@ const float SQUAD_SHOOT_RANGE = 75.f;
 const float SQUAD_ATTACK_COOLDOWN = 0.2f;
 const float SQUAD_MAX_HEALTH = 50.f;
 const float SQUAD_TIME_TO_APPEAR = 1.f;
-const float SQUAD_VISIBILITY_RANGE = 200.f;
+const float SQUAD_VISIBILITY_RANGE = 50.f;
 
 const float RESOURCE_RADIUS = 10.f;
 const float RESOURCE_VIEW_RANGE = 750.f;
@@ -152,6 +154,12 @@ const float RESOURCE_LOCATION_DECAY_TIME = 60.f;
 const sf::Color RESOURCE_LOCATION_COLOUR_FOOD = sf::Color(76, 175, 80);
 const sf::Color RESOURCE_LOCATION_COLOUR_METAL = sf::Color(158, 158, 158);
 const sf::Color RESOURCE_LOCATION_COLOUR_PEOPLE = sf::Color(33, 150, 243);
+const float OBJECTIVE_ITEM_RADIUS = 10.f;
+const float OBJECTIVE_ITEM_VIEW_RANGE = 750.f;
+const float OBJECTIVE_ITEM_TRIGGER_RANGE = 20.f;
+const float OBJECTIVE_ITEM_TIME_TO_APPEAR = 0.5f;
+const sf::Color OBJECTIVE_ITEM_COLOUR = sf::Color(255, 215, 0);
+
 const float RESOURCE_TIME_TO_APPEAR = 1.f;
 const float RESOURCE_TICK_COOLDOWN = 5.f;
 const float RESOURCE_FOOD_CONSUMPTION_RATE = 1.f;
@@ -221,7 +229,8 @@ inline const char* entityTypeToString(EntityType t)
         case EntityType::Hunter:      return "Hunter";
         case EntityType::Radio:       return "Radio";
         case EntityType::ResourceLocation: return "ResourceLocation";
-        default:                      return "";
+        case EntityType::ObjectiveItem:    return "ObjectiveItem";
+        default:                           return "";
     }
 }
 
@@ -261,6 +270,7 @@ inline EntityType stringToEntityType(const std::string& s)
     if (s == "Hunter")      return EntityType::Hunter;
     if (s == "Radio")       return EntityType::Radio;
     if (s == "ResourceLocation") return EntityType::ResourceLocation;
+    if (s == "ObjectiveItem")    return EntityType::ObjectiveItem;
     return EntityType::None;
 }
 

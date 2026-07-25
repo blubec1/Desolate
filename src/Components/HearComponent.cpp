@@ -5,12 +5,6 @@
 #include "Components/WorldPositionComponent.hpp"
 #include "Entity.hpp"
 
-static sf::Vector2f getLogicPos(Entity* e)
-{
-    auto* wp = e->getComponent<WorldPositionComponent>();
-    return wp ? wp->position : e->position;
-}
-
 void HearComponent::update(Context& context)
 {
     auto* ownerFaction = owner->getComponent<FactionComponent>();
@@ -31,7 +25,7 @@ void HearComponent::update(Context& context)
         auto* visComponent = entity->getComponent<VisibilityComponent>();
         if (!visComponent) continue;
 
-        sf::Vector2f delta = getLogicPos(entity) - getLogicPos(owner);
+        sf::Vector2f delta = getLogicPosition(entity) - getLogicPosition(owner);
         if (delta.length() <= visComponent->hearRange)
         {
             if (!previouslyHeard.contains(entity))

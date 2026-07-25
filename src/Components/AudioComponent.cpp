@@ -1,5 +1,6 @@
 #include "Components/AudioComponent.hpp"
 #include "Components/AudioSystemComponent.hpp"
+#include "Components/WorldPositionComponent.hpp"
 #include "Animations/voicelineAnimation.hpp"
 #include "context.hpp"
 #include "Entity.hpp"
