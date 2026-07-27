@@ -152,6 +152,7 @@ namespace Desolate::ChunkGen
 
         Entity* outpost = Desolate::Factory::createOutpostEntity(world, center, OUTPOST_COLOUR, OUTPOST_RADIUS, OUTPOST_HEAL_RANGE, OUTPOST_HEAL_PERCENTAGE, OUTPOST_SUPPLY_REPLENISH_RANGE, OUTPOST_SUPPLY_REPLENISH_PERCENTAGE, PLAYER_FACTION, OUTPOST_TRIGGER_RADIUS, SHOCKWAVE_RECHARGE_RANGE, SHOCKWAVE_RECHARGE_RATE, true, true, OUTPOST_PROTECT_RANGE, clipViewport);
         context.addEntity(outpost);
+        context.startingOutpost = outpost;
 
         sf::Vector2f squad1Pos = randomPosInChunk(rng, chunk.bounds);
         Entity* squad1 = Desolate::Factory::createSquadEntity(world, squad1Pos, SQUAD_1_COLOUR, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, context.squadDamage, SQUAD_SHOOT_RANGE, SQUAD_ATTACK_COOLDOWN, context.squadMaxHp, SQUAD_VISIBILITY_RANGE, PLAYER_FACTION, SQUAD_TIME_TO_APPEAR, MONSTER_FACTION, context.squadSupplyMax, SQUAD_SUPPLY_DRAIN_RATE, SQUAD_SUPPLY_HP_DRAIN_PERCENTAGE, SHOCKWAVE_COOLDOWN, SHOCKWAVE_RADIUS, SHOCKWAVE_DEFAULT_MAX_CHARGES, false, false, 0.f, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport, &context.sfxVolume, &context.voicelineVolume, 1);
@@ -162,6 +163,11 @@ namespace Desolate::ChunkGen
         Entity* squad2 = Desolate::Factory::createSquadEntity(world, squad2Pos, SQUAD_2_COLOUR, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, context.squadDamage, SQUAD_SHOOT_RANGE, SQUAD_ATTACK_COOLDOWN, context.squadMaxHp, SQUAD_VISIBILITY_RANGE, PLAYER_FACTION, SQUAD_TIME_TO_APPEAR, MONSTER_FACTION, context.squadSupplyMax, SQUAD_SUPPLY_DRAIN_RATE, SQUAD_SUPPLY_HP_DRAIN_PERCENTAGE, SHOCKWAVE_COOLDOWN, SHOCKWAVE_RADIUS, SHOCKWAVE_DEFAULT_MAX_CHARGES, false, false, 0.f, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport, &context.sfxVolume, &context.voicelineVolume, 2);
         squad2->getComponent<AreaScanComponent>()->viewBuff = context.squadViewBuff;
         context.addEntity(squad2);
+
+        sf::Vector2f squad3Pos = randomPosInChunk(rng, chunk.bounds);
+        Entity* squad3 = Desolate::Factory::createSquadEntity(world, squad3Pos, SQUAD_3_COLOUR, SQUAD_CIRCLE_SIZE, SQUAD_SPEED, context.squadDamage, SQUAD_SHOOT_RANGE, SQUAD_ATTACK_COOLDOWN, context.squadMaxHp, SQUAD_VISIBILITY_RANGE, PLAYER_FACTION, SQUAD_TIME_TO_APPEAR, MONSTER_FACTION, context.squadSupplyMax, SQUAD_SUPPLY_DRAIN_RATE, SQUAD_SUPPLY_HP_DRAIN_PERCENTAGE, SHOCKWAVE_COOLDOWN, SHOCKWAVE_RADIUS, SHOCKWAVE_DEFAULT_MAX_CHARGES, false, false, 0.f, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport, &context.sfxVolume, &context.voicelineVolume, 1);
+        squad3->getComponent<AreaScanComponent>()->viewBuff = context.squadViewBuff;
+        context.addEntity(squad3);
     }
 
     inline void populateNeutralOutpost(Context& context, const Chunk& chunk, ResourceManager* resManager, const sf::FloatRect& clipViewport)

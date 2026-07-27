@@ -98,13 +98,6 @@ void AirdropRadioEvent::onInit()
 
 void AirdropRadioEvent::onTrigger(float playerFreq, Context& context)
 {
-    if (context.isEntityValid(airdropEntity))
-    {
-        auto visibilityComponent = airdropEntity->getComponent<VisibilityComponent>();
-        visibilityComponent->outOfVision = false;
-        visibilityComponent->timeAppeared = visibilityComponent->timeToAppear;
-        visibilityComponent->visionRatio = 1.f;
-    }
 }
 
 void AirdropRadioEvent::onUpdate(Context& context)
@@ -183,6 +176,18 @@ void AirdropRadioEvent::onUpdate(Context& context)
 
     float currentFreq = *owner->playerFrequencyPtr;
     bool isInRange = std::abs(currentFreq - secretFrequency) <= tolerance;
+
+    if (context.isEntityValid(airdropEntity))
+    {
+        auto vis = airdropEntity->getComponent<VisibilityComponent>();
+        if (vis)
+        {
+            if (isInRange)
+                vis->addViewer(owner->owner);
+            else
+                vis->removeViewer(owner->owner);
+        }
+    }
 
     if (pauseTimer > 0.f)
     {

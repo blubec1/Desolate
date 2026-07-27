@@ -56,6 +56,7 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
      src/Components/SupplyReplenishComponent.cpp
      src/Components/KnobComponent.cpp
      src/Components/TextComponent.cpp
+     src/Components/TextInputComponent.cpp
      src/Components/RadioEventHandler.cpp
      src/RadioEvents/AirdropRadioEvent.cpp
      src/Animations/voicelineAnimation.cpp

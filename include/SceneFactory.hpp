@@ -18,14 +18,21 @@
 #include "Components/NumberComponent.hpp"
 #include "Components/WorldComponent.hpp"
 #include "ChunkGenerator.hpp"
+#include <random>
 
 namespace Desolate::SceneFactory
 {
-    inline Scene* createPlayScene(sf::RenderWindow* window, Input* input, const sf::Font& digitalFont, const sf::Font& ledFont, SettingsState* settingsState)
+    inline Scene* createPlayScene(sf::RenderWindow* window, Input* input, const sf::Font& digitalFont, const sf::Font& ledFont, SettingsState* settingsState, int seed = 0)
     {
         Scene* scene = new Scene(window, input);
         Context& context = scene->context;
         scene->isEscapable = true;
+
+        if (seed == 0)
+        {
+            std::random_device rd;
+            seed = static_cast<int>(rd());
+        }
 
         context.windowWidth = (float)settingsState->videoMode.size.x;
         context.windowHeight = (float)settingsState->videoMode.size.y;
@@ -101,7 +108,7 @@ namespace Desolate::SceneFactory
         context.addEntity(ENT_UI);
         context.addEntity(ENT_Radio);
 
-        ChunkGen::generateSceneEntities(context, resManager, mapClipViewport);
+        ChunkGen::generateSceneEntities(context, resManager, mapClipViewport, seed);
 
         std::vector<Desolate::ChunkGen::Chunk*> tier2Wilderness;
         for (auto& chunk : context.chunks)
@@ -109,23 +116,22 @@ namespace Desolate::SceneFactory
             if (chunk.tier == 2 && chunk.type == Desolate::ChunkGen::ChunkType::Wilderness)
                 tier2Wilderness.push_back(&chunk);
         }
+        sf::Vector2f objectivePos = {MAP_WIDTH / 2.f, MAP_HEIGHT / 2.f};
         if (!tier2Wilderness.empty())
         {
-            auto pickerRng = Desolate::ChunkGen::makeRng(42, 77, 77);
+            auto pickerRng = Desolate::ChunkGen::makeRng(seed, 77, 77);
             auto* chosen = tier2Wilderness[Desolate::ChunkGen::randomInt(pickerRng, 0, (int)tier2Wilderness.size() - 1)];
-            auto chunkRng = Desolate::ChunkGen::makeRng(42, chosen->gridX, chosen->gridY);
-            sf::Vector2f pos = Desolate::ChunkGen::randomPosInChunk(chunkRng, chosen->bounds);
-            Entity* objective = Desolate::Factory::createObjectiveEntity(
-                context.world, pos, OBJECTIVE_ITEM_COLOUR, OBJECTIVE_ITEM_RADIUS,
-                OBJECTIVE_ITEM_TRIGGER_RANGE, OBJECTIVE_ITEM_VIEW_RANGE,
-                OBJECTIVE_ITEM_TIME_TO_APPEAR, mapClipViewport, objectiveQuest->getCollectedPtr());
-            context.addEntity(objective);
+            auto chunkRng = Desolate::ChunkGen::makeRng(seed, chosen->gridX, chosen->gridY);
+            objectivePos = Desolate::ChunkGen::randomPosInChunk(chunkRng, chosen->bounds);
         }
+        objectiveQuest->spawnPosition = objectivePos;
 
         context.audioManager->playMusic("ambient");
 
         return scene;
     }
+
+    inline Scene* createDebugScene(sf::RenderWindow* window, Input* input, const sf::Font& font, SettingsState* settingsState, SceneStack* stack);
 
     inline Scene* createSettingsScene(sf::RenderWindow* window, Input* input, const sf::Font& font, SettingsState* settingsState, SceneStack* stack)
     {
@@ -271,7 +277,75 @@ namespace Desolate::SceneFactory
                 scene->pendingPop = true;
             }, RESOURCE_DIR "/textures/button.png", settingsFontSize);
 
+        // --- Debug button (bottom-right corner) ---
+
+        float debugBtnW = float(int(windowWidth * 0.08f + 0.5f));
+        float debugBtnH = float(int(windowHeight * 0.037f + 0.5f));
+        int debugFontSize = int(windowHeight * 0.018f + 0.5f);
+        auto* debugShape = new sf::RectangleShape(sf::Vector2f(debugBtnW, debugBtnH));
+        debugShape->setPosition(sf::Vector2f(windowWidth - 60.f, windowHeight - 30.f));
+        debugShape->setFillColor(sf::Color(80, 80, 80));
+        debugShape->setOrigin(sf::Vector2f(debugBtnW / 2.f, debugBtnH / 2.f));
+        ENT_SettingsUI->addComponent<ButtonComponent>(debugShape, "DEBUG", font,
+            [window, input, font, settingsState, stack](Context&) {
+                Scene* debugScene = createDebugScene(window, input, font, settingsState, stack);
+                stack->push(debugScene);
+            }, RESOURCE_DIR "/textures/button.png", debugFontSize);
+
         scene->context.addEntity(ENT_SettingsUI);
+        return scene;
+    }
+
+    inline Scene* createDebugScene(sf::RenderWindow* window, Input* input, const sf::Font& font, SettingsState* settingsState, SceneStack* stack)
+    {
+        Scene* scene = new Scene(window, input);
+        scene->isEscapable = true;
+
+        float windowWidth = (float)settingsState->videoMode.size.x;
+        float windowHeight = (float)settingsState->videoMode.size.y;
+
+        Entity* ENT_DebugUI = new Entity();
+        ENT_DebugUI->type = EntityType::UI;
+        ENT_DebugUI->position = sf::Vector2f(0, 0);
+
+        int titleFontSize = int(windowHeight * 0.030f + 0.5f);
+        int btnFontSize = int(windowHeight * 0.022f + 0.5f);
+        float btnW = float(int(windowWidth * 0.14f + 0.5f));
+        float btnH = float(int(windowHeight * 0.04f + 0.5f));
+
+        ENT_DebugUI->addComponent<TextComponent>(
+            sf::Vector2f(windowWidth / 2.f, windowHeight * 0.15f), "DEBUG OPTIONS", font, titleFontSize);
+
+        // --- Reveal All toggle ---
+        auto* revealShape = new sf::RectangleShape(sf::Vector2f(btnW, btnH));
+        revealShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.35f));
+        revealShape->setFillColor(settingsState->debugRevealAll ? sf::Color(80, 180, 80) : sf::Color(60, 60, 60));
+        revealShape->setOrigin(sf::Vector2f(btnW / 2.f, btnH / 2.f));
+        auto* revealBtn = ENT_DebugUI->addComponent<ButtonComponent>(revealShape,
+            settingsState->debugRevealAll ? "REVEAL ALL: ON" : "REVEAL ALL: OFF", font,
+            [settingsState](Context&) {
+                settingsState->debugRevealAll = !settingsState->debugRevealAll;
+            }, RESOURCE_DIR "/textures/button.png", btnFontSize);
+
+        revealBtn->onClick = [settingsState, revealBtn, &font, btnFontSize](Context&) {
+            settingsState->debugRevealAll = !settingsState->debugRevealAll;
+            revealBtn->setLabel(
+                settingsState->debugRevealAll ? "REVEAL ALL: ON" : "REVEAL ALL: OFF",
+                font, btnFontSize);
+        };
+
+        // --- Close button ---
+        float closeSize = float(int(windowHeight * 0.037f + 0.5f));
+        auto* closeShape = new sf::RectangleShape(sf::Vector2f(closeSize, closeSize));
+        closeShape->setPosition(sf::Vector2f(windowWidth - 50.f, 30.f));
+        closeShape->setFillColor(sf::Color(180, 60, 60));
+        closeShape->setOrigin(sf::Vector2f(closeSize / 2.f, closeSize / 2.f));
+        ENT_DebugUI->addComponent<ButtonComponent>(closeShape, "X", font,
+            [scene](Context&) {
+                scene->pendingPop = true;
+            }, RESOURCE_DIR "/textures/button.png", btnFontSize);
+
+        scene->context.addEntity(ENT_DebugUI);
         return scene;
     }
 
@@ -293,9 +367,24 @@ namespace Desolate::SceneFactory
         );
         scene->context.addEntity(ENT_MenuBg);
 
+        Entity* seedInput = Desolate::Factory::createTextInputEntity(
+            font, sf::Vector2f(windowWidth / 2.f, windowHeight * 0.25f),
+            sf::Vector2f(windowWidth * 0.12f, windowHeight * 0.04f),
+            "SEED (optional)", 10, int(windowHeight * 0.02f + 0.5f));
+        scene->context.addEntity(seedInput);
+
         Entity* menuUI = Desolate::Factory::createMenuUIEntity(font, erodeFont, windowWidth, windowHeight,
             [=](Context&) {
-                Scene* playScene = createPlayScene(window, input, digitalFont, ledFont, settingsState);
+                auto* textInput = seedInput->getComponent<TextInputComponent>();
+                std::string seedStr = textInput->getContent();
+                int seed = 0;
+                if (!seedStr.empty())
+                {
+                    try { seed = std::stoi(seedStr); }
+                    catch (...) { textInput->idleOutlineColor = sf::Color::Red; return; }
+                }
+                textInput->idleOutlineColor = sf::Color::White;
+                Scene* playScene = createPlayScene(window, input, digitalFont, ledFont, settingsState, seed);
                 stack->push(playScene);
             },
             [=](Context&) {

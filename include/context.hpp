@@ -38,6 +38,10 @@ class Context : public sf::Drawable
 
     std::vector<Desolate::ChunkGen::Chunk> chunks;
 
+    Entity* startingOutpost = nullptr;
+
+    bool debugRevealAll = false;
+
     float squadMaxHp = 100.f;
     float squadDamage = 10.f;
     float squadViewBuff = 0.f;

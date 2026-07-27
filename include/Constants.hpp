@@ -60,13 +60,16 @@ const int STARTING_NUMBER_OF_SQUADS = 2;
 const float SQUAD_CIRCLE_SIZE = 10.f;
 const float SQUAD_SPEED = 40;
 
+const int SQUAD_CREATION_METAL_COST = 75;
+const int SQUAD_CREATION_PEOPLE_COST = 3;
+
 const float PLAYER_FACTION = 1;
 const float MONSTER_FACTION = 2;
 const float NEUTRAL_FACTION = 0;
 
 const float TRACED_PATH_NODE_DIST = 8.f;
 
-const float STANDARD_VISIBILITY_RANGE = 100.f;
+const float STANDARD_VISIBILITY_RANGE = 150.f;
 const float STANDARD_TIME_TO_APPEAR = 0.5f;
 
 const float FOG_OVERLAY_ALPHA = 150.f;
@@ -86,6 +89,7 @@ const sf::Color TERRITORIAL_COLOUR = sf::Color::Magenta;
 const sf::Color OUTPOST_COLOUR = sf::Color::Cyan;
 const sf::Color SQUAD_1_COLOUR = sf::Color::Red;
 const sf::Color SQUAD_2_COLOUR = sf::Color::Cyan;
+const sf::Color SQUAD_3_COLOUR = sf::Color::Green;
 const sf::Color RESOURCE_COLOUR = sf::Color::Green;
 const sf::Color LURKER_COLOUR = sf::Color(128, 64, 0);
 
@@ -122,7 +126,7 @@ const float OUTPOST_TRIGGER_RADIUS = 100.f;
 const float OUTPOST_SUPPLY_REPLENISH_RANGE = 100.f;
 const float OUTPOST_SUPPLY_REPLENISH_PERCENTAGE = 10.f;
 const float OUTPOST_PROTECT_RANGE = 200.f;
-const float OUTPOST_VIEW_RANGE = 100.f;
+const float OUTPOST_VIEW_RANGE = 200.f;
 
 const float AIRDROP_RADIUS = 10.f;
 const float AIRDROP_TRIGGER_RADIUS = 20.f;

@@ -36,6 +36,7 @@ void QuestSystemComponent::update(Context& context)
             if (questline->currentNode->next)
             {
                 questline->currentNode = questline->currentNode->next;
+                questline->currentNode->onActivated(context);
             }
             else
             {

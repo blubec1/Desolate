@@ -1,4 +1,5 @@
 #include "QuestSystem/Nodes/ObjectivePickupQuest.hpp"
+#include "EntityFactory.hpp"
 #include "context.hpp"
 #include "Components/ResourceManager.hpp"
 
@@ -26,4 +27,16 @@ void ObjectivePickupQuest::applyReward(Context& context)
     case ResourceType::Metal:  rm->addMetal(rewardAmount); break;
     case ResourceType::People: rm->addPeople(rewardAmount); break;
     }
+}
+
+void ObjectivePickupQuest::onActivated(Context& context)
+{
+    sf::FloatRect clipViewport({0.f, 0.f},
+        {context.mapViewWidth / context.windowWidth,
+         context.mapViewHeight / context.windowHeight});
+    Entity* objective = Desolate::Factory::createObjectiveEntity(
+        context.world, spawnPosition, OBJECTIVE_ITEM_COLOUR, OBJECTIVE_ITEM_RADIUS,
+        OBJECTIVE_ITEM_TRIGGER_RANGE, OBJECTIVE_ITEM_VIEW_RANGE,
+        OBJECTIVE_ITEM_TIME_TO_APPEAR, clipViewport, getCollectedPtr());
+    context.addEntity(objective);
 }

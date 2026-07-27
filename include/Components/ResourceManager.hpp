@@ -7,12 +7,12 @@ class ResourceManager : public Component
     ResourceManager() = default;
     
     int metal = 0;
-    int food = 0;
+    int food = 50;
     int people = 10;
     int workingPeople = 0;
     int nonWorkingPeople = 10;
 
-    float workRatio = 0.5f;
+    float workRatio = 0.f;
     float tickTimer;
     float tickCooldown;
     float foodConsumptionRate;

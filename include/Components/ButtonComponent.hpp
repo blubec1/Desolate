@@ -26,4 +26,5 @@ public:
 
     void update(Context& context) override;
     void draw(sf::RenderTarget& target, sf::RenderStates states) override;
+    void setLabel(const std::string& text, const sf::Font& font, int fontSize);
 };

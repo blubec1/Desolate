@@ -10,4 +10,6 @@ void Input::lateUpdate()
     previousMousePos = mousePos;
     previousLeftMouseButtonState = isHoldingLeftMouseButton;
     previousRightMouseButtonState = isHoldingRightMouseButton;
+    keyPressed = false;
+    textEntered = false;
 }

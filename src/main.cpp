@@ -27,7 +27,7 @@ int main()
 	sf::Font erodeFont;
 	if (!digitalFont.openFromFile(RESOURCE_DIR "/fonts/DIGITAL/DS-DIGI.TTF"))
 		return -1;
-	if (!ledFont.openFromFile(RESOURCE_DIR "/fonts/LED/LEDLIGHT.otf"))
+	if (!ledFont.openFromFile(RESOURCE_DIR "/fonts/PROPAGANDA/PROPAGANDA.ttf"))
 		return -1;
 	if (!erodeFont.openFromFile(RESOURCE_DIR "/fonts/ERODED/Finger Printed.ttf"))
 		return -1;
@@ -76,11 +76,19 @@ int main()
 			}
 			else if (event->is<sf::Event::KeyPressed>())
 			{
-				if (event->getIf<sf::Event::KeyPressed>()->code == sf::Keyboard::Key::Escape)
+				input.lastKeyPressed = event->getIf<sf::Event::KeyPressed>()->code;
+				input.keyPressed = true;
+
+				if (input.lastKeyPressed == sf::Keyboard::Key::Escape)
 				{
 					if (!sceneStack.empty() && sceneStack.topScene()->isEscapable)
 						sceneStack.topScene()->pendingPop = true;
 				}
+			}
+			else if (event->is<sf::Event::TextEntered>())
+			{
+				input.lastTextEntered = event->getIf<sf::Event::TextEntered>()->unicode;
+				input.textEntered = true;
 			}
 		}
 
@@ -94,6 +102,7 @@ int main()
 			context.radioVolume = settingsState.radioVolume;
 			context.sfxVolume = settingsState.sfxVolume;
 			context.voicelineVolume = settingsState.voicelineVolume;
+			context.debugRevealAll = settingsState.debugRevealAll;
 
 			input.getMouseInput(sf::Vector2i(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
 

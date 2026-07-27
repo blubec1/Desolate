@@ -46,7 +46,7 @@ public:
     }
     
     bool isMarkedForDeletion() { return markedForDeletion; }
-    void destroy() { markedForDeletion = true; }
+void destroy() { markedForDeletion = true; }
     
     void reset();
     void update(Context& context);

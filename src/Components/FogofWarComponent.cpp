@@ -58,6 +58,12 @@ void FogofWarComponent::update(Context& context)
 
         if(factionComponent != nullptr && visibilityComponent != nullptr)
         {
+            if(context.debugRevealAll)
+            {
+                visibilityComponent->outOfVision = false;
+                continue;
+            }
+
             if(factionComponent->FactionID == factionVisionID)
             {
                 visibilityComponent->outOfVision = false;
@@ -78,6 +84,14 @@ void FogofWarComponent::update(Context& context)
     initGradient();
 
     fogTexture.setView(sf::View(sf::FloatRect({0.f, 0.f}, {(float)MAP_WIDTH, (float)MAP_HEIGHT})));
+
+    if(context.debugRevealAll)
+    {
+        fogTexture.clear(sf::Color::Transparent);
+        fogTexture.display();
+        return;
+    }
+
     fogTexture.clear(sf::Color(0, 0, 0, (unsigned char)FOG_OVERLAY_ALPHA));
 
     sf::BlendMode fogErase(

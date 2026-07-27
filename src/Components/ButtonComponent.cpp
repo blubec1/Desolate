@@ -78,3 +78,13 @@ void ButtonComponent::draw(sf::RenderTarget& target, sf::RenderStates states)
 
     target.draw(label, states);
 }
+
+void ButtonComponent::setLabel(const std::string& text, const sf::Font& font, int fontSize)
+{
+    label.setFont(font);
+    label.setString(text);
+    label.setCharacterSize(fontSize);
+    label.setFillColor(sf::Color::White);
+    sf::FloatRect textBounds = label.getLocalBounds();
+    label.setOrigin(sf::Vector2f(textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f));
+}

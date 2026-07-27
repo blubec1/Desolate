@@ -32,6 +32,7 @@
 #include "Components/NumberComponent.hpp"
 #include "Components/ButtonComponent.hpp"
 #include "Components/SliderComponent.hpp"
+#include "Components/TextInputComponent.hpp"
 #include "Components/KnobComponent.hpp"
 #include "Components/TextComponent.hpp"
 #include "Components/RadioEventHandler.hpp"
@@ -51,6 +52,7 @@
 #include "Components/AudioComponent.hpp"
 #include "Components/WorldPositionComponent.hpp"
 #include "Components/HearComponent.hpp"
+#include <cstdlib>
 
 //Завод!
 
@@ -474,7 +476,7 @@ namespace Desolate::Factory
 
         float buttonWidth = float(int(sideW * 0.28f + 0.5f));
         float buttonHeight = float(int(barH * 0.12f + 0.5f));
-        float subButtonWidth = float(int(sideW * 0.18f + 0.5f));
+        float subButtonWidth = float(int(sideW * 0.14f + 0.5f));
         float subButtonHeight = float(int(barH * 0.12f + 0.5f));
 
         int btnFontSize = int(barH * 0.12f + 0.5f);
@@ -488,9 +490,12 @@ namespace Desolate::Factory
         float col5X = mapViewWidth * 0.443f;
         float col6X = mapViewWidth * 0.495f;
         float upgradeX = mapViewWidth * 0.550f;
-        float subBtn1X = mapViewWidth * 0.575f;
-        float subBtn2X = mapViewWidth * 0.645f;
-        float subBtn3X = mapViewWidth * 0.715f;
+        float subBtn1X = mapViewWidth * 0.570f;
+        float subBtn2X = mapViewWidth * 0.660f;
+        float subBtn3X = mapViewWidth * 0.750f;
+
+        int viewCost = 50, hpCost = 30, supplyCost = 20;
+        int dmgCost = 40, rangeCost = 35, foodCost = 25, metalCost = 35;
 
         float row1Y = barY + barH * 0.25f;
         float row2Y = barY + barH * 0.50f;
@@ -702,6 +707,45 @@ namespace Desolate::Factory
         metalBtn->hitboxShape->setOrigin(sf::Vector2f(subButtonWidth / 2.f, subButtonHeight / 2.f));
         metalBtn->disable();
 
+        // --- Upgrade cost displays ---
+
+        float costOffsetX = subButtonWidth / 2.f + 6.f;
+
+        auto* viewCostDisplay = UIEntity->addComponent<NumberComponent>(
+            sf::Vector2f(subBtn1X + costOffsetX, barY + barH * 0.55f), fontNumbers, smallFontSize);
+        viewCostDisplay->valuePtr = &viewCost;
+        viewCostDisplay->disable();
+
+        auto* hpCostDisplay = UIEntity->addComponent<NumberComponent>(
+            sf::Vector2f(subBtn2X + costOffsetX, barY + barH * 0.55f), fontNumbers, smallFontSize);
+        hpCostDisplay->valuePtr = &hpCost;
+        hpCostDisplay->disable();
+
+        auto* supplyCostDisplay = UIEntity->addComponent<NumberComponent>(
+            sf::Vector2f(subBtn3X + costOffsetX, barY + barH * 0.55f), fontNumbers, smallFontSize);
+        supplyCostDisplay->valuePtr = &supplyCost;
+        supplyCostDisplay->disable();
+
+        auto* dmgCostDisplay = UIEntity->addComponent<NumberComponent>(
+            sf::Vector2f(subBtn1X + costOffsetX, barY + barH * 0.71f), fontNumbers, smallFontSize);
+        dmgCostDisplay->valuePtr = &dmgCost;
+        dmgCostDisplay->disable();
+
+        auto* rangeCostDisplay = UIEntity->addComponent<NumberComponent>(
+            sf::Vector2f(subBtn2X + costOffsetX, barY + barH * 0.71f), fontNumbers, smallFontSize);
+        rangeCostDisplay->valuePtr = &rangeCost;
+        rangeCostDisplay->disable();
+
+        auto* foodCostDisplay = UIEntity->addComponent<NumberComponent>(
+            sf::Vector2f(subBtn3X + costOffsetX, barY + barH * 0.71f), fontNumbers, smallFontSize);
+        foodCostDisplay->valuePtr = &foodCost;
+        foodCostDisplay->disable();
+
+        auto* metalCostDisplay = UIEntity->addComponent<NumberComponent>(
+            sf::Vector2f(subBtn3X + costOffsetX, barY + barH * 0.87f), fontNumbers, smallFontSize);
+        metalCostDisplay->valuePtr = &metalCost;
+        metalCostDisplay->disable();
+
         // --- Upgrade toggle ---
 
         auto* upgradeShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
@@ -709,7 +753,9 @@ namespace Desolate::Factory
         upgradeShape->setFillColor(sf::Color(150, 150, 150));
         upgradeShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
         UIEntity->addComponent<ButtonComponent>(upgradeShape, "UPGRADE", fontLetters,
-            [viewRngBtn, maxHpBtn, supplyBtn, dmgBtn, rangeBtn, foodBtn, metalBtn](Context&) {
+            [viewRngBtn, maxHpBtn, supplyBtn, dmgBtn, rangeBtn, foodBtn, metalBtn,
+             viewCostDisplay, hpCostDisplay, supplyCostDisplay,
+             dmgCostDisplay, rangeCostDisplay, foodCostDisplay, metalCostDisplay](Context&) {
                 viewRngBtn->toggle();
                 maxHpBtn->toggle();
                 supplyBtn->toggle();
@@ -717,6 +763,58 @@ namespace Desolate::Factory
                 rangeBtn->toggle();
                 foodBtn->toggle();
                 metalBtn->toggle();
+                viewCostDisplay->toggle();
+                hpCostDisplay->toggle();
+                supplyCostDisplay->toggle();
+                dmgCostDisplay->toggle();
+                rangeCostDisplay->toggle();
+                foodCostDisplay->toggle();
+                metalCostDisplay->toggle();
+            }, RESOURCE_DIR "/textures/button.png", btnFontSize);
+
+        // --- New Squad button ---
+
+        auto* newSquadShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
+        newSquadShape->setPosition(sf::Vector2f(col1X, row3Y));
+        newSquadShape->setFillColor(sf::Color(180, 80, 80));
+        newSquadShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
+        UIEntity->addComponent<ButtonComponent>(newSquadShape, "NEW SQUAD", fontLetters,
+            [resManager](Context& ctx) {
+                if (resManager->metal < SQUAD_CREATION_METAL_COST) return;
+                if (resManager->people < SQUAD_CREATION_PEOPLE_COST) return;
+
+                if (!ctx.startingOutpost) return;
+                auto* outpostPos = ctx.startingOutpost->getComponent<WorldPositionComponent>();
+                if (!outpostPos) return;
+
+                resManager->metal -= SQUAD_CREATION_METAL_COST;
+                resManager->addPeople(-SQUAD_CREATION_PEOPLE_COST);
+
+                sf::Vector2f spawnPos = outpostPos->position;
+                spawnPos.x += 20.f;
+
+                sf::Color squadColours[] = {
+                    sf::Color::Red, sf::Color::Cyan, sf::Color::Green,
+                    sf::Color::Yellow, sf::Color::Magenta, sf::Color(255, 128, 0),
+                    sf::Color(128, 0, 255), sf::Color(0, 128, 255)
+                };
+                sf::Color newColour = squadColours[std::rand() % 8];
+
+                int newVoice = (std::rand() % 2) + 1;
+                Entity* newSquad = Desolate::Factory::createSquadEntity(
+                    ctx.world, spawnPos, newColour, SQUAD_CIRCLE_SIZE, SQUAD_SPEED,
+                    ctx.squadDamage, SQUAD_SHOOT_RANGE, SQUAD_ATTACK_COOLDOWN, ctx.squadMaxHp,
+                    SQUAD_VISIBILITY_RANGE, PLAYER_FACTION, SQUAD_TIME_TO_APPEAR, MONSTER_FACTION,
+                    ctx.squadSupplyMax, SQUAD_SUPPLY_DRAIN_RATE, SQUAD_SUPPLY_HP_DRAIN_PERCENTAGE,
+                    SHOCKWAVE_COOLDOWN, SHOCKWAVE_RADIUS, SHOCKWAVE_DEFAULT_MAX_CHARGES,
+                    false, false, 0.f,
+                    STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW,
+                    STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD,
+                    STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME,
+                    sf::FloatRect({0.f, 0.f}, {ctx.mapViewWidth / ctx.windowWidth, ctx.mapViewHeight / ctx.windowHeight}),
+                    &ctx.sfxVolume, &ctx.voicelineVolume, newVoice);
+                newSquad->getComponent<AreaScanComponent>()->viewBuff = ctx.squadViewBuff;
+                ctx.addEntity(newSquad);
             }, RESOURCE_DIR "/textures/button.png", btnFontSize);
 
         return UIEntity;
@@ -737,19 +835,19 @@ namespace Desolate::Factory
         int menuFontSize = int(windowHeight * 0.022f + 0.5f);
 
         auto* playShape = new sf::RectangleShape(sf::Vector2f(menuButtonWidth, menuButtonHeight));
-        playShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.35f));
+        playShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.40f));
         playShape->setFillColor(sf::Color(80, 200, 80));
         playShape->setOrigin(sf::Vector2f(menuButtonWidth / 2.f, menuButtonHeight / 2.f));
         MenuUI->addComponent<ButtonComponent>(playShape, "PLAY", font, onPlay, RESOURCE_DIR "/textures/button.png", menuFontSize);
 
         auto* settingsShape = new sf::RectangleShape(sf::Vector2f(menuButtonWidth, menuButtonHeight));
-        settingsShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.50f));
+        settingsShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.55f));
         settingsShape->setFillColor(sf::Color(100, 100, 200));
         settingsShape->setOrigin(sf::Vector2f(menuButtonWidth / 2.f, menuButtonHeight / 2.f));
         MenuUI->addComponent<ButtonComponent>(settingsShape, "SETTINGS", font, onSettings, RESOURCE_DIR "/textures/button.png", menuFontSize);
 
         auto* exitShape = new sf::RectangleShape(sf::Vector2f(menuButtonWidth, menuButtonHeight));
-        exitShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.65f));
+        exitShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.70f));
         exitShape->setFillColor(sf::Color(200, 80, 80));
         exitShape->setOrigin(sf::Vector2f(menuButtonWidth / 2.f, menuButtonHeight / 2.f));
         MenuUI->addComponent<ButtonComponent>(exitShape, "EXIT", font, onExit, RESOURCE_DIR "/textures/button.png", menuFontSize);
@@ -810,6 +908,8 @@ namespace Desolate::Factory
 
         auto* radioHandler = Radio->addComponent<RadioEventHandler>(frequencyPtr);
 
+        Radio->addComponent<FactionComponent>(PLAYER_FACTION);
+
         auto* airdropRadioEvent = new AirdropRadioEvent(
             50.f, 5.f, 100.f, 5.f,
             sf::Vector2f(600.f, 400.f),
@@ -821,5 +921,23 @@ namespace Desolate::Factory
         radioHandler->addEvent(airdropRadioEvent);
 
         return Radio;
+    }
+
+    inline Entity* createTextInputEntity(const sf::Font& font, sf::Vector2f position,
+        sf::Vector2f size, const std::string& placeholder, int maxCharacters, int fontSize)
+    {
+        Entity* textInput = new Entity();
+        textInput->type = EntityType::UI;
+        textInput->position = position;
+
+        auto* shape = new sf::RectangleShape(size);
+        shape->setOrigin(sf::Vector2f(size.x / 2.f, size.y / 2.f));
+        shape->setFillColor(sf::Color(30, 30, 30));
+        shape->setOutlineThickness(1.f);
+        shape->setOutlineColor(sf::Color::White);
+
+        textInput->addComponent<TextInputComponent>(shape, font, placeholder, maxCharacters, fontSize);
+
+        return textInput;
     }
 }

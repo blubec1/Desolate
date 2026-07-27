@@ -18,4 +18,5 @@ public:
 
     virtual bool checkRequirement(Context& context) = 0;
     virtual void applyReward(Context& context) = 0;
+    virtual void onActivated(Context& context) {}
 };

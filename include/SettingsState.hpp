@@ -13,6 +13,8 @@ struct SettingsState {
     float sfxVolume = 100.f;
     float voicelineVolume = 100.f;
 
+    bool debugRevealAll = false;
+
     void load(const std::string& path);
     void save(const std::string& path) const;
 };
