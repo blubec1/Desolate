@@ -20,6 +20,7 @@ enum class AirdropStepType
 struct AirdropBroadcastStep
 {
     AirdropStepType type;
+    
     union
     {
         float duration;

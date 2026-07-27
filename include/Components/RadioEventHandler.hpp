@@ -64,6 +64,8 @@ public:
     void removeEvent(float secretFrequency);
     void changeEventFrequency(float secretFrequency, float newFrequency);
 
+    float getAvailableFrequency(float minFreq, float maxFreq, float tolerance, const RadioEvent* exclude = nullptr, const std::vector<float>& extraOccupied = {}) const;
+
     virtual void update(Context& context) override;
 
     void flushPending();

@@ -72,7 +72,7 @@ void AudioSystemComponent::update(Context& context)
     cleanupStoppedSounds();
 }
 
-sf::Sound* AudioSystemComponent::playEvent(EntityType entityType, SoundEvent event, float volume, int voice, float offset)
+sf::Sound* AudioSystemComponent::playEvent(EntityType entityType, SoundEvent event, float volume, int voice, float offset, bool loop)
 {
     cleanupStoppedSounds();
 
@@ -86,7 +86,9 @@ sf::Sound* AudioSystemComponent::playEvent(EntityType entityType, SoundEvent eve
         if (fit != vit->second.end() && !fit->second.empty())
         {
             int idx = std::rand() % fit->second.size();
-            return playSound(fit->second[idx], volume, offset);
+            sf::Sound* sound = playSound(fit->second[idx], volume, offset);
+            if (sound) sound->setLooping(loop);
+            return sound;
         }
     }
 
@@ -96,7 +98,9 @@ sf::Sound* AudioSystemComponent::playEvent(EntityType entityType, SoundEvent eve
         if (fit != eit->second[1].end() && !fit->second.empty())
         {
             int idx = std::rand() % fit->second.size();
-            return playSound(fit->second[idx], volume, offset);
+            sf::Sound* sound = playSound(fit->second[idx], volume, offset);
+            if (sound) sound->setLooping(loop);
+            return sound;
         }
     }
 

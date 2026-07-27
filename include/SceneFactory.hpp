@@ -18,6 +18,8 @@
 #include "Components/NumberComponent.hpp"
 #include "Components/WorldComponent.hpp"
 #include "ChunkGenerator.hpp"
+#include "RadioEvents/OutpostRadioEvent.hpp"
+#include "Components/RadioEventHandler.hpp"
 #include <random>
 
 namespace Desolate::SceneFactory
@@ -109,6 +111,32 @@ namespace Desolate::SceneFactory
         context.addEntity(ENT_Radio);
 
         ChunkGen::generateSceneEntities(context, resManager, mapClipViewport, seed);
+        context.flushPendingAdditions();
+
+        {
+            auto* radioHandler = ENT_Radio->getComponent<RadioEventHandler>();
+            if (radioHandler)
+            {
+                std::vector<float> occupied;
+                for (auto& [existingFreq, _] : radioHandler->events)
+                    occupied.push_back(existingFreq);
+
+                for (auto* entity : context.getEntities())
+                {
+                    if (entity->type != EntityType::Outpost || entity == context.startingOutpost)
+                        continue;
+
+                    auto* faction = entity->getComponent<FactionComponent>();
+                    if (!faction || faction->FactionID == PLAYER_FACTION)
+                        continue;
+
+                    float freq = radioHandler->getAvailableFrequency(OUTPOST_RADIO_MIN_FREQ, OUTPOST_RADIO_MAX_FREQ, OUTPOST_RADIO_TOLERANCE, nullptr, occupied);
+                    occupied.push_back(freq);
+
+                    radioHandler->addEvent(new OutpostRadioEvent(freq, OUTPOST_RADIO_TOLERANCE, entity, PLAYER_FACTION));
+                }
+            }
+        }
 
         std::vector<Desolate::ChunkGen::Chunk*> tier2Wilderness;
         for (auto& chunk : context.chunks)

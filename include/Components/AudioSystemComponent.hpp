@@ -142,7 +142,7 @@ class AudioSystemComponent : public Component
     }
 
     sf::Sound* playSound(const std::string& name, float volume = 100.f, float offset = 0.f);
-    sf::Sound* playEvent(EntityType entityType, SoundEvent event, float volume = 100.f, int voice = 1, float offset = 0.f);
+    sf::Sound* playEvent(EntityType entityType, SoundEvent event, float volume = 100.f, int voice = 1, float offset = 0.f, bool loop = false);
     void playMusic(const std::string& name, bool loop = true);
     void stopMusic();
 

@@ -116,58 +116,7 @@ void AirdropRadioEvent::onUpdate(Context& context)
         {
             airdropEntity = nullptr;
 
-            float newFreq;
-
-            std::vector<std::pair<float, float>> availableRanges = {{minFrequency, maxFrequency}};
-
-            for (auto& [freq, event] : owner->events)
-            {
-                if (event == this) continue;
-
-                float oLow  = freq - event->tolerance - this->tolerance;
-                float oHigh = freq + event->tolerance + this->tolerance;
-
-                std::vector<std::pair<float, float>> nextRanges;
-                for (auto& [aLow, aHigh] : availableRanges)
-                {
-                    if (oHigh < aLow || oLow > aHigh)
-                    {
-                        nextRanges.push_back({aLow, aHigh});
-                    }
-                    else
-                    {
-                        if (aLow < oLow)
-                            nextRanges.push_back({aLow, oLow - 0.1f});
-                        if (aHigh > oHigh)
-                            nextRanges.push_back({oHigh + 0.1f, aHigh});
-                    }
-                }
-                availableRanges = nextRanges;
-            }
-
-            if (availableRanges.empty())
-            {
-                newFreq = minFrequency;
-            }
-            else
-            {
-                int totalSteps = 0;
-                for (auto& [lo, hi] : availableRanges)
-                    totalSteps += static_cast<int>(std::round((hi - lo) * 10.f)) + 1;
-
-                int pick = std::rand() % totalSteps;
-                for (auto& [lo, hi] : availableRanges)
-                {
-                    int steps = static_cast<int>(std::round((hi - lo) * 10.f)) + 1;
-                    if (pick < steps)
-                    {
-                        newFreq = std::round((lo + pick * 0.1f) * 10.f) / 10.f;
-                        break;
-                    }
-                    pick -= steps;
-                }
-            }
-
+            float newFreq = owner->getAvailableFrequency(minFrequency, maxFrequency, tolerance, this);
             owner->changeEventFrequency(secretFrequency, newFreq);
             onInit();
         }

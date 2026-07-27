@@ -44,7 +44,8 @@ enum class SoundEvent
     Death,
     AirdropMessage,
     AirdropDigit0, AirdropDigit1, AirdropDigit2, AirdropDigit3, AirdropDigit4,
-    AirdropDigit5, AirdropDigit6, AirdropDigit7, AirdropDigit8, AirdropDigit9
+    AirdropDigit5, AirdropDigit6, AirdropDigit7, AirdropDigit8, AirdropDigit9,
+    OutpostChatter
 };
 
 const unsigned int MAP_HEIGHT = 1080;
@@ -152,7 +153,7 @@ const float RESOURCE_VIEW_RANGE = 750.f;
 
 const float RESOURCE_LOCATION_RADIUS = RESOURCE_RADIUS;
 const float RESOURCE_LOCATION_TRIGGER_RANGE = 20.f;
-const float RESOURCE_LOCATION_VIEW_RANGE = 50.f;
+const float RESOURCE_LOCATION_VIEW_RANGE = 100.f;
 const float RESOURCE_LOCATION_TIME_TO_APPEAR = 0.5f;
 const float RESOURCE_LOCATION_DECAY_TIME = 60.f;
 const sf::Color RESOURCE_LOCATION_COLOUR_FOOD = sf::Color(76, 175, 80);
@@ -219,6 +220,10 @@ const int STANDARD_AUDIO_PREEMPT_THRESHOLD = 3;
 const float STANDARD_GUNSHOT_VOLUME = 50.f;
 const float STANDARD_ATTACK_VOICE_VOLUME = 75.f;
 
+const float OUTPOST_RADIO_TOLERANCE = 3.f;
+const float OUTPOST_RADIO_MIN_FREQ = 30.f;
+const float OUTPOST_RADIO_MAX_FREQ = 88.f;
+
 const sf::Color PLAYER_HP_COLOUR = sf::Color::Blue;
 const sf::Color MONSTER_HP_COLOUR = sf::Color::Red;
 
@@ -261,6 +266,7 @@ inline const char* soundEventToString(SoundEvent e)
         case SoundEvent::AirdropDigit7:  return "AirdropDigit7";
         case SoundEvent::AirdropDigit8:  return "AirdropDigit8";
         case SoundEvent::AirdropDigit9:  return "AirdropDigit9";
+        case SoundEvent::OutpostChatter: return "OutpostChatter";
         default:                  return "";
     }
 }
@@ -299,5 +305,6 @@ inline SoundEvent stringToSoundEvent(const std::string& s)
     if (s == "AirdropDigit7")  return SoundEvent::AirdropDigit7;
     if (s == "AirdropDigit8")  return SoundEvent::AirdropDigit8;
     if (s == "AirdropDigit9")  return SoundEvent::AirdropDigit9;
+    if (s == "OutpostChatter") return SoundEvent::OutpostChatter;
     return static_cast<SoundEvent>(-1);
 }

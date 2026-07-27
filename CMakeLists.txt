@@ -59,6 +59,7 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
      src/Components/TextInputComponent.cpp
      src/Components/RadioEventHandler.cpp
      src/RadioEvents/AirdropRadioEvent.cpp
+     src/RadioEvents/OutpostRadioEvent.cpp
      src/Animations/voicelineAnimation.cpp
      src/Components/ShockwaveComponent.cpp
      src/Components/ShockwaveRechargeComponent.cpp
