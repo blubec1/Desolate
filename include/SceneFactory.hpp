@@ -9,6 +9,7 @@
 #include "Components/GameOverSystemComponent.hpp"
 #include "QuestSystem/Questline.hpp"
 #include "QuestSystem/Nodes/ResourceThresholdQuest.hpp"
+#include "QuestSystem/Nodes/InstantQuest.hpp"
 #include "QuestSystem/Nodes/KillCountQuest.hpp"
 #include "QuestSystem/Nodes/ObjectivePickupQuest.hpp"
 #include "QuestSystem/Nodes/OutpostCaptureQuest.hpp"
@@ -67,7 +68,7 @@ namespace Desolate::SceneFactory
 
         Questline* questline = new Questline("Survival");
         questline->addNode(new OutpostCaptureQuest(
-            "Capture Outpost", "Capture an outpost",
+            "Capture", "Outpost",
             ResourceType::People, 2));
         questline->addNode(new KillCountQuest(
             "First Blood", "Kill an enemy",
@@ -89,10 +90,12 @@ namespace Desolate::SceneFactory
         questline->addNode(new SurvivalTimeQuest(
             "Endure", "Survive for 120 seconds",
             120.f, ResourceType::Food, 25));
+        questline->addNode(new InstantQuest(
+            "Escape", "Escape"));
         questSys->addQuestline(questline);
         questSys->startQuestline(0);
 
-        Entity* ENT_UI = Desolate::Factory::createUIEntity(digitalFont, ledFont, resManager, questSys, context.mapViewWidth, context.mapViewHeight, context.windowWidth, context.windowHeight, settingsState);
+        Entity* ENT_UI = Desolate::Factory::createUIEntity(digitalFont, ledFont, erodeFont, resManager, questSys, context.mapViewWidth, context.mapViewHeight, context.windowWidth, context.windowHeight, settingsState);
         Entity* ENT_DeathSystem = Desolate::Factory::createDeathSystemEntity();
         Entity* ENT_ProtectionSystem = Desolate::Factory::createProtectionSystemEntity();
         Entity* ENT_FogofWarSystem = Desolate::Factory::createFogofWarEntity();

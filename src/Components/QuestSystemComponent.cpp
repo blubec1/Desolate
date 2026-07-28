@@ -48,10 +48,26 @@ void QuestSystemComponent::update(Context& context)
             }
         }
 
-        if (questline->currentNode)
-            questLines.push_back(questline->name + ": " + questline->currentNode->objective);
+        QuestNode* node = questline->firstNode;
+        bool passedCurrent = false;
+        while (node)
+        {
+            QuestStatus status;
+            if (node == questline->currentNode)
+            {
+                status = QuestStatus::Current;
+                passedCurrent = true;
+            }
+            else if (!passedCurrent)
+                status = QuestStatus::Completed;
+            else
+                status = QuestStatus::Future;
+
+            questLines.push_back({node->name + ": " + node->objective, status});
+            node = node->next;
+        }
     }
 
     if (questLines.empty())
-        questLines.push_back("(no active quests)");
+        questLines.push_back({"(no active quests)", QuestStatus::Current});
 }

@@ -39,6 +39,9 @@ void OutpostRadioEvent::onUpdate(Context& context)
     {
         if (!currentSound || !context.audioManager->isSoundValid(currentSound))
             currentSound = context.audioManager->playEvent(EntityType::Radio, SoundEvent::OutpostChatter, 100.f, 1, 0.f, true);
+
+        if (currentSound)
+            currentSound->setVolume(context.radioVolume * context.masterVolume / 100.f);
     }
     else
     {

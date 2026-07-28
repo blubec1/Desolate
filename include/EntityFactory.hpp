@@ -504,7 +504,7 @@ namespace Desolate::Factory
         return QuestSystem;
     }
 
-    inline Entity* createUIEntity(const sf::Font& fontNumbers, const sf::Font& fontLetters, ResourceManager* resManager, QuestSystemComponent* questSystem, float mapViewWidth, float mapViewHeight, float windowWidth, float windowHeight, SettingsState* settingsState = nullptr)
+    inline Entity* createUIEntity(const sf::Font& fontNumbers, const sf::Font& fontLetters, const sf::Font& fontText, ResourceManager* resManager, QuestSystemComponent* questSystem, float mapViewWidth, float mapViewHeight, float windowWidth, float windowHeight, SettingsState* settingsState = nullptr)
     {
         Entity* UIEntity = new Entity();
         UIEntity->type = EntityType::UI;
@@ -579,7 +579,7 @@ namespace Desolate::Factory
 
     
 
-        auto* questHud = UIEntity->addComponent<QuestHudComponent>(sf::Vector2f(sideX + 25.f, windowHeight * 0.35f + 375.f + 10.f), fontLetters, fontNumbers, questSystem, smallFontSize, barH * 0.08f);
+        auto* questHud = UIEntity->addComponent<QuestHudComponent>(sf::Vector2f(sideX + 50.f, windowHeight * 0.35f + 375.f + 10.f), fontLetters, fontNumbers, questSystem, int(smallFontSize * 0.75f), barH * 0.06f);
 
         // --- Upgrade sub-buttons (initially disabled) ---
 

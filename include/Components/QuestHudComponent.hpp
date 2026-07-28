@@ -8,19 +8,19 @@ class QuestSystemComponent;
 class QuestHudComponent : public Component
 {
 public:
-    sf::Font fontLetters, fontNumbers;
+    sf::Font fontText, fontNumbers;
     std::vector<sf::Text> texts;
     sf::Vector2f position;
     QuestSystemComponent* qsc = nullptr;
     int fontSize;
     float lineSpacing;
 
-    QuestHudComponent(sf::Vector2f position, const sf::Font& fontLetters, const sf::Font& fontNumbers, QuestSystemComponent* qsc, int fontSize = 20, float lineSpacing = 24.f)
-    : fontLetters(fontLetters), fontNumbers(fontNumbers), position(position), qsc(qsc), fontSize(fontSize), lineSpacing(lineSpacing) {}
+    QuestHudComponent(sf::Vector2f position, const sf::Font& fontText, const sf::Font& fontNumbers, QuestSystemComponent* qsc, int fontSize = 20, float lineSpacing = 24.f)
+    : fontText(fontText), fontNumbers(fontNumbers), position(position), qsc(qsc), fontSize(fontSize), lineSpacing(lineSpacing) {}
 
     void update(Context& context) override;
     void draw(sf::RenderTarget& target, sf::RenderStates states) override;
 
 private:
-    void flushSegment(std::string& run, bool inDigit, float& x, float y);
+    void flushSegment(std::string& run, bool inDigit, float& x, float y, int size, sf::Color textColor, sf::Color digitColor);
 };

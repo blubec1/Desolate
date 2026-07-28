@@ -4,11 +4,18 @@
 #include <vector>
 #include <string>
 
+enum class QuestStatus { Completed, Current, Future };
+
+struct QuestLineEntry {
+    std::string text;
+    QuestStatus status;
+};
+
 class QuestSystemComponent : public Component
 {
 public:
     std::vector<Questline*> questlines;
-    std::vector<std::string> questLines;
+    std::vector<QuestLineEntry> questLines;
 
     ~QuestSystemComponent();
 

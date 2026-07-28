@@ -69,6 +69,7 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
      src/Components/QuestHudComponent.cpp
      src/QuestSystem/Questline.cpp
      src/QuestSystem/Nodes/ResourceThresholdQuest.cpp
+     src/QuestSystem/Nodes/InstantQuest.cpp
      src/QuestSystem/Nodes/KillCountQuest.cpp
      src/QuestSystem/Nodes/ObjectivePickupQuest.cpp
      src/QuestSystem/Nodes/OutpostCaptureQuest.cpp
