@@ -43,6 +43,7 @@ void QuestSystemComponent::update(Context& context)
                 questline->currentNode = nullptr;
                 questline->completed = true;
                 questline->active = false;
+                context.victory = true;
                 continue;
             }
         }

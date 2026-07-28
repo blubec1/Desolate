@@ -11,6 +11,8 @@ namespace Desolate::ChunkGen
         TerritorialZone,
         HunterZone,
         ResourceCluster,
+        DangerousWilderness,
+        DangerousResourceCluster,
         Empty
     };
 

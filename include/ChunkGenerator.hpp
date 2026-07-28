@@ -6,6 +6,7 @@
 #include "Components/ResourceManager.hpp"
 #include "Components/AreaScanComponent.hpp"
 #include "Components/WorldPositionComponent.hpp"
+#include "Components/ProtectComponent.hpp"
 #include <random>
 #include <vector>
 #include <algorithm>
@@ -95,7 +96,7 @@ namespace Desolate::ChunkGen
         std::vector<std::vector<WeightPair>> tierWeights = {
             { {ChunkType::Wilderness, 0.40f}, {ChunkType::ResourceCluster, 0.25f}, {ChunkType::Empty, 0.35f} },
             { {ChunkType::Wilderness, 0.40f}, {ChunkType::TerritorialZone, 0.15f}, {ChunkType::ResourceCluster, 0.15f}, {ChunkType::Empty, 0.30f} },
-            { {ChunkType::Wilderness, 0.30f}, {ChunkType::HunterZone, 0.25f}, {ChunkType::ResourceCluster, 0.05f}, {ChunkType::Empty, 0.40f} }
+            { {ChunkType::DangerousWilderness, 0.30f}, {ChunkType::HunterZone, 0.25f}, {ChunkType::DangerousResourceCluster, 0.05f}, {ChunkType::Empty, 0.40f} }
         };
 
         for (int tier = 0; tier < 3; ++tier)
@@ -170,11 +171,21 @@ namespace Desolate::ChunkGen
         context.addEntity(squad3);
     }
 
-    inline void populateNeutralOutpost(Context& context, const Chunk& chunk, ResourceManager* resManager, const sf::FloatRect& clipViewport)
+    inline void populateNeutralOutpost(Context& context, const Chunk& chunk, ResourceManager* resManager, const sf::FloatRect& clipViewport, std::mt19937& rng)
     {
         auto* world = context.world;
-        sf::Vector2f center = {chunk.bounds.position.x + chunk.bounds.size.x / 2.f,
-                               chunk.bounds.position.y + chunk.bounds.size.y / 2.f};
+        sf::Vector2f center = randomPosInChunk(rng, chunk.bounds);
+
+        for (auto* entity : context.getEntities())
+        {
+            auto* pc = entity->getComponent<ProtectComponent>();
+            if (!pc || !pc->protectsOthers) continue;
+            sf::Vector2f otherPos = getLogicPosition(entity);
+            sf::Vector2f diff = center - otherPos;
+            if (std::sqrt(diff.x * diff.x + diff.y * diff.y) < OUTPOST_MIN_SPACING)
+                return;
+        }
+
         Entity* outpost = Desolate::Factory::createOutpostEntity(world, center, OUTPOST_COLOUR, OUTPOST_RADIUS, OUTPOST_HEAL_RANGE, OUTPOST_HEAL_PERCENTAGE, OUTPOST_SUPPLY_REPLENISH_RANGE, OUTPOST_SUPPLY_REPLENISH_PERCENTAGE, NEUTRAL_FACTION, OUTPOST_TRIGGER_RADIUS, SHOCKWAVE_RECHARGE_RANGE, SHOCKWAVE_RECHARGE_RATE, true, true, OUTPOST_PROTECT_RANGE, clipViewport);
         context.addEntity(outpost);
     }
@@ -183,7 +194,7 @@ namespace Desolate::ChunkGen
     {
         auto* world = context.world;
 
-        if (randomFloat(rng, 0, 1) < 0.5f)
+        if (randomFloat(rng, 0, 1) < 0.7f)
         {
             sf::Vector2f pos = randomPosInChunk(rng, chunk.bounds);
 
@@ -194,6 +205,13 @@ namespace Desolate::ChunkGen
 
             Entity* wanderer = Desolate::Factory::createWandererEntity(world, pos, WANDERER_COLOUR, WANDERER_RADIUS, WANDERER_MOVE_SPEED, WANDERER_CHASE_SPEED, WANDERER_DAMAGE, WANDERER_SHOOT_RANGE, WANDERER_ATTACK_COOLDOWN, WANDERER_MAX_HEALTH, path, WANDERER_AGGRO_RANGE, WANDERER_DE_AGGRO_RANGE, WANDERER_DE_AGGRO_COOLDOWN, STANDARD_VISIBILITY_RANGE, MONSTER_FACTION, WANDERER_TIME_TO_APPEAR, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport, &context.sfxVolume, &context.voicelineVolume);
             context.addEntity(wanderer);
+        }
+
+        if (randomFloat(rng, 0, 1) < 0.45f)
+        {
+            sf::Vector2f pos = randomPosInChunk(rng, chunk.bounds);
+            Entity* territorial = Desolate::Factory::createTerritorialEntity(world, pos, TERRITORIAL_COLOUR, TERRITORIAL_RADIUS, TERRITORIAL_PATROL_SPEED, TERRITORIAL_PATROL_RADIUS, TERRITORIAL_CHASE_SPEED, TERRITORIAL_DAMAGE, TERRITORIAL_SHOOT_RANGE, TERRITORIAL_ATTACK_COOLDOWN, TERRITORIAL_MAX_HEALTH, TERRITORIAL_AGGRO_RANGE, TERRITORIAL_DE_AGGRO_RANGE, TERRITORIAL_DE_AGGRO_COOLDOWN, STANDARD_VISIBILITY_RANGE, MONSTER_FACTION, TERRITORIAL_TIME_TO_APPEAR, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport, &context.sfxVolume, &context.voicelineVolume);
+            context.addEntity(territorial);
         }
 
         if (randomFloat(rng, 0, 1) < 0.4f)
@@ -259,6 +277,110 @@ namespace Desolate::ChunkGen
                 RESOURCE_LOCATION_TRIGGER_RANGE, RESOURCE_LOCATION_VIEW_RANGE,
                 RESOURCE_LOCATION_TIME_TO_APPEAR, RESOURCE_LOCATION_DECAY_TIME, resManager, clipViewport));
         }
+
+        if (randomFloat(rng, 0, 1) < 0.15f)
+        {
+            sf::Vector2f pos = randomPosInChunk(rng, chunk.bounds);
+
+            TracedPath* path = new TracedPath();
+            path->startPath(pos, true);
+            for (int i = 0; i < 3; ++i)
+                path->addNode(new TracedPathNode(randomPosInChunk(rng, chunk.bounds), path));
+
+            Entity* wanderer = Desolate::Factory::createWandererEntity(world, pos, WANDERER_COLOUR, WANDERER_RADIUS, WANDERER_MOVE_SPEED, WANDERER_CHASE_SPEED, WANDERER_DAMAGE, WANDERER_SHOOT_RANGE, WANDERER_ATTACK_COOLDOWN, WANDERER_MAX_HEALTH, path, WANDERER_AGGRO_RANGE, WANDERER_DE_AGGRO_RANGE, WANDERER_DE_AGGRO_COOLDOWN, STANDARD_VISIBILITY_RANGE, MONSTER_FACTION, WANDERER_TIME_TO_APPEAR, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport, &context.sfxVolume, &context.voicelineVolume);
+            context.addEntity(wanderer);
+        }
+    }
+
+    inline void populateDangerousWilderness(Context& context, const Chunk& chunk, ResourceManager* resManager, const sf::FloatRect& clipViewport, std::mt19937& rng)
+    {
+        auto* world = context.world;
+
+        sf::Vector2f resPos = randomPosInChunk(rng, chunk.bounds);
+        ResourceType types[] = {ResourceType::Food, ResourceType::Metal, ResourceType::People};
+        ResourceType type = types[randomInt(rng, 0, 2)];
+        int amounts[] = {50, 30, 2};
+        int amount = amounts[(int)type];
+
+        sf::Color colour;
+        switch (type)
+        {
+            case ResourceType::Food:   colour = RESOURCE_LOCATION_COLOUR_FOOD; break;
+            case ResourceType::Metal:  colour = RESOURCE_LOCATION_COLOUR_METAL; break;
+            case ResourceType::People: colour = RESOURCE_LOCATION_COLOUR_PEOPLE; break;
+        }
+
+        context.addEntity(Desolate::Factory::createResourceLocationEntity(
+            world, resPos, colour, RESOURCE_LOCATION_RADIUS, type, amount,
+            RESOURCE_LOCATION_TRIGGER_RANGE, RESOURCE_LOCATION_VIEW_RANGE,
+            RESOURCE_LOCATION_TIME_TO_APPEAR, RESOURCE_LOCATION_DECAY_TIME, resManager, clipViewport));
+
+        if (randomFloat(rng, 0, 1) < 0.85f)
+        {
+            sf::Vector2f pos = randomPosInChunk(rng, chunk.bounds);
+
+            TracedPath* path = new TracedPath();
+            path->startPath(pos, true);
+            for (int i = 0; i < 3; ++i)
+                path->addNode(new TracedPathNode(randomPosInChunk(rng, chunk.bounds), path));
+
+            Entity* wanderer = Desolate::Factory::createWandererEntity(world, pos, WANDERER_COLOUR, WANDERER_RADIUS, WANDERER_MOVE_SPEED, WANDERER_CHASE_SPEED, WANDERER_DAMAGE, WANDERER_SHOOT_RANGE, WANDERER_ATTACK_COOLDOWN, WANDERER_MAX_HEALTH, path, WANDERER_AGGRO_RANGE, WANDERER_DE_AGGRO_RANGE, WANDERER_DE_AGGRO_COOLDOWN, STANDARD_VISIBILITY_RANGE, MONSTER_FACTION, WANDERER_TIME_TO_APPEAR, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport, &context.sfxVolume, &context.voicelineVolume);
+            context.addEntity(wanderer);
+        }
+
+        if (randomFloat(rng, 0, 1) < 0.60f)
+        {
+            sf::Vector2f pos = randomPosInChunk(rng, chunk.bounds);
+            Entity* territorial = Desolate::Factory::createTerritorialEntity(world, pos, TERRITORIAL_COLOUR, TERRITORIAL_RADIUS, TERRITORIAL_PATROL_SPEED, TERRITORIAL_PATROL_RADIUS, TERRITORIAL_CHASE_SPEED, TERRITORIAL_DAMAGE, TERRITORIAL_SHOOT_RANGE, TERRITORIAL_ATTACK_COOLDOWN, TERRITORIAL_MAX_HEALTH, TERRITORIAL_AGGRO_RANGE, TERRITORIAL_DE_AGGRO_RANGE, TERRITORIAL_DE_AGGRO_COOLDOWN, STANDARD_VISIBILITY_RANGE, MONSTER_FACTION, TERRITORIAL_TIME_TO_APPEAR, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport, &context.sfxVolume, &context.voicelineVolume);
+            context.addEntity(territorial);
+        }
+    }
+
+    inline void populateDangerousResourceCluster(Context& context, const Chunk& chunk, ResourceManager* resManager, const sf::FloatRect& clipViewport, std::mt19937& rng)
+    {
+        auto* world = context.world;
+        int count = randomInt(rng, 3, 4);
+        for (int i = 0; i < count; ++i)
+        {
+            sf::Vector2f pos = randomPosInChunk(rng, chunk.bounds, 20.f);
+            ResourceType types[] = {ResourceType::Food, ResourceType::Metal, ResourceType::People};
+            ResourceType type = types[randomInt(rng, 0, 2)];
+            int amounts[] = {50, 30, 2};
+            int amount = amounts[(int)type];
+
+            sf::Color colour;
+            switch (type)
+            {
+                case ResourceType::Food:   colour = RESOURCE_LOCATION_COLOUR_FOOD; break;
+                case ResourceType::Metal:  colour = RESOURCE_LOCATION_COLOUR_METAL; break;
+                case ResourceType::People: colour = RESOURCE_LOCATION_COLOUR_PEOPLE; break;
+            }
+
+            context.addEntity(Desolate::Factory::createResourceLocationEntity(
+                world, pos, colour, RESOURCE_LOCATION_RADIUS, type, amount,
+                RESOURCE_LOCATION_TRIGGER_RANGE, RESOURCE_LOCATION_VIEW_RANGE,
+                RESOURCE_LOCATION_TIME_TO_APPEAR, RESOURCE_LOCATION_DECAY_TIME, resManager, clipViewport));
+        }
+
+        if (randomFloat(rng, 0, 1) < 0.70f)
+        {
+            sf::Vector2f pos = randomPosInChunk(rng, chunk.bounds);
+
+            TracedPath* path = new TracedPath();
+            path->startPath(pos, true);
+            for (int i = 0; i < 3; ++i)
+                path->addNode(new TracedPathNode(randomPosInChunk(rng, chunk.bounds), path));
+
+            Entity* wanderer = Desolate::Factory::createWandererEntity(world, pos, WANDERER_COLOUR, WANDERER_RADIUS, WANDERER_MOVE_SPEED, WANDERER_CHASE_SPEED, WANDERER_DAMAGE, WANDERER_SHOOT_RANGE, WANDERER_ATTACK_COOLDOWN, WANDERER_MAX_HEALTH, path, WANDERER_AGGRO_RANGE, WANDERER_DE_AGGRO_RANGE, WANDERER_DE_AGGRO_COOLDOWN, STANDARD_VISIBILITY_RANGE, MONSTER_FACTION, WANDERER_TIME_TO_APPEAR, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport, &context.sfxVolume, &context.voicelineVolume);
+            context.addEntity(wanderer);
+        }
+
+        if (randomFloat(rng, 0, 1) < 0.40f)
+        {
+            sf::Vector2f pos = randomPosInChunk(rng, chunk.bounds);
+            Entity* territorial = Desolate::Factory::createTerritorialEntity(world, pos, TERRITORIAL_COLOUR, TERRITORIAL_RADIUS, TERRITORIAL_PATROL_SPEED, TERRITORIAL_PATROL_RADIUS, TERRITORIAL_CHASE_SPEED, TERRITORIAL_DAMAGE, TERRITORIAL_SHOOT_RANGE, TERRITORIAL_ATTACK_COOLDOWN, TERRITORIAL_MAX_HEALTH, TERRITORIAL_AGGRO_RANGE, TERRITORIAL_DE_AGGRO_RANGE, TERRITORIAL_DE_AGGRO_COOLDOWN, STANDARD_VISIBILITY_RANGE, MONSTER_FACTION, TERRITORIAL_TIME_TO_APPEAR, STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY, STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY, STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME, STANDARD_ATTACK_VOICE_VOLUME, clipViewport, &context.sfxVolume, &context.voicelineVolume);
+            context.addEntity(territorial);
+        }
     }
 
     inline void generateSceneEntities(Context& context, ResourceManager* resManager, const sf::FloatRect& clipViewport, int seed = 42)
@@ -276,7 +398,7 @@ namespace Desolate::ChunkGen
                     populateStartingZone(context, chunk, resManager, clipViewport, chunkRng);
                     break;
                 case ChunkType::NeutralOutpost:
-                    populateNeutralOutpost(context, chunk, resManager, clipViewport);
+                    populateNeutralOutpost(context, chunk, resManager, clipViewport, chunkRng);
                     break;
                 case ChunkType::Wilderness:
                     populateWilderness(context, chunk, resManager, clipViewport, chunkRng);
@@ -289,6 +411,12 @@ namespace Desolate::ChunkGen
                     break;
                 case ChunkType::ResourceCluster:
                     populateResourceCluster(context, chunk, resManager, clipViewport, chunkRng);
+                    break;
+                case ChunkType::DangerousWilderness:
+                    populateDangerousWilderness(context, chunk, resManager, clipViewport, chunkRng);
+                    break;
+                case ChunkType::DangerousResourceCluster:
+                    populateDangerousResourceCluster(context, chunk, resManager, clipViewport, chunkRng);
                     break;
                 case ChunkType::Empty:
                     break;

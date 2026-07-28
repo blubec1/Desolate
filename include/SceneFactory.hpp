@@ -6,10 +6,16 @@
 #include "tracedPath.hpp"
 #include "Components/AudioSystemComponent.hpp"
 #include "Components/ResourceManager.hpp"
+#include "Components/GameOverSystemComponent.hpp"
 #include "QuestSystem/Questline.hpp"
 #include "QuestSystem/Nodes/ResourceThresholdQuest.hpp"
 #include "QuestSystem/Nodes/KillCountQuest.hpp"
 #include "QuestSystem/Nodes/ObjectivePickupQuest.hpp"
+#include "QuestSystem/Nodes/OutpostCaptureQuest.hpp"
+#include "QuestSystem/Nodes/SquadCountQuest.hpp"
+#include "QuestSystem/Nodes/SpecificKillQuest.hpp"
+#include "QuestSystem/Nodes/OutpostCaptureAllQuest.hpp"
+#include "QuestSystem/Nodes/SurvivalTimeQuest.hpp"
 #include "Components/QuestSystemComponent.hpp"
 #include "SettingsState.hpp"
 #include "Components/ButtonComponent.hpp"
@@ -24,7 +30,7 @@
 
 namespace Desolate::SceneFactory
 {
-    inline Scene* createPlayScene(sf::RenderWindow* window, Input* input, const sf::Font& digitalFont, const sf::Font& ledFont, SettingsState* settingsState, int seed = 0)
+    inline Scene* createPlayScene(sf::RenderWindow* window, Input* input, const sf::Font& digitalFont, const sf::Font& ledFont, const sf::Font& erodeFont, SettingsState* settingsState, int seed = 0)
     {
         Scene* scene = new Scene(window, input);
         Context& context = scene->context;
@@ -33,8 +39,11 @@ namespace Desolate::SceneFactory
         if (seed == 0)
         {
             std::random_device rd;
-            seed = static_cast<int>(rd());
+            seed = static_cast<int>(rd() % 1000000);
         }
+
+        seed = std::abs(seed);
+        context.seed = seed;
 
         context.windowWidth = (float)settingsState->videoMode.size.x;
         context.windowHeight = (float)settingsState->videoMode.size.y;
@@ -57,22 +66,33 @@ namespace Desolate::SceneFactory
         auto* questSys = ENT_QuestSystem->getComponent<QuestSystemComponent>();
 
         Questline* questline = new Questline("Survival");
-        questline->addNode(new ResourceThresholdQuest(
-            "Gather food", "Gather 30 food",
-            ResourceType::Food, 30,
-            ResourceType::People, 5));
+        questline->addNode(new OutpostCaptureQuest(
+            "Capture Outpost", "Capture an outpost",
+            ResourceType::People, 2));
         questline->addNode(new KillCountQuest(
-            "Clear enemies", "Kill 2 enemies",
-            2, static_cast<int>(MONSTER_FACTION),
-            ResourceType::Metal, 100));
-        auto* objectiveQuest = new ObjectivePickupQuest(
-            "Find the objective", "Locate and pick up the objective",
-            ResourceType::Metal, 150);
-        questline->addNode(objectiveQuest);
+            "First Blood", "Kill an enemy",
+            1, static_cast<int>(MONSTER_FACTION),
+            ResourceType::Metal, 10));
+        questline->addNode(new ResourceThresholdQuest(
+            "Stockpile Food", "Accumulate 30 food",
+            ResourceType::Food, 30,
+            ResourceType::People, 2));
+        questline->addNode(new SquadCountQuest(
+            "Rally Forces", "Have 4 squads", 4));
+        questline->addNode(new SpecificKillQuest(
+            "Hunt the Hunter", "Kill a Hunter",
+            EntityType::Hunter,
+            ResourceType::Metal, 25));
+        questline->addNode(new OutpostCaptureAllQuest(
+            "Total Control", "Capture all outposts",
+            ResourceType::Metal, 50));
+        questline->addNode(new SurvivalTimeQuest(
+            "Endure", "Survive for 120 seconds",
+            120.f, ResourceType::Food, 25));
         questSys->addQuestline(questline);
         questSys->startQuestline(0);
 
-        Entity* ENT_UI = Desolate::Factory::createUIEntity(digitalFont, ledFont, resManager, questSys, context.mapViewWidth, context.mapViewHeight, context.windowWidth, context.windowHeight);
+        Entity* ENT_UI = Desolate::Factory::createUIEntity(digitalFont, ledFont, resManager, questSys, context.mapViewWidth, context.mapViewHeight, context.windowWidth, context.windowHeight, settingsState);
         Entity* ENT_DeathSystem = Desolate::Factory::createDeathSystemEntity();
         Entity* ENT_ProtectionSystem = Desolate::Factory::createProtectionSystemEntity();
         Entity* ENT_FogofWarSystem = Desolate::Factory::createFogofWarEntity();
@@ -82,8 +102,13 @@ namespace Desolate::SceneFactory
             sf::FloatRect({0.f, 0.f}, {context.mapViewWidth, context.mapViewHeight})
         );
         sf::FloatRect mapClipViewport({0.f, 0.f}, {context.mapViewWidth / context.windowWidth, context.mapViewHeight / context.windowHeight});
-        Entity* ENT_Radio = Desolate::Factory::createRadioEntity(context.world, digitalFont, ledFont, resManager, context.windowWidth, context.windowHeight, mapClipViewport);
+        Entity* ENT_Radio = Desolate::Factory::createRadioEntity(context.world, digitalFont, ledFont, resManager, context.windowWidth, context.windowHeight, mapClipViewport, settingsState);
         Entity* ENT_AudioSystem = Desolate::Factory::createAudioSystemEntity(RESOURCE_DIR "/audio");
+
+        Entity* ENT_GameOverSystem = new Entity();
+        ENT_GameOverSystem->type = EntityType::None;
+        ENT_GameOverSystem->updatePriority = 1000;
+        ENT_GameOverSystem->addComponent<GameOverSystemComponent>();
 
         ENT_Background->updatePriority = -10;
         ENT_ResourceMgr->updatePriority = -10;
@@ -109,6 +134,7 @@ namespace Desolate::SceneFactory
         context.addEntity(ENT_AudioSystem);
         context.addEntity(ENT_UI);
         context.addEntity(ENT_Radio);
+        context.addEntity(ENT_GameOverSystem);
 
         ChunkGen::generateSceneEntities(context, resManager, mapClipViewport, seed);
         context.flushPendingAdditions();
@@ -137,22 +163,6 @@ namespace Desolate::SceneFactory
                 }
             }
         }
-
-        std::vector<Desolate::ChunkGen::Chunk*> tier2Wilderness;
-        for (auto& chunk : context.chunks)
-        {
-            if (chunk.tier == 2 && chunk.type == Desolate::ChunkGen::ChunkType::Wilderness)
-                tier2Wilderness.push_back(&chunk);
-        }
-        sf::Vector2f objectivePos = {MAP_WIDTH / 2.f, MAP_HEIGHT / 2.f};
-        if (!tier2Wilderness.empty())
-        {
-            auto pickerRng = Desolate::ChunkGen::makeRng(seed, 77, 77);
-            auto* chosen = tier2Wilderness[Desolate::ChunkGen::randomInt(pickerRng, 0, (int)tier2Wilderness.size() - 1)];
-            auto chunkRng = Desolate::ChunkGen::makeRng(seed, chosen->gridX, chosen->gridY);
-            objectivePos = Desolate::ChunkGen::randomPosInChunk(chunkRng, chosen->bounds);
-        }
-        objectiveQuest->spawnPosition = objectivePos;
 
         context.audioManager->playMusic("ambient");
 
@@ -250,7 +260,7 @@ namespace Desolate::SceneFactory
             sf::Vector2f(0.f, -30.f), "FPS LIMIT", font, settingsFontSize);
         auto* fpsNum = fpsSlider->addComponent<NumberComponent>(
             sf::Vector2f(sliderWidth / 2.f + 20.f, -8.f), font, settingsFontSize);
-        fpsNum->floatSource = &settingsState->fpsLimit;
+        fpsNum->valuePtr = &settingsState->fpsLimit;
         scene->context.addEntity(fpsSlider);
 
         // Volume slider
@@ -362,6 +372,42 @@ namespace Desolate::SceneFactory
                 font, btnFontSize);
         };
 
+        // --- Resource Buttons toggle ---
+        auto* resBtnShape = new sf::RectangleShape(sf::Vector2f(btnW, btnH));
+        resBtnShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.45f));
+        resBtnShape->setFillColor(settingsState->debugResourceButtons ? sf::Color(80, 180, 80) : sf::Color(60, 60, 60));
+        resBtnShape->setOrigin(sf::Vector2f(btnW / 2.f, btnH / 2.f));
+        auto* resBtn = ENT_DebugUI->addComponent<ButtonComponent>(resBtnShape,
+            settingsState->debugResourceButtons ? "RESOURCE BUTTONS: ON" : "RESOURCE BUTTONS: OFF", font,
+            [settingsState](Context&) {
+                settingsState->debugResourceButtons = !settingsState->debugResourceButtons;
+            }, RESOURCE_DIR "/textures/button.png", btnFontSize);
+
+        resBtn->onClick = [settingsState, resBtn, &font, btnFontSize](Context&) {
+            settingsState->debugResourceButtons = !settingsState->debugResourceButtons;
+            resBtn->setLabel(
+                settingsState->debugResourceButtons ? "RESOURCE BUTTONS: ON" : "RESOURCE BUTTONS: OFF",
+                font, btnFontSize);
+        };
+
+        // --- Ignore Game Over toggle ---
+        auto* goShape = new sf::RectangleShape(sf::Vector2f(btnW, btnH));
+        goShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.55f));
+        goShape->setFillColor(settingsState->debugIgnoreGameOver ? sf::Color(80, 180, 80) : sf::Color(60, 60, 60));
+        goShape->setOrigin(sf::Vector2f(btnW / 2.f, btnH / 2.f));
+        auto* goBtn = ENT_DebugUI->addComponent<ButtonComponent>(goShape,
+            settingsState->debugIgnoreGameOver ? "IGNORE GAME OVER: ON" : "IGNORE GAME OVER: OFF", font,
+            [settingsState](Context&) {
+                settingsState->debugIgnoreGameOver = !settingsState->debugIgnoreGameOver;
+            }, RESOURCE_DIR "/textures/button.png", btnFontSize);
+
+        goBtn->onClick = [settingsState, goBtn, &font, btnFontSize](Context&) {
+            settingsState->debugIgnoreGameOver = !settingsState->debugIgnoreGameOver;
+            goBtn->setLabel(
+                settingsState->debugIgnoreGameOver ? "IGNORE GAME OVER: ON" : "IGNORE GAME OVER: OFF",
+                font, btnFontSize);
+        };
+
         // --- Close button ---
         float closeSize = float(int(windowHeight * 0.037f + 0.5f));
         auto* closeShape = new sf::RectangleShape(sf::Vector2f(closeSize, closeSize));
@@ -396,7 +442,7 @@ namespace Desolate::SceneFactory
         scene->context.addEntity(ENT_MenuBg);
 
         Entity* seedInput = Desolate::Factory::createTextInputEntity(
-            font, sf::Vector2f(windowWidth / 2.f, windowHeight * 0.25f),
+            digitalFont, sf::Vector2f(windowWidth / 2.f, windowHeight * 0.25f),
             sf::Vector2f(windowWidth * 0.12f, windowHeight * 0.04f),
             "SEED (optional)", 10, int(windowHeight * 0.02f + 0.5f));
         scene->context.addEntity(seedInput);
@@ -412,7 +458,7 @@ namespace Desolate::SceneFactory
                     catch (...) { textInput->idleOutlineColor = sf::Color::Red; return; }
                 }
                 textInput->idleOutlineColor = sf::Color::White;
-                Scene* playScene = createPlayScene(window, input, digitalFont, ledFont, settingsState, seed);
+                Scene* playScene = createPlayScene(window, input, digitalFont, ledFont, erodeFont, settingsState, seed);
                 stack->push(playScene);
             },
             [=](Context&) {
@@ -424,6 +470,130 @@ namespace Desolate::SceneFactory
             });
 
         scene->context.addEntity(menuUI);
+        return scene;
+    }
+
+    inline Scene* createGameOverScene(sf::RenderWindow* window, Input* input, const sf::Font& font, const sf::Font& digitalFont, const sf::Font& erodeFont, SettingsState* settingsState, SceneStack* stack, float gameTime, int squadsLost, int seed)
+    {
+        Scene* scene = new Scene(window, input);
+
+        float windowWidth = settingsState->videoMode.size.x;
+        float windowHeight = settingsState->videoMode.size.y;
+
+        Entity* bg = new Entity();
+        bg->type = EntityType::None;
+        bg->position = sf::Vector2f(windowWidth / 2.f, windowHeight / 2.f);
+        bg->addComponent<RectRenderComponent>(
+            sf::Vector2f(0, 0),
+            sf::Vector2f(windowWidth, windowHeight),
+            sf::Color(0, 0, 0, 220)
+        );
+        scene->context.addEntity(bg);
+
+        Entity* title = new Entity();
+        title->type = EntityType::None;
+        title->position = sf::Vector2f(windowWidth / 2.f, windowHeight * 0.3f);
+        title->addComponent<TextComponent>(
+            sf::Vector2f(0, 0), "GAME OVER", erodeFont,
+            (int)(windowHeight * 0.08f));
+        scene->context.addEntity(title);
+
+        int minutes = (int)(gameTime / 60.f);
+        int seconds = (int)gameTime % 60;
+        std::string timeStr = "TIME SURVIVED:  " + std::to_string(minutes) + ":" + (seconds < 10 ? "0" : "") + std::to_string(seconds);
+        std::string lostStr = "SQUADS LOST:  " + std::to_string(squadsLost);
+        std::string seedStr = "SEED:  " + std::to_string(seed);
+
+        Entity* stats = new Entity();
+        stats->type = EntityType::None;
+        stats->position = sf::Vector2f(windowWidth / 2.f, windowHeight * 0.5f);
+        stats->addComponent<TextComponent>(
+            sf::Vector2f(0, -30.f), timeStr, digitalFont, (int)(windowHeight * 0.03f));
+        stats->addComponent<TextComponent>(
+            sf::Vector2f(0, 0.f), lostStr, digitalFont, (int)(windowHeight * 0.03f));
+        stats->addComponent<TextComponent>(
+            sf::Vector2f(0, 30.f), seedStr, digitalFont, (int)(windowHeight * 0.03f));
+        scene->context.addEntity(stats);
+
+        float btnW = windowWidth * 0.18f;
+        float btnH = windowHeight * 0.05f;
+        int btnFontSize = (int)(windowHeight * 0.025f);
+        auto* btnShape = new sf::RectangleShape(sf::Vector2f(btnW, btnH));
+        btnShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.65f));
+        btnShape->setOrigin(sf::Vector2f(btnW / 2.f, btnH / 2.f));
+        btnShape->setFillColor(sf::Color(60, 60, 60));
+
+        Entity* btn = new Entity();
+        btn->type = EntityType::None;
+        btn->position = sf::Vector2f(0, 0);
+        btn->addComponent<ButtonComponent>(btnShape, "RETURN TO MENU", font,
+            [scene](Context&) {
+                scene->pendingPop = true;
+            }, RESOURCE_DIR "/textures/button.png", btnFontSize);
+        scene->context.addEntity(btn);
+
+        return scene;
+    }
+
+    inline Scene* createVictoryScene(sf::RenderWindow* window, Input* input, const sf::Font& font, const sf::Font& digitalFont, const sf::Font& erodeFont, SettingsState* settingsState, SceneStack* stack, float gameTime, int squadsLost, int seed)
+    {
+        Scene* scene = new Scene(window, input);
+
+        float windowWidth = settingsState->videoMode.size.x;
+        float windowHeight = settingsState->videoMode.size.y;
+
+        Entity* bg = new Entity();
+        bg->type = EntityType::None;
+        bg->position = sf::Vector2f(windowWidth / 2.f, windowHeight / 2.f);
+        bg->addComponent<RectRenderComponent>(
+            sf::Vector2f(0, 0),
+            sf::Vector2f(windowWidth, windowHeight),
+            sf::Color(0, 20, 0, 220)
+        );
+        scene->context.addEntity(bg);
+
+        Entity* title = new Entity();
+        title->type = EntityType::None;
+        title->position = sf::Vector2f(windowWidth / 2.f, windowHeight * 0.3f);
+        title->addComponent<TextComponent>(
+            sf::Vector2f(0, 0), "VICTORY", erodeFont,
+            (int)(windowHeight * 0.08f));
+        scene->context.addEntity(title);
+
+        int minutes = (int)(gameTime / 60.f);
+        int seconds = (int)gameTime % 60;
+        std::string timeStr = "TIME SURVIVED:  " + std::to_string(minutes) + ":" + (seconds < 10 ? "0" : "") + std::to_string(seconds);
+        std::string lostStr = "SQUADS LOST:  " + std::to_string(squadsLost);
+        std::string seedStr = "SEED:  " + std::to_string(seed);
+
+        Entity* stats = new Entity();
+        stats->type = EntityType::None;
+        stats->position = sf::Vector2f(windowWidth / 2.f, windowHeight * 0.5f);
+        stats->addComponent<TextComponent>(
+            sf::Vector2f(0, -30.f), timeStr, digitalFont, (int)(windowHeight * 0.03f));
+        stats->addComponent<TextComponent>(
+            sf::Vector2f(0, 0.f), lostStr, digitalFont, (int)(windowHeight * 0.03f));
+        stats->addComponent<TextComponent>(
+            sf::Vector2f(0, 30.f), seedStr, digitalFont, (int)(windowHeight * 0.03f));
+        scene->context.addEntity(stats);
+
+        float btnW = windowWidth * 0.18f;
+        float btnH = windowHeight * 0.05f;
+        int btnFontSize = (int)(windowHeight * 0.025f);
+        auto* btnShape = new sf::RectangleShape(sf::Vector2f(btnW, btnH));
+        btnShape->setPosition(sf::Vector2f(windowWidth / 2.f, windowHeight * 0.65f));
+        btnShape->setOrigin(sf::Vector2f(btnW / 2.f, btnH / 2.f));
+        btnShape->setFillColor(sf::Color(60, 60, 60));
+
+        Entity* btn = new Entity();
+        btn->type = EntityType::None;
+        btn->position = sf::Vector2f(0, 0);
+        btn->addComponent<ButtonComponent>(btnShape, "RETURN TO MENU", font,
+            [scene](Context&) {
+                scene->pendingPop = true;
+            }, RESOURCE_DIR "/textures/button.png", btnFontSize);
+        scene->context.addEntity(btn);
+
         return scene;
     }
 }

@@ -24,7 +24,7 @@ void SettingsState::load(const std::string& path)
                     std::stoul(val.substr(x + 1))));
         }
         else if (key == "fps")
-            fpsLimit = std::stof(val);
+            fpsLimit = std::stoi(val);
         else if (key == "volume")
             masterVolume = std::stof(val);
         else if (key == "radioVolume")
@@ -43,7 +43,7 @@ void SettingsState::save(const std::string& path) const
     std::ofstream file(path);
     if (!file.is_open()) return;
     file << "resolution=" << videoMode.size.x << "x" << videoMode.size.y << "\n";
-    file << "fps=" << (int)fpsLimit << "\n";
+    file << "fps=" << fpsLimit << "\n";
     file << "volume=" << (int)masterVolume << "\n";
     file << "radioVolume=" << (int)radioVolume << "\n";
     file << "sfxVolume=" << (int)sfxVolume << "\n";

@@ -3,6 +3,7 @@
 #include "context.hpp"
 #include "input.hpp"
 #include <algorithm>
+#include <cmath>
 
 void SliderComponent::update(Context& context)
 {
@@ -29,6 +30,23 @@ void SliderComponent::update(Context& context)
         }
 
         float t = (*valuePtr - minValue) / (maxValue - minValue);
+        t = std::max(0.f, std::min(1.f, t));
+        float notchX = trackBounds.position.x + t * trackBounds.size.x;
+        float notchY = trackBounds.position.y + trackBounds.size.y / 2.f;
+        notchShape->setPosition(sf::Vector2f(notchX, notchY));
+    }
+    else if (intValuePtr)
+    {
+        sf::FloatRect trackBounds = trackShape->getGlobalBounds();
+
+        if (isDragging)
+        {
+            float t = (localMouse.x - trackBounds.position.x) / trackBounds.size.x;
+            t = std::max(0.f, std::min(1.f, t));
+            *intValuePtr = (int)std::lround(minValue + t * (maxValue - minValue));
+        }
+
+        float t = ((float)*intValuePtr - minValue) / (maxValue - minValue);
         t = std::max(0.f, std::min(1.f, t));
         float notchX = trackBounds.position.x + t * trackBounds.size.x;
         float notchY = trackBounds.position.y + trackBounds.size.y / 2.f;

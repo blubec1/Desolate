@@ -11,7 +11,7 @@ int AudioComponent::priorityOf(SoundEvent e)
         case SoundEvent::Death:   return 5;
         case SoundEvent::Damaged: return 4;
         case SoundEvent::Attack:  return 4;
-        case SoundEvent::Stalked: return 3;
+        case SoundEvent::Stalked: return 6;
         case SoundEvent::Spotted: return 3;
         case SoundEvent::Heard:   return 2;
         case SoundEvent::Moving:  return 1;

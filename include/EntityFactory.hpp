@@ -52,7 +52,9 @@
 #include "Components/AudioComponent.hpp"
 #include "Components/WorldPositionComponent.hpp"
 #include "Components/HearComponent.hpp"
+#include "SettingsState.hpp"
 #include <cstdlib>
+#include <random>
 
 //Завод!
 
@@ -90,7 +92,7 @@ namespace Desolate::Factory
         Squad->addComponent<PathFollowerComponent>(moveSpeed, colour, true);
         Squad->addComponent<StillAttackComponent>(damage, shootRange, attackCD, enemies, gunVol, voiceVol);
         auto* squadAttack = Squad->getComponent<StillAttackComponent>();
-        auto* attackRadiusIndicator = Squad->addComponent<RadiusIndicatorComponent>(2.f, sf::Color(255, 100, 100, 80));
+        auto* attackRadiusIndicator = Squad->addComponent<RadiusIndicatorComponent>(2.f, sf::Color(255, 50, 50, 160));
         attackRadiusIndicator->valuePtr = squadAttack->getAttackRange();
         Squad->addComponent<VisibilityComponent>(visibilityRng, timeToAppear);
         Squad->addComponent<FactionComponent>(ID);
@@ -143,8 +145,7 @@ namespace Desolate::Factory
         enemies.insert(PLAYER_FACTION);
 
         Wanderer->addComponent<WorldPositionComponent>(position, world);
-        Wanderer->addComponent<StandardRespawnComponent>(2.f, position);
-        Wanderer->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, sf::Color::Transparent, RESOURCE_DIR "/textures/wanderer.png", 3.f);
+        Wanderer->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, sf::Color::Transparent, RESOURCE_DIR "/textures/wanderer.png", 2.25f);
         auto* wandererHealth = Wanderer->addComponent<HealthComponent>(MaxHP, MaxHP);
         auto* wandererRing = Wanderer->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
         wandererRing->valuePtr = wandererHealth->getHealth();
@@ -178,21 +179,29 @@ namespace Desolate::Factory
         Outpost->addComponent<FactionComponent>(ID);
 
         auto* trigger = Outpost->addComponent<TriggerRadiusComponent>(triggerRadius);
-        trigger->triggerFunc = [outpost = Outpost](Entity* entity)
+        trigger->triggerFunc = [outpost = Outpost](Entity* entity, Context& context)
         {
             if (entity == outpost) return;
             auto faction = entity->getComponent<FactionComponent>();
             if (faction && faction->FactionID == PLAYER_FACTION)
+            {
+                if (outpost->getComponent<FactionComponent>()->FactionID == PLAYER_FACTION) return;
                 outpost->getComponent<FactionComponent>()->FactionID = PLAYER_FACTION;
+                if (context.resourceManager)
+                    context.resourceManager->addPeople((std::rand() % 5) + 1);
+            }
         };
 
         Outpost->addComponent<ProtectComponent>(protectOthers, isProtected, protectRange);
         auto* supplyIndicator = Outpost->addComponent<RadiusIndicatorComponent>(2.f, sf::Color(200, 150, 0, 80));
         supplyIndicator->valuePtr = &Outpost->getComponent<SupplyReplenishComponent>()->replenishRange;
+        auto* protectIndicator = Outpost->addComponent<RadiusIndicatorComponent>(2.f, sf::Color(100, 180, 255, 80));
+        protectIndicator->valuePtr = &Outpost->getComponent<ProtectComponent>()->protectRange;
         Outpost->addComponent<VisibilityComponent>(OUTPOST_VIEW_RANGE, STANDARD_TIME_TO_APPEAR);
 
         Outpost->getComponent<CircleRenderComponent>()->clipViewport = clipViewport;
         supplyIndicator->clipViewport = clipViewport;
+        protectIndicator->clipViewport = clipViewport;
 
         return Outpost;
     }
@@ -219,7 +228,6 @@ namespace Desolate::Factory
         enemies.insert(PLAYER_FACTION);
 
         Territorial->addComponent<WorldPositionComponent>(position, world);
-        Territorial->addComponent<StandardRespawnComponent>(2.f, position);
         Territorial->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, sf::Color::Transparent, RESOURCE_DIR "/textures/territorial.png", 2.3f);
         auto* territorialHealth = Territorial->addComponent<HealthComponent>(MaxHP, MaxHP);
         auto* territorialRing = Territorial->addComponent<RingIndicatorComponent>(radius + 5.f, 5.f);
@@ -304,6 +312,7 @@ namespace Desolate::Factory
         Lair->addComponent<WorldPositionComponent>(position, world);
         Lair->addComponent<CircleRenderComponent>(sf::Vector2f(0,0), radius, colour);
         Lair->addComponent<HunterLairComponent>();
+        Lair->addComponent<FactionComponent>(MONSTER_FACTION);
         Lair->addComponent<VisibilityComponent>(viewRng, timeToAppear);
 
         Lair->getComponent<CircleRenderComponent>()->clipViewport = clipViewport;
@@ -357,13 +366,15 @@ namespace Desolate::Factory
         Airdrop->addComponent<FactionComponent>(NEUTRAL_FACTION);
 
         auto* trigger = Airdrop->addComponent<TriggerRadiusComponent>(triggerRadius);
-        trigger->triggerFunc = [Airdrop, resManager](Entity* entity)
+        trigger->triggerFunc = [Airdrop, resManager](Entity* entity, Context&)
         {
             if (entity == Airdrop || Airdrop->isMarkedForDeletion()) return;
             auto faction = entity->getComponent<FactionComponent>();
             if (faction && faction->FactionID == PLAYER_FACTION)
             {
                 resManager->addFood(50);
+                if (auto* supply = entity->getComponent<SupplyComponent>())
+                    supply->changeSupply(*supply->getMaxSupply() - *supply->getSupply());
                 Airdrop->destroy();
             }
         };
@@ -406,7 +417,7 @@ namespace Desolate::Factory
         ResourceLocation->addComponent<FactionComponent>(NEUTRAL_FACTION);
 
         auto* trigger = ResourceLocation->addComponent<TriggerRadiusComponent>(triggerRadius);
-        trigger->triggerFunc = [ResourceLocation, type, amount, resManager](Entity* entity)
+        trigger->triggerFunc = [ResourceLocation, type, amount, resManager, clipViewport](Entity* entity, Context& context)
         {
             if (entity == ResourceLocation || ResourceLocation->isMarkedForDeletion()) return;
             auto faction = entity->getComponent<FactionComponent>();
@@ -418,6 +429,37 @@ namespace Desolate::Factory
                     case ResourceType::Metal:  resManager->addMetal(amount); break;
                     case ResourceType::People: resManager->addPeople(amount); break;
                 }
+
+                if (auto* supply = entity->getComponent<SupplyComponent>())
+                    supply->changeSupply(*supply->getMaxSupply() - *supply->getSupply());
+
+                std::vector<Desolate::ChunkGen::Chunk*> tier2Chunks;
+                for (auto& c : context.chunks)
+                    if (c.tier == 2)
+                        tier2Chunks.push_back(&c);
+
+                if (!tier2Chunks.empty())
+                {
+                    std::mt19937 rng(std::random_device{}());
+                    auto* chunk = tier2Chunks[std::uniform_int_distribution<int>(0, (int)tier2Chunks.size() - 1)(rng)];
+                    float lx = chunk->bounds.position.x + std::uniform_real_distribution<float>(30.f, chunk->bounds.size.x - 30.f)(rng);
+                    float ly = chunk->bounds.position.y + std::uniform_real_distribution<float>(30.f, chunk->bounds.size.y - 30.f)(rng);
+
+                    Entity* lurker = Desolate::Factory::createLurkerEntity(
+                        context.world, {lx, ly}, LURKER_COLOUR, LURKER_RADIUS,
+                        LURKER_PATROL_SPEED, LURKER_PATROL_RADIUS, LURKER_CHASE_SPEED,
+                        LURKER_DAMAGE, LURKER_SHOOT_RANGE, LURKER_ATTACK_COOLDOWN,
+                        LURKER_MAX_HEALTH, LURKER_AGGRO_RANGE, LURKER_DE_AGGRO_RANGE,
+                        LURKER_DE_AGGRO_COOLDOWN, LURKER_ARRIVAL_DISTANCE,
+                        LURKER_VISIBILITY_RANGE, LURKER_TIME_TO_APPEAR, MONSTER_FACTION,
+                        STANDARD_AUDIO_COOLDOWN, STANDARD_AUDIO_QUEUE_DELAY,
+                        STANDARD_AUDIO_COMBAT_WINDOW, STANDARD_AUDIO_COMBAT_PRIORITY,
+                        STANDARD_AUDIO_PREEMPT_THRESHOLD, STANDARD_GUNSHOT_VOLUME,
+                        STANDARD_ATTACK_VOICE_VOLUME, clipViewport,
+                        &context.sfxVolume, &context.voicelineVolume);
+                    context.addEntity(lurker);
+                }
+
                 ResourceLocation->destroy();
             }
         };
@@ -438,7 +480,7 @@ namespace Desolate::Factory
         Objective->addComponent<FactionComponent>(NEUTRAL_FACTION);
 
         auto* trigger = Objective->addComponent<TriggerRadiusComponent>(triggerRadius);
-        trigger->triggerFunc = [Objective, collectedFlag](Entity* entity)
+        trigger->triggerFunc = [Objective, collectedFlag](Entity* entity, Context&)
         {
             if (entity == Objective || Objective->isMarkedForDeletion()) return;
             auto faction = entity->getComponent<FactionComponent>();
@@ -462,7 +504,7 @@ namespace Desolate::Factory
         return QuestSystem;
     }
 
-    inline Entity* createUIEntity(const sf::Font& fontNumbers, const sf::Font& fontLetters, ResourceManager* resManager, QuestSystemComponent* questSystem, float mapViewWidth, float mapViewHeight, float windowWidth, float windowHeight)
+    inline Entity* createUIEntity(const sf::Font& fontNumbers, const sf::Font& fontLetters, ResourceManager* resManager, QuestSystemComponent* questSystem, float mapViewWidth, float mapViewHeight, float windowWidth, float windowHeight, SettingsState* settingsState = nullptr)
     {
         Entity* UIEntity = new Entity();
         UIEntity->type = EntityType::UI;
@@ -482,6 +524,7 @@ namespace Desolate::Factory
         int btnFontSize = int(barH * 0.12f + 0.5f);
         int numFontSize = int(barH * 0.16f + 0.5f);
         int smallFontSize = int(barH * 0.10f + 0.5f);
+        int newSquadFontSize = int(barH * 0.06f + 0.5f);
 
         float col1X = mapViewWidth * 0.052f;
         float col2X = mapViewWidth * 0.182f;
@@ -490,12 +533,9 @@ namespace Desolate::Factory
         float col5X = mapViewWidth * 0.443f;
         float col6X = mapViewWidth * 0.495f;
         float upgradeX = mapViewWidth * 0.550f;
-        float subBtn1X = mapViewWidth * 0.570f;
-        float subBtn2X = mapViewWidth * 0.660f;
-        float subBtn3X = mapViewWidth * 0.750f;
-
-        int viewCost = 50, hpCost = 30, supplyCost = 20;
-        int dmgCost = 40, rangeCost = 35, foodCost = 25, metalCost = 35;
+        float subBtn1X = mapViewWidth * 0.660f;
+        float subBtn2X = mapViewWidth * 0.740f;
+        float subBtn3X = mapViewWidth * 0.820f;
 
         float row1Y = barY + barH * 0.25f;
         float row2Y = barY + barH * 0.50f;
@@ -512,29 +552,14 @@ namespace Desolate::Factory
         peopleDisplay->valuePtr = &resManager->people;
         UIEntity->addComponent<TextComponent>(sf::Vector2f(col3X, row1Y - 25.f), "PEOPLE", fontLetters, smallFontSize);
 
-        
-        auto* metalBtnShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
-        metalBtnShape->setPosition(sf::Vector2f(col1X, row2Y));
-        metalBtnShape->setFillColor(sf::Color::Yellow);
-        metalBtnShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
-        UIEntity->addComponent<ButtonComponent>(metalBtnShape, "Metal", fontLetters, [resManager](Context&) { resManager->addMetal(10); }, RESOURCE_DIR "/textures/button.png", btnFontSize);
-    
 
-    
-        auto* foodBtnShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
-        foodBtnShape->setPosition(sf::Vector2f(col2X, row2Y));
-        foodBtnShape->setFillColor(sf::Color(100, 200, 100));
-        foodBtnShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
-        UIEntity->addComponent<ButtonComponent>(foodBtnShape, "Food", fontLetters, [resManager](Context&) { resManager->addFood(10); }, RESOURCE_DIR "/textures/button.png", btnFontSize);
-    
-
-        auto* workingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col4X, row1Y), fontNumbers, numFontSize);
+        auto* workingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col6X, row1Y), fontNumbers, numFontSize);
         workingDisplay->valuePtr = &resManager->workingPeople;
-        UIEntity->addComponent<TextComponent>(sf::Vector2f(col4X, row1Y - 25.f), "WORK", fontLetters, smallFontSize);
+        UIEntity->addComponent<TextComponent>(sf::Vector2f(col6X, row1Y - 25.f), "WORK", fontLetters, smallFontSize);
 
-        auto* nonWorkingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col6X, row1Y), fontNumbers, numFontSize);
+        auto* nonWorkingDisplay = UIEntity->addComponent<NumberComponent>(sf::Vector2f(col4X, row1Y), fontNumbers, numFontSize);
         nonWorkingDisplay->valuePtr = &resManager->nonWorkingPeople;
-        UIEntity->addComponent<TextComponent>(sf::Vector2f(col6X, row1Y - 25.f), "IDLE", fontLetters, smallFontSize);
+        UIEntity->addComponent<TextComponent>(sf::Vector2f(col4X, row1Y - 25.f), "IDLE", fontLetters, smallFontSize);
 
     
         float ratioTrackWidth = float(int(sideW * 0.11f + 0.5f));
@@ -553,23 +578,17 @@ namespace Desolate::Factory
     
 
     
-        auto* peopleBtnShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
-        peopleBtnShape->setPosition(sf::Vector2f(col3X, row2Y));
-        peopleBtnShape->setFillColor(sf::Color::Cyan);
-        peopleBtnShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
-        UIEntity->addComponent<ButtonComponent>(peopleBtnShape, "KICK OUT", fontLetters, [resManager](Context&) { resManager->addPeople(-1); }, RESOURCE_DIR "/textures/button.png", btnFontSize);
-    
 
-        auto* questHud = UIEntity->addComponent<QuestHudComponent>(sf::Vector2f(sideX + 10.f, windowHeight * 0.35f + 375.f + 10.f), fontLetters, fontNumbers, questSystem, smallFontSize, barH * 0.08f);
+        auto* questHud = UIEntity->addComponent<QuestHudComponent>(sf::Vector2f(sideX + 25.f, windowHeight * 0.35f + 375.f + 10.f), fontLetters, fontNumbers, questSystem, smallFontSize, barH * 0.08f);
 
         // --- Upgrade sub-buttons (initially disabled) ---
 
         auto* viewRngBtn = UIEntity->addComponent<ButtonComponent>(
             new sf::RectangleShape(sf::Vector2f(subButtonWidth, subButtonHeight)), "VIEW", fontLetters,
             [resManager](Context& ctx) {
-                if (resManager->metal < 50) return;
+                if (resManager->metal < UPGRADE_VIEW_BUFF_COST) return;
 
-                resManager->metal -= 50;
+                resManager->metal -= UPGRADE_VIEW_BUFF_COST;
                 resManager->upgradeViewBuffLevel++;
                 ctx.squadViewBuff += 50.f;
                 for (auto* e : ctx.getEntities()) {
@@ -589,9 +608,9 @@ namespace Desolate::Factory
         auto* maxHpBtn = UIEntity->addComponent<ButtonComponent>(
             new sf::RectangleShape(sf::Vector2f(subButtonWidth, subButtonHeight)), "HP", fontLetters,
             [resManager](Context& ctx) {
-                if (resManager->metal < 30) return;
+                if (resManager->metal < UPGRADE_MAX_HP_COST) return;
 
-                resManager->metal -= 30;
+                resManager->metal -= UPGRADE_MAX_HP_COST;
                 resManager->upgradeMaxHpLevel++;
                 ctx.squadMaxHp += 50.f;
                 for (auto* e : ctx.getEntities()) {
@@ -610,9 +629,9 @@ namespace Desolate::Factory
         auto* supplyBtn = UIEntity->addComponent<ButtonComponent>(
             new sf::RectangleShape(sf::Vector2f(subButtonWidth, subButtonHeight)), "SUPPLY", fontLetters,
             [resManager](Context& ctx) {
-                if (resManager->metal < 20) return;
+                if (resManager->metal < UPGRADE_SUPPLY_MAX_COST) return;
 
-                resManager->metal -= 20;
+                resManager->metal -= UPGRADE_SUPPLY_MAX_COST;
                 resManager->upgradeSupplyMaxLevel++;
                 ctx.squadSupplyMax += 50.f;
                 for (auto* e : ctx.getEntities()) {
@@ -632,9 +651,9 @@ namespace Desolate::Factory
         auto* dmgBtn = UIEntity->addComponent<ButtonComponent>(
             new sf::RectangleShape(sf::Vector2f(subButtonWidth, subButtonHeight)), "DMG", fontLetters,
             [resManager](Context& ctx) {
-                if(resManager->metal < 40) return;
+                if(resManager->metal < UPGRADE_DAMAGE_COST) return;
                 
-                resManager->metal -= 40;
+                resManager->metal -= UPGRADE_DAMAGE_COST;
                 resManager->upgradeDamageLevel++;
                 ctx.squadDamage += 25.f;
                 for(auto* e : ctx.getEntities()) 
@@ -655,9 +674,9 @@ namespace Desolate::Factory
         auto* rangeBtn = UIEntity->addComponent<ButtonComponent>(
             new sf::RectangleShape(sf::Vector2f(subButtonWidth, subButtonHeight)), "RANGE", fontLetters,
             [resManager](Context& ctx) {
-                if(resManager->metal < 35) return;
+                if(resManager->metal < UPGRADE_ATTACK_RANGE_COST) return;
 
-                resManager->metal -= 35;
+                resManager->metal -= UPGRADE_ATTACK_RANGE_COST;
                 ctx.squadAttackRange += 25.f;
                 for(auto* e : ctx.getEntities())
                 {
@@ -677,9 +696,9 @@ namespace Desolate::Factory
         auto* foodBtn = UIEntity->addComponent<ButtonComponent>(
             new sf::RectangleShape(sf::Vector2f(subButtonWidth, subButtonHeight)), "FOOD", fontLetters,
             [resManager](Context&) {
-                if(resManager->metal < 25) return;
+                if(resManager->metal < UPGRADE_FOOD_EFFICIENCY_COST) return;
 
-                resManager->metal -= 25;
+                resManager->metal -= UPGRADE_FOOD_EFFICIENCY_COST;
                 resManager->upgradeFoodEfficiencyLevel++;
                 resManager->foodConsumptionRate -= 0.1f;
                 if(resManager->foodConsumptionRate < 0.f) resManager->foodConsumptionRate = 0.f;
@@ -695,9 +714,9 @@ namespace Desolate::Factory
         auto* metalBtn = UIEntity->addComponent<ButtonComponent>(
             new sf::RectangleShape(sf::Vector2f(subButtonWidth, subButtonHeight)), "METAL", fontLetters,
             [resManager](Context&) {
-                if(resManager->metal < 35) return;
+                if(resManager->metal < UPGRADE_METAL_PRODUCTION_COST) return;
 
-                resManager->metal -= 35;
+                resManager->metal -= UPGRADE_METAL_PRODUCTION_COST;
                 resManager->upgradeMetalProductionLevel++;
                 resManager->metalProductionRate += 0.5f;
             }, RESOURCE_DIR "/textures/button.png", btnFontSize);
@@ -713,37 +732,37 @@ namespace Desolate::Factory
 
         auto* viewCostDisplay = UIEntity->addComponent<NumberComponent>(
             sf::Vector2f(subBtn1X + costOffsetX, barY + barH * 0.55f), fontNumbers, smallFontSize);
-        viewCostDisplay->valuePtr = &viewCost;
+        viewCostDisplay->valuePtr = &UPGRADE_VIEW_BUFF_COST;
         viewCostDisplay->disable();
 
         auto* hpCostDisplay = UIEntity->addComponent<NumberComponent>(
             sf::Vector2f(subBtn2X + costOffsetX, barY + barH * 0.55f), fontNumbers, smallFontSize);
-        hpCostDisplay->valuePtr = &hpCost;
+        hpCostDisplay->valuePtr = &UPGRADE_MAX_HP_COST;
         hpCostDisplay->disable();
 
         auto* supplyCostDisplay = UIEntity->addComponent<NumberComponent>(
             sf::Vector2f(subBtn3X + costOffsetX, barY + barH * 0.55f), fontNumbers, smallFontSize);
-        supplyCostDisplay->valuePtr = &supplyCost;
+        supplyCostDisplay->valuePtr = &UPGRADE_SUPPLY_MAX_COST;
         supplyCostDisplay->disable();
 
         auto* dmgCostDisplay = UIEntity->addComponent<NumberComponent>(
             sf::Vector2f(subBtn1X + costOffsetX, barY + barH * 0.71f), fontNumbers, smallFontSize);
-        dmgCostDisplay->valuePtr = &dmgCost;
+        dmgCostDisplay->valuePtr = &UPGRADE_DAMAGE_COST;
         dmgCostDisplay->disable();
 
         auto* rangeCostDisplay = UIEntity->addComponent<NumberComponent>(
             sf::Vector2f(subBtn2X + costOffsetX, barY + barH * 0.71f), fontNumbers, smallFontSize);
-        rangeCostDisplay->valuePtr = &rangeCost;
+        rangeCostDisplay->valuePtr = &UPGRADE_ATTACK_RANGE_COST;
         rangeCostDisplay->disable();
 
         auto* foodCostDisplay = UIEntity->addComponent<NumberComponent>(
             sf::Vector2f(subBtn3X + costOffsetX, barY + barH * 0.71f), fontNumbers, smallFontSize);
-        foodCostDisplay->valuePtr = &foodCost;
+        foodCostDisplay->valuePtr = &UPGRADE_FOOD_EFFICIENCY_COST;
         foodCostDisplay->disable();
 
         auto* metalCostDisplay = UIEntity->addComponent<NumberComponent>(
             sf::Vector2f(subBtn3X + costOffsetX, barY + barH * 0.87f), fontNumbers, smallFontSize);
-        metalCostDisplay->valuePtr = &metalCost;
+        metalCostDisplay->valuePtr = &UPGRADE_METAL_PRODUCTION_COST;
         metalCostDisplay->disable();
 
         // --- Upgrade toggle ---
@@ -774,11 +793,12 @@ namespace Desolate::Factory
 
         // --- New Squad button ---
 
+        float newSquadX = mapViewWidth * 0.100f;
         auto* newSquadShape = new sf::RectangleShape(sf::Vector2f(buttonWidth, buttonHeight));
-        newSquadShape->setPosition(sf::Vector2f(col1X, row3Y));
+        newSquadShape->setPosition(sf::Vector2f(newSquadX, row3Y));
         newSquadShape->setFillColor(sf::Color(180, 80, 80));
         newSquadShape->setOrigin(sf::Vector2f(buttonWidth / 2.f, buttonHeight / 2.f));
-        UIEntity->addComponent<ButtonComponent>(newSquadShape, "NEW SQUAD", fontLetters,
+        auto* newSquadBtn = UIEntity->addComponent<ButtonComponent>(newSquadShape, "NEW SQUAD", fontLetters,
             [resManager](Context& ctx) {
                 if (resManager->metal < SQUAD_CREATION_METAL_COST) return;
                 if (resManager->people < SQUAD_CREATION_PEOPLE_COST) return;
@@ -815,7 +835,46 @@ namespace Desolate::Factory
                     &ctx.sfxVolume, &ctx.voicelineVolume, newVoice);
                 newSquad->getComponent<AreaScanComponent>()->viewBuff = ctx.squadViewBuff;
                 ctx.addEntity(newSquad);
-            }, RESOURCE_DIR "/textures/button.png", btnFontSize);
+                ctx.squadCreationGrace = SQUAD_TIME_TO_APPEAR;
+            }, RESOURCE_DIR "/textures/button.png", newSquadFontSize);
+
+        float newSquadCostOffsetX = buttonWidth / 2.f + 10.f;
+        auto* newSquadMetalCost = UIEntity->addComponent<NumberComponent>(
+            sf::Vector2f(newSquadX + newSquadCostOffsetX, row3Y - 10.f), fontNumbers, newSquadFontSize);
+        newSquadMetalCost->valuePtr = &SQUAD_CREATION_METAL_COST;
+        UIEntity->addComponent<TextComponent>(
+            sf::Vector2f(newSquadX + newSquadCostOffsetX + 20.f, row3Y - 10.f), "M:", fontLetters, newSquadFontSize);
+        auto* newSquadPeopleCost = UIEntity->addComponent<NumberComponent>(
+            sf::Vector2f(newSquadX + newSquadCostOffsetX, row3Y + 10.f), fontNumbers, newSquadFontSize);
+        newSquadPeopleCost->valuePtr = &SQUAD_CREATION_PEOPLE_COST;
+        UIEntity->addComponent<TextComponent>(
+            sf::Vector2f(newSquadX + newSquadCostOffsetX + 20.f, row3Y + 10.f), "P:", fontLetters, newSquadFontSize);
+
+        if (settingsState && settingsState->debugResourceButtons)
+        {
+            float debugX = mapViewWidth - 40.f;
+            float debugFontSize = int(barH * 0.06f + 0.5f);
+            auto* metalBtnShape = new sf::RectangleShape(sf::Vector2f(70.f, 25.f));
+            metalBtnShape->setPosition(sf::Vector2f(debugX, barY + 5.f));
+            metalBtnShape->setFillColor(sf::Color(60, 120, 60));
+            metalBtnShape->setOrigin(sf::Vector2f(35.f, 12.5f));
+            UIEntity->addComponent<ButtonComponent>(metalBtnShape, "+10 METAL", fontLetters,
+                [resManager](Context&) { resManager->addMetal(10); }, RESOURCE_DIR "/textures/button.png", debugFontSize);
+
+            auto* foodBtnShape = new sf::RectangleShape(sf::Vector2f(70.f, 25.f));
+            foodBtnShape->setPosition(sf::Vector2f(debugX, barY + 35.f));
+            foodBtnShape->setFillColor(sf::Color(60, 120, 60));
+            foodBtnShape->setOrigin(sf::Vector2f(35.f, 12.5f));
+            UIEntity->addComponent<ButtonComponent>(foodBtnShape, "+10 FOOD", fontLetters,
+                [resManager](Context&) { resManager->addFood(10); }, RESOURCE_DIR "/textures/button.png", debugFontSize);
+
+            auto* kickBtnShape = new sf::RectangleShape(sf::Vector2f(70.f, 25.f));
+            kickBtnShape->setPosition(sf::Vector2f(debugX, barY + 65.f));
+            kickBtnShape->setFillColor(sf::Color(180, 60, 60));
+            kickBtnShape->setOrigin(sf::Vector2f(35.f, 12.5f));
+            UIEntity->addComponent<ButtonComponent>(kickBtnShape, "KICK OUT", fontLetters,
+                [resManager](Context&) { resManager->addPeople(-1); }, RESOURCE_DIR "/textures/button.png", debugFontSize);
+        }
 
         return UIEntity;
     }
@@ -867,7 +926,7 @@ namespace Desolate::Factory
         return audioEntity;
     }
 
-    inline Entity* createRadioEntity(WorldComponent* world, const sf::Font& fontNumbers, const sf::Font& fontLetters, ResourceManager* resManager, float windowWidth, float windowHeight, sf::FloatRect clipViewport)
+    inline Entity* createRadioEntity(WorldComponent* world, const sf::Font& fontNumbers, const sf::Font& fontLetters, ResourceManager* resManager, float windowWidth, float windowHeight, sf::FloatRect clipViewport, SettingsState* settingsState = nullptr)
     {
         Entity* Radio = new Entity();
         Radio->type = EntityType::Radio;
@@ -890,13 +949,34 @@ namespace Desolate::Factory
 
         float knobRadius = 40.f;
         auto* knobShape = new sf::CircleShape(knobRadius);
-        knobShape->setPosition(sf::Vector2f(0, -150.f));
+        knobShape->setPosition(sf::Vector2f(0, -180.f));
         knobShape->setFillColor(sf::Color::Transparent);
         knobShape->setOutlineThickness(0.f);
         knobShape->setOrigin(sf::Vector2f(knobRadius, knobRadius));
 
         auto* knob = Radio->addComponent<KnobComponent>(frequencyPtr, 30.f, 88.f, 100.f);
         knob->hitboxShape = knobShape;
+
+        auto* muteBtnShape = new sf::RectangleShape(sf::Vector2f(50.f, 25.f));
+        muteBtnShape->setPosition(sf::Vector2f(90.f, -180.f));
+        muteBtnShape->setFillColor(sf::Color(80, 80, 80));
+        muteBtnShape->setOrigin(sf::Vector2f(25.f, 12.5f));
+        bool* mutedFlag = new bool(false);
+        float* prevVolume = new float(0.f);
+        Radio->addComponent<ButtonComponent>(muteBtnShape, "MUTE", fontLetters,
+            [mutedFlag, prevVolume, settingsState](Context& ctx) {
+                *mutedFlag = !*mutedFlag;
+                if (settingsState) settingsState->radioMuted = *mutedFlag;
+                if (*mutedFlag)
+                {
+                    *prevVolume = ctx.radioVolume;
+                    ctx.radioVolume = 0.f;
+                }
+                else
+                {
+                    ctx.radioVolume = *prevVolume;
+                }
+            }, RESOURCE_DIR "/textures/button.png", smallFontSize);
 
         Radio->addComponent<AudioComponent>(
             STANDARD_AUDIO_COOLDOWN,
@@ -911,7 +991,7 @@ namespace Desolate::Factory
         Radio->addComponent<FactionComponent>(PLAYER_FACTION);
 
         auto* airdropRadioEvent = new AirdropRadioEvent(
-            50.f, 5.f, 100.f, 5.f,
+            50.f, 5.f, 20.f, 5.f,
             sf::Vector2f(600.f, 400.f),
             AIRDROP_COLOUR, AIRDROP_RADIUS, AIRDROP_TRIGGER_RADIUS,
             AIRDROP_VIEW_RANGE, AIRDROP_TIME_TO_APPEAR,

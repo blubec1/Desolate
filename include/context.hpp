@@ -41,6 +41,14 @@ class Context : public sf::Drawable
     Entity* startingOutpost = nullptr;
 
     bool debugRevealAll = false;
+    bool debugIgnoreGameOver = false;
+    bool radioMuted = false;
+    bool gameOver = false;
+    bool victory = false;
+    float gameTime = 0.f;
+    int squadsLost = 0;
+    int seed = 0;
+    float squadCreationGrace = 0.f;
 
     float squadMaxHp = 100.f;
     float squadDamage = 10.f;
@@ -49,7 +57,7 @@ class Context : public sf::Drawable
     float squadAttackRange = 150.f;
 
     float masterVolume = 100.f;
-    float radioVolume = 100.f;
+    float radioVolume = 80.f;
     float sfxVolume = 100.f;
     float voicelineVolume = 100.f;
 

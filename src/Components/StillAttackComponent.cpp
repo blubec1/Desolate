@@ -1,6 +1,7 @@
 #include "Components/StillAttackComponent.hpp"
 #include "Components/FactionComponent.hpp"
 #include "Components/WorldPositionComponent.hpp"
+#include "Components/ProtectComponent.hpp"
 
 bool StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> entities)
 {
@@ -11,6 +12,13 @@ bool StillAttackComponent::attackDerived(Context& context, std::vector<Entity*> 
 
     if(attackTimer <= 0 && !moveComponent->isMoving())
     {
+        auto protectComponent = owner->getComponent<ProtectComponent>();
+        if(protectComponent != nullptr && protectComponent->isProtected)
+        {
+            attackTimer -= context.deltaTime;
+            return false;
+        }
+
         auto scanComponent = owner->getComponent<ScanComponent>();
 
         if(scanComponent != nullptr)

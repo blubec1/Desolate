@@ -7,13 +7,16 @@ struct SettingsState {
     bool pendingResolutionChange = false;
     bool fullscreen = true;
     bool pendingFullscreenChange = false;
-    float fpsLimit = 60.f;
+    int fpsLimit = 60;
     float masterVolume = 100.f;
     float radioVolume = 100.f;
     float sfxVolume = 100.f;
     float voicelineVolume = 100.f;
 
     bool debugRevealAll = false;
+    bool debugResourceButtons = false;
+    bool debugIgnoreGameOver = false;
+    bool radioMuted = false;
 
     void load(const std::string& path);
     void save(const std::string& path) const;

@@ -4,6 +4,8 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Audio.hpp>
+#include <random>
+#include "Constants.hpp"
 
 class Entity;
 class Context;
@@ -54,6 +56,7 @@ public:
     int stepIndex = 0;
     sf::Sound* currentSound = nullptr;
     float pauseTimer = 0.f;
+    std::mt19937 rng{std::random_device{}()};
 
     void buildSteps();
     void playStep(Context& context);

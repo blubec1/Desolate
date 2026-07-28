@@ -8,6 +8,7 @@ public:
     sf::Shape* trackShape;
     sf::Shape* notchShape;
     float* valuePtr = nullptr;
+    int* intValuePtr = nullptr;
     float minValue;
     float maxValue;
 
@@ -20,6 +21,12 @@ public:
 
     SliderComponent(sf::Shape* track, sf::Shape* notch, float* value, float min, float max)
         : trackShape(track), notchShape(notch), valuePtr(value), minValue(min), maxValue(max)
+    {
+        notchColor = notch->getFillColor();
+    }
+
+    SliderComponent(sf::Shape* track, sf::Shape* notch, int* value, float min, float max)
+        : trackShape(track), notchShape(notch), intValuePtr(value), minValue(min), maxValue(max)
     {
         notchColor = notch->getFillColor();
     }

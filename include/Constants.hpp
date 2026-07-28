@@ -64,6 +64,14 @@ const float SQUAD_SPEED = 40;
 const int SQUAD_CREATION_METAL_COST = 75;
 const int SQUAD_CREATION_PEOPLE_COST = 3;
 
+const int UPGRADE_VIEW_BUFF_COST = 10;
+const int UPGRADE_MAX_HP_COST = 6;
+const int UPGRADE_SUPPLY_MAX_COST = 4;
+const int UPGRADE_DAMAGE_COST = 8;
+const int UPGRADE_ATTACK_RANGE_COST = 7;
+const int UPGRADE_FOOD_EFFICIENCY_COST = 5;
+const int UPGRADE_METAL_PRODUCTION_COST = 7;
+
 const float PLAYER_FACTION = 1;
 const float MONSTER_FACTION = 2;
 const float NEUTRAL_FACTION = 0;
@@ -97,7 +105,7 @@ const sf::Color LURKER_COLOUR = sf::Color(128, 64, 0);
 const float WANDERER_RADIUS = 10.f;
 const float WANDERER_MOVE_SPEED = 30.f;
 const float WANDERER_CHASE_SPEED = 60.f;
-const float WANDERER_DAMAGE = 25.f;
+const float WANDERER_DAMAGE = 15.f;
 const float WANDERER_SHOOT_RANGE = 20.f;
 const float WANDERER_ATTACK_COOLDOWN = 1.f;
 const float WANDERER_MAX_HEALTH = 250.f;
@@ -110,10 +118,10 @@ const float TERRITORIAL_RADIUS = 10.f;
 const float TERRITORIAL_PATROL_SPEED = 30.f;
 const float TERRITORIAL_PATROL_RADIUS = 75.f;
 const float TERRITORIAL_CHASE_SPEED = 60.f;
-const float TERRITORIAL_DAMAGE = 10.f;
+const float TERRITORIAL_DAMAGE = 15.f;
 const float TERRITORIAL_SHOOT_RANGE = 25.f;
 const float TERRITORIAL_ATTACK_COOLDOWN = 0.5f;
-const float TERRITORIAL_MAX_HEALTH = 5.f;
+const float TERRITORIAL_MAX_HEALTH = 250.f;
 const float TERRITORIAL_AGGRO_RANGE = 40.f;
 const float TERRITORIAL_DE_AGGRO_RANGE = 125.f;
 const float TERRITORIAL_DE_AGGRO_COOLDOWN = 3.f;
@@ -126,8 +134,11 @@ const float OUTPOST_TRIGGER_RADIUS = 100.f;
 
 const float OUTPOST_SUPPLY_REPLENISH_RANGE = 100.f;
 const float OUTPOST_SUPPLY_REPLENISH_PERCENTAGE = 10.f;
-const float OUTPOST_PROTECT_RANGE = 200.f;
+const float OUTPOST_PROTECT_RANGE = OUTPOST_SUPPLY_REPLENISH_RANGE;
 const float OUTPOST_VIEW_RANGE = 200.f;
+
+const float MONSTER_AVOIDANCE_BUFFER = 50.f;
+const float OUTPOST_MIN_SPACING = 300.f;
 
 const float AIRDROP_RADIUS = 10.f;
 const float AIRDROP_TRIGGER_RADIUS = 20.f;
@@ -146,7 +157,7 @@ const float SQUAD_SHOOT_RANGE = 75.f;
 const float SQUAD_ATTACK_COOLDOWN = 0.2f;
 const float SQUAD_MAX_HEALTH = 50.f;
 const float SQUAD_TIME_TO_APPEAR = 1.f;
-const float SQUAD_VISIBILITY_RANGE = 50.f;
+const float SQUAD_VISIBILITY_RANGE = 100.f;
 
 const float RESOURCE_RADIUS = 10.f;
 const float RESOURCE_VIEW_RANGE = 750.f;
@@ -167,15 +178,15 @@ const sf::Color OBJECTIVE_ITEM_COLOUR = sf::Color(255, 215, 0);
 
 const float RESOURCE_TIME_TO_APPEAR = 1.f;
 const float RESOURCE_TICK_COOLDOWN = 5.f;
-const float RESOURCE_FOOD_CONSUMPTION_RATE = 1.f;
-const float RESOURCE_INCREASED_CONSUMPTION_RATE = 1.5f;
+const float RESOURCE_FOOD_CONSUMPTION_RATE = 0.2f;
+const float RESOURCE_INCREASED_CONSUMPTION_RATE = 0.5f;
 const float RESOURCE_METAL_PRODUCTION_RATE = 1.f;
 
 const float LURKER_RADIUS = 10.f;
 const float LURKER_PATROL_SPEED = 25.f;
 const float LURKER_PATROL_RADIUS = 60.f;
 const float LURKER_CHASE_SPEED = 60.f;
-const float LURKER_DAMAGE = 15.f;
+const float LURKER_DAMAGE = 10.f;
 const float LURKER_SHOOT_RANGE = 25.f;
 const float LURKER_ATTACK_COOLDOWN = 1.f;
 const float LURKER_MAX_HEALTH = 200.f;
@@ -209,7 +220,7 @@ const float HUNTER_LAIR_RADIUS = 10.f;
 const float HUNTER_LAIR_VIEW_RANGE = 125.f;
 const float HUNTER_LAIR_TIME_TO_APPEAR = 0.5f;
 
-const float STANDARD_HEAR_RANGE = 125.f;
+const float STANDARD_HEAR_RANGE = 200.f;
 
 const float STANDARD_AUDIO_COOLDOWN = 5.f;
 const float STANDARD_AUDIO_QUEUE_DELAY = 0.8f;

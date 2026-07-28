@@ -8,9 +8,9 @@ class ResourceManager : public Component
     
     int metal = 0;
     int food = 50;
-    int people = 10;
+    int people = 5;
     int workingPeople = 0;
-    int nonWorkingPeople = 10;
+    int nonWorkingPeople = 5;
 
     float workRatio = 0.f;
     float tickTimer;

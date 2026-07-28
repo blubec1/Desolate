@@ -86,8 +86,13 @@ void AirdropRadioEvent::playStep(Context& context)
 
 void AirdropRadioEvent::onInit()
 {
+    float newX = std::uniform_real_distribution<float>(50.f, MAP_WIDTH - 50.f)(rng);
+    float newY = std::uniform_real_distribution<float>(50.f, MAP_HEIGHT - 50.f)(rng);
+    spawnPosition = sf::Vector2f(newX, newY);
+
     airdropEntity = Desolate::Factory::createAirdropEntity(world, spawnPosition, colour, radius, triggerRadius, viewRange, timeToAppear, resManager, clipViewport);
-    airdropEntity->addComponent<DecayTimerComponent>(decayCooldown);
+    auto* decay = airdropEntity->addComponent<DecayTimerComponent>(decayCooldown);
+    decay->startTimer();
     hasSpawned = false;
     respawnTimer = respawnCooldown;
 
@@ -115,6 +120,10 @@ void AirdropRadioEvent::onUpdate(Context& context)
         if(respawnTimer <= 0.f)
         {
             airdropEntity = nullptr;
+
+            float newX = std::uniform_real_distribution<float>(50.f, MAP_WIDTH - 50.f)(rng);
+            float newY = std::uniform_real_distribution<float>(50.f, MAP_HEIGHT - 50.f)(rng);
+            spawnPosition = sf::Vector2f(newX, newY);
 
             float newFreq = owner->getAvailableFrequency(minFrequency, maxFrequency, tolerance, this);
             owner->changeEventFrequency(secretFrequency, newFreq);

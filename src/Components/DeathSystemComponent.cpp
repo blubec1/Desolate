@@ -4,6 +4,7 @@
 #include "Components/AudioComponent.hpp"
 #include "Components/HealthComponent.hpp"
 #include "Components/RespawnComponent.hpp"
+#include "Constants.hpp"
 
 void DeathSystemComponent::addRespawner(Entity* entity)
 {
@@ -37,6 +38,9 @@ void DeathSystemComponent::update(Context& context)
         {
             if(healthComponent->isDead())
             {
+                if (entity->type == EntityType::Squad)
+                    context.squadsLost++;
+
                 if(auto* audio = entity->getComponent<AudioComponent>())
                     audio->playVoiceline(SoundEvent::Death);
                 if(respawnComponent != nullptr)

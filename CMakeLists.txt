@@ -41,6 +41,7 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
     src/Strategies/HuntStrategy.cpp
     src/StrategyDrivers/HunterStrategyDriver.cpp
      src/Components/DeathSystemComponent.cpp
+     src/Components/GameOverSystemComponent.cpp
      src/Components/DecayTimerComponent.cpp
      src/Components/RespawnComponent.cpp
      src/Components/RingIndicatorComponent.cpp
@@ -70,6 +71,11 @@ add_executable(main src/main.cpp src/input.cpp src/context.cpp src/utils.cpp src
      src/QuestSystem/Nodes/ResourceThresholdQuest.cpp
      src/QuestSystem/Nodes/KillCountQuest.cpp
      src/QuestSystem/Nodes/ObjectivePickupQuest.cpp
+     src/QuestSystem/Nodes/OutpostCaptureQuest.cpp
+     src/QuestSystem/Nodes/SquadCountQuest.cpp
+     src/QuestSystem/Nodes/SpecificKillQuest.cpp
+     src/QuestSystem/Nodes/OutpostCaptureAllQuest.cpp
+     src/QuestSystem/Nodes/SurvivalTimeQuest.cpp
      src/Components/AudioSystemComponent.cpp
      src/Components/AudioComponent.cpp
      src/Components/HearComponent.cpp

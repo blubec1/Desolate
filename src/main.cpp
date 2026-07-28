@@ -18,7 +18,7 @@ int main()
 		window.create(settingsState.videoMode, "Desolate", sf::State::Fullscreen);
 	else
 		window.create(settingsState.videoMode, "Desolate", sf::Style::None, sf::State::Windowed);
-	window.setFramerateLimit((unsigned int)settingsState.fpsLimit);
+	window.setFramerateLimit(settingsState.fpsLimit);
 
 	window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {(float)settingsState.videoMode.size.x, (float)settingsState.videoMode.size.y})));
 
@@ -99,15 +99,42 @@ int main()
 
 			context.deltaTime = deltaTime;
 			context.masterVolume = settingsState.masterVolume;
-			context.radioVolume = settingsState.radioVolume;
 			context.sfxVolume = settingsState.sfxVolume;
 			context.voicelineVolume = settingsState.voicelineVolume;
 			context.debugRevealAll = settingsState.debugRevealAll;
+			context.debugIgnoreGameOver = settingsState.debugIgnoreGameOver;
+			context.radioMuted = settingsState.radioMuted;
+			if (!context.radioMuted)
+				context.radioVolume = settingsState.radioVolume;
 
 			input.getMouseInput(sf::Vector2i(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
 
 			context.update();
 			context.entityUpdate();
+
+			if (context.gameOver)
+			{
+				float time = context.gameTime;
+				int lost = context.squadsLost;
+				int seed = context.seed;
+				sceneStack.pop();
+				sceneStack.push(Desolate::SceneFactory::createGameOverScene(
+					&window, &input, ledFont, digitalFont, erodeFont, &settingsState, &sceneStack, time, lost, seed));
+				input.lateUpdate();
+				continue;
+			}
+
+			if (context.victory)
+			{
+				float time = context.gameTime;
+				int lost = context.squadsLost;
+				int seed = context.seed;
+				sceneStack.pop();
+				sceneStack.push(Desolate::SceneFactory::createVictoryScene(
+					&window, &input, ledFont, digitalFont, erodeFont, &settingsState, &sceneStack, time, lost, seed));
+				input.lateUpdate();
+				continue;
+			}
 
 			window.clear();
 			context.entityDraw(window, sf::RenderStates::Default);
@@ -123,6 +150,12 @@ int main()
 				top = sceneStack.topScene();
 			}
 
+			if (sceneStack.empty())
+			{
+				sceneStack.push(Desolate::SceneFactory::createMenuScene(
+					&window, &input, ledFont, digitalFont, ledFont, erodeFont, &sceneStack, &settingsState));
+			}
+
 			if (settingsState.pendingResolutionChange)
 			{
 				settingsState.pendingResolutionChange = false;
@@ -131,7 +164,7 @@ int main()
 					window.create(settingsState.videoMode, "Desolate", sf::State::Fullscreen);
 				else
 					window.create(settingsState.videoMode, "Desolate", sf::Style::None, sf::State::Windowed);
-				window.setFramerateLimit((unsigned int)settingsState.fpsLimit);
+				window.setFramerateLimit(settingsState.fpsLimit);
 
 				window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {(float)settingsState.videoMode.size.x, (float)settingsState.videoMode.size.y})));
 
@@ -154,7 +187,7 @@ int main()
 					window.create(settingsState.videoMode, "Desolate", sf::State::Fullscreen);
 				else
 					window.create(settingsState.videoMode, "Desolate", sf::Style::None, sf::State::Windowed);
-				window.setFramerateLimit((unsigned int)settingsState.fpsLimit);
+				window.setFramerateLimit(settingsState.fpsLimit);
 
 				window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {(float)settingsState.videoMode.size.x, (float)settingsState.videoMode.size.y})));
 

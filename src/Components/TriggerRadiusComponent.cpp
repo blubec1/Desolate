@@ -11,7 +11,7 @@ void TriggerRadiusComponent::update(Context& context)
 
         if(delta.length() <= triggerRadius)
         {
-            triggerFunc(entity);
+            triggerFunc(entity, context);
         }
     }
 }
