@@ -1,7 +1,0 @@
-resolution=2560x1600
-fps=60
-volume=100
-radioVolume=100
-sfxVolume=100
-voicelineVolume=100
-fullscreen=1
