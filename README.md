@@ -10,12 +10,10 @@
 - [3. Arhitectura Aplicației și Design Pattern-uri](#3-arhitectura-aplicației-și-design-pattern-uri)
 - [4. Mecanici de Joc și Sisteme Principale](#4-mecanici-de-joc-și-sisteme-principale)
 - [5. Stabilitate, Performanță și Securitate](#5-stabilitate-performanță-și-securitate)
-- [6. Strategia de Testare și Bug Tracking](#6-strategia-de-testare-și-bug-tracking)
-- [7. Ghid de Instalare și Configurare](#7-ghid-de-instalare-și-configurare)
-- [8. Justificări Obligatorii (Cerințe InfoEducație)](#8-justificări-obligatorii-cerințe-infoeducație)
-- [9. Roadmap și Versionare (Git)](#9-roadmap-și-versionare-git)
-- [10. Resurse Externe și Atribuiri](#10-resurse-externe-și-atribuiri)
-- [11. Evaluare Arhitecturală și Puncte Tari](#11-evaluare-arhitecturală-și-puncte-tari)
+- [6. Build și Distribuire](#6-build-și-distribuire)
+- [7. Justificări Obligatorii (Cerințe InfoEducație)](#7-justificări-obligatorii-cerințe-infoeducație)
+- [8. Roadmap](#8-roadmap)
+- [9. Resurse Externe și Atribuiri](#9-resurse-externe-și-atribuiri)
 
 ---
 
